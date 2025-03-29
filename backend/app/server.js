@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const config = require('./config/config');
 const connectDB = require('./config/database');
 
@@ -7,19 +6,46 @@ const connectDB = require('./config/database');
 const systemRoutes = require('./routes/systemRoutes');
 const userRoutes = require('./routes/userRoutes');
 const roomRoutes = require('./routes/roomRoutes');
+const authRoutes = require('./routes/authRoutes');
 
-// Initialize Express app
+// Khởi tạo Express app
 const app = express();
 
-// Connect to Database
+// Secure middleware
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+
+// Database connection
 connectDB();
 
-// Middleware
-app.use(cors());
+// Setting cors request to frontend (example: http://localhost:5000)
+const corsOptions = {
+  origin: 'http://localhost:5000',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  credentials: true,
+};
+app.use(cors(corsOptions));
+
+// Use helmet for security
+app.use(helmet());
+
+// Set security rate limit
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 20, // 20 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+});
+app.use(limiter);
+
+// middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
+// Routes cho authentication
+app.use('/api/auth', authRoutes);
+
+// routes
 app.use('/api/system', systemRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
@@ -29,7 +55,7 @@ app.get('/', (req, res) => {
   res.send('Hotel Management API is running');
 });
 
-// Start the server
+// start server
 app.listen(config.PORT, () => {
   console.log(`Server running in ${config.NODE_ENV} mode on port ${config.PORT}`);
 });

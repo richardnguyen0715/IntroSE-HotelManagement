@@ -1,5 +1,6 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
+const BlacklistedToken = require('../models/BlacklistedToken');
 
 // Register a new user
 exports.register = async (req, res) => {
@@ -74,5 +75,30 @@ exports.login = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+// logout user
+exports.logout = async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) {
+      return res.status(400).json({ message: 'No token provided' });
+    }
+    const token = authHeader.split(' ')[1];
+
+    // Decode token to get expiration time
+    const decoded = jwt.decode(token);
+    if (!decoded || !decoded.exp) {
+      return res.status(400).json({ message: 'Invalid token' });
+    }
+    const expiresAt = new Date(decoded.exp * 1000); // convert to milliseconds
+
+    // save token to blacklist
+    await BlacklistedToken.create({ token, expiresAt });
+
+    return res.status(200).json({ message: 'Logout successful' });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
