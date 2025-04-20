@@ -7,6 +7,8 @@ const systemRoutes = require('./routes/systemRoutes');
 const userRoutes = require('./routes/userRoutes');
 const roomRoutes = require('./routes/roomRoutes');
 const authRoutes = require('./routes/authRoutes');
+const invoiceRoutes = require('./routes/invoiceRoutes');
+const bookingRoutes = require('./routes/bookingRoutes');
 
 // Khởi tạo Express app
 const app = express();
@@ -49,6 +51,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/system', systemRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
+app.use('/api/invoices', invoiceRoutes);
+app.use('/api/bookings', bookingRoutes);
 
 // Simple test route
 app.get('/', (req, res) => {
@@ -59,3 +63,5 @@ app.get('/', (req, res) => {
 app.listen(config.PORT, () => {
   console.log(`Server running in ${config.NODE_ENV} mode on port ${config.PORT}`);
 });
+
+console.log(`Dont you try to be smart you.`);

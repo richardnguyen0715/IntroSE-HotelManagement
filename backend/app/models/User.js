@@ -20,8 +20,8 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['admin', 'staff', 'guest'],
-    default: 'guest'
+    enum: ['admin', 'staff', 'customer'],
+    default: 'customer'
   },
   createdAt: {
     type: Date,
@@ -35,6 +35,7 @@ userSchema.pre('save', async function(next) {
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
+
 
 // Method to compare password
 userSchema.methods.comparePassword = async function(candidatePassword) {

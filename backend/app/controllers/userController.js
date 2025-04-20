@@ -1,7 +1,8 @@
 const User = require('../models/User');
+const { generateToken } = require('../middleware/auth');
 
 // Get all users
-exports.getAllUsers = async (req, res) => {
+exports.getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find().select('-password');
     res.status(200).json({
@@ -10,23 +11,19 @@ exports.getAllUsers = async (req, res) => {
       data: users
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
+    next(error);
   }
 };
 
 // Get single user
-exports.getUser = async (req, res) => {
+exports.getUser = async (req, res, next) => {
   try {
     const user = await User.findById(req.params.id).select('-password');
     
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: 'User not found'
-      });
+      const error = new Error('User not found');
+      error.statusCode = 404;
+      throw error;
     }
     
     res.status(200).json({
@@ -34,15 +31,12 @@ exports.getUser = async (req, res) => {
       data: user
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
+    next(error);
   }
 };
 
 // Create new user
-exports.createUser = async (req, res) => {
+exports.createUser = async (req, res, next) => {
   try {
     const user = await User.create(req.body);
     
@@ -53,38 +47,29 @@ exports.createUser = async (req, res) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(val => val.message);
-      
-      return res.status(400).json({
-        success: false,
-        error: messages
-      });
+      error.statusCode = 400;
+      error.message = messages;
     } else if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email already exists'
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        error: 'Server Error'
-      });
+      error.statusCode = 400;
+      error.message = 'Email already exists';
     }
+    next(error);
   }
 };
 
 // Update user
-exports.updateUser = async (req, res) => {
+exports.updateUser = async (req, res, next) => {
   try {
     const user = await User.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true
     }).select('-password');
-    
+    // select('-password') thực hiện lọc trường password ra khỏi kết quả trả về
+
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: 'User not found'
-      });
+      const error = new Error('User not found');
+      error.statusCode = 404;
+      throw error;
     }
     
     res.status(200).json({
@@ -92,23 +77,20 @@ exports.updateUser = async (req, res) => {
       data: user
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
+    next(error);
   }
 };
 
 // Delete user
-exports.deleteUser = async (req, res) => {
+exports.deleteUser = async (req, res, next) => {
   try {
+    console.log(req.params.id);
     const user = await User.findByIdAndDelete(req.params.id);
     
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: 'User not found'
-      });
+      const error = new Error('User not found');
+      error.statusCode = 404;
+      throw error;
     }
     
     res.status(200).json({
@@ -116,9 +98,47 @@ exports.deleteUser = async (req, res) => {
       data: {}
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
+    next(error);
   }
 };
+
+
+const matchPassword = async (user, password) => {
+  return await bcrypt.compare(password, user.password);
+};
+
+// login
+exports.login = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Tìm người dùng
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng' });
+    }
+    
+    // Kiểm tra mật khẩu
+    const isMatch = await user.matchPassword(password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng' });
+    }
+    
+    // Tạo token
+    const token = generateToken(user);
+    
+    res.status(200).json({
+      success: true,
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
