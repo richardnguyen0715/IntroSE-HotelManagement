@@ -1,0 +1,40 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #4a6741;
+  }
+  
+  .nav-list {
+    display: flex;
+    list-style: none;
+    align-items: center;
+  }
+  
+  .nav-item {
+    margin-left: 1.5rem;
+  }
+  
+  .flag-icon {
+    width: 24px;
+    height: auto;
+    display: block;
+  }
+  
+  .btn-register {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+  }
+  
+  .btn-login {
+    background-color: #4caf50;
+    color: white;
+  }
+  
