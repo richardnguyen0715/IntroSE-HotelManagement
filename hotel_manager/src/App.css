@@ -13,81 +13,137 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-top: 20px;
 }
 
 .header-left h1 {
   margin: 0;
-  font-size: 32px;
   color: #426b1f;
   font-weight: 500;
   padding-top: 10px;
-  padding-left: 10px;
+  padding-left: 50px;
+  font-size: 40px;
 }
 
 .header-right {
   display: flex;
   align-items: center;
+  margin-right: 50px;
 }
 
 .header-right a {
   color: #333;
   margin-right: 20px;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 500;
+  font-size: 20px;
 }
 
 .flag {
-  width: 32px;
+  width: 60px;
   height: auto;
   margin-right: 20px;
+  margin-left: 5px;
 }
 
-.button {
-  background: #007bff;
+.button-reg {
+  background: #d3f8b4;
+  border: none;
+  padding: 10px 15px;
+  margin-right: 20px;
+  margin-left: 10px;
+  border-radius: 4px;
+  color: #333;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  font-weight: bold;
+  width: 130px;
+  height: 50px;
+  font-size: 17px;
+}
+
+.button-log {
+  background: #426b1f;
   border: none;
   padding: 10px 15px;
   margin: 0 5px;
   border-radius: 4px;
   color: #fff;
   cursor: pointer;
+  font-family: "Inter", sans-serif;
+  font-weight: bold;
+  width: 130px;
+  height: 50px;
+  font-size: 17px;
 }
 
 /* Phần nội dung chính */
-.main-content h2{
+.main-content {
+  margin-top: 10px;
   font-weight: 400;
-  font-size: 64px;
+  font-size: 40px;
   padding-top: 10px;
-  padding-left: 30px;
+  padding-left: 70px;
   transform: scaleY(1.05);
+}
+
+.main-content h2 {
+  position: relative;
+  font-weight: 400;
+  padding-bottom: 20px;
+}
+
+.main-content h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;               /* hoặc bạn có thể điều chỉnh nếu cần */
+  width: 96%;             /* kéo dài 100% của h2 */
+  height: 2px;             /* độ dày của đường */
+  background-color: #e6e6e6;  /* màu của đường, có thể thay đổi */
 }
 
 /* Grid chức năng: sắp xếp 6 mục theo dạng lưới */
 .function-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 20px;
-  justify-items: center;
+  display: flex;
+  flex-wrap: wrap; /* Cho phép xuống hàng nếu không vừa đủ chỗ trên hàng */
+  justify-content: flex-start; /* Hoặc center nếu bạn muốn căn giữa */
+  gap: 0; /* loại bỏ khoảng cách giữa các mục */
 }
 
 /* Định dạng từng mục chức năng */
 .function-item {
   text-align: center;
+  width: 300px;         /* chiều rộng cố định */
+  height: 220px;        /* chiều cao cố định --> đảm bảo hình vuông */
+  border: 2px solid #e6e6e6;
+  border-radius: 10px;  /* bo góc */
+  padding: 20px;        /* khoảng cách nội dung bên trong khung */
+  background-color: #fafaf5;
+  
+  /* Để căn chỉnh nội dung (icon và text) vào giữa khung */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .function-item img {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   object-fit: contain;
   transition: transform 0.2s;
 }
 
 .function-item img:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
 }
 
 .function-item p {
-  margin-top: 10px;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  font-family: "Inter", sans-serif;
   font-weight: bold;
-  font-size: 14px;
+  font-size: 18px;
 }
 
