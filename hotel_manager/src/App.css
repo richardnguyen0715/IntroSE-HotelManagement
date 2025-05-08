@@ -1,0 +1,93 @@
+/* Định dạng cơ bản cho toàn bộ App */
+.App {
+  font-family: 'Newsreader', sans-serif;
+  color: #333;
+  font-weight: 400;
+}
+
+/* Phần Header */
+.App-header {
+  background: #fff;
+  color: #333;
+  padding: 10px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-left h1 {
+  margin: 0;
+  font-size: 32px;
+  color: #426b1f;
+  font-weight: 500;
+  padding-top: 10px;
+  padding-left: 10px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+}
+
+.header-right a {
+  color: #333;
+  margin-right: 20px;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.flag {
+  width: 32px;
+  height: auto;
+  margin-right: 20px;
+}
+
+.button {
+  background: #007bff;
+  border: none;
+  padding: 10px 15px;
+  margin: 0 5px;
+  border-radius: 4px;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Phần nội dung chính */
+.main-content h2{
+  font-weight: 400;
+  font-size: 64px;
+  padding-top: 10px;
+  padding-left: 30px;
+  transform: scaleY(1.05);
+}
+
+/* Grid chức năng: sắp xếp 6 mục theo dạng lưới */
+.function-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 20px;
+  justify-items: center;
+}
+
+/* Định dạng từng mục chức năng */
+.function-item {
+  text-align: center;
+}
+
+.function-item img {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  transition: transform 0.2s;
+}
+
+.function-item img:hover {
+  transform: scale(1.05);
+}
+
+.function-item p {
+  margin-top: 10px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
