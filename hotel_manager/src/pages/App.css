@@ -33,13 +33,13 @@
 
 .header-right a {
   color: #333;
-  margin-right: 10px;
   text-decoration: none;
   font-weight: 500;
   font-size: 20px;
   padding-top: 5px;
   width: 100px;
   margin-left: 20px;
+  margin-right: 10px;
 }
 
 .flag {
@@ -50,31 +50,31 @@
 
 .button-reg {
   background: #d3f8b4;
-  border: none;
-  padding: 10px 15px;
-  border-radius: 4px;
   color: #333;
+  border: none;
+  border-radius: 4px;
+  padding: 10px 15px;
   cursor: pointer;
   font-family: "Inter", sans-serif;
   font-weight: bold;
+  font-size: 17px;
   width: 130px;
   height: 50px;
-  font-size: 17px;
 }
 
 .button-log {
   background: #426b1f;
+  color: #fff;
   border: none;
+  border-radius: 4px;
   padding: 10px 15px;
   margin-left: 25px;
-  border-radius: 4px;
-  color: #fff;
   cursor: pointer;
   font-family: "Inter", sans-serif;
   font-weight: bold;
+  font-size: 17px;
   width: 130px;
   height: 50px;
-  font-size: 17px;
 }
 
 /* Phần nội dung chính */
@@ -109,7 +109,6 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 20px; 
   justify-items: center;
-  margin-top: 50px;
   max-width: 1100px; 
   margin-left: 320px;
   margin-top: -20px;
@@ -118,17 +117,17 @@
 /* Định dạng từng mục chức năng */
 .function-item {
   display: block;
-  text-align: center;
-  width: 300px;         /* chiều rộng cố định */
-  height: 220px;        /* chiều cao cố định --> đảm bảo hình vuông */
-  border: 2px solid #e6e6e6;
-  border-radius: 10px;  /* bo góc */
-  padding: 20px;        /* khoảng cách nội dung bên trong khung */
   background-color: #fafaf5;
   color: #333;
+  text-align: center;
+  width: 300px;         
+  height: 220px;        
+  border: 2px solid #e6e6e6;
+  border-radius: 10px;  
+  padding: 20px;        
   text-decoration: none;
   
-  /* Để căn chỉnh nội dung (icon và text) vào giữa khung */
+  /* Căn chỉnh nội dung (icon và text) vào giữa khung */
   display: flex;
   flex-direction: column;
   align-items: center;
