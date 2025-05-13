@@ -1,19 +1,19 @@
 /* Định dạng cơ bản cho toàn bộ App */
-.App {
+.app {
   font-family: 'Newsreader', sans-serif;
   color: #333;
   font-weight: 400;
 }
 
 /* Phần Header */
-.App-header {
+.app-header {
   background: #fff;
-  color: #333;
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 20px;
+  max-height: 50px;
 }
 
 .header-left h1 {
@@ -28,7 +28,7 @@
 .header-right {
   display: flex;
   align-items: center;
-  margin-right: 120px;
+  margin-right: 70px;
 }
 
 .header-right a {
@@ -37,7 +37,7 @@
   font-weight: 500;
   font-size: 20px;
   padding-top: 5px;
-  width: 100px;
+  width: 120px;
   margin-left: 20px;
   margin-right: 10px;
 }
@@ -45,7 +45,7 @@
 .flag {
   width: 60px;
   height: auto;
-  margin-right: 10px;
+  margin-right: 5px;
 }
 
 .button-reg {
@@ -68,7 +68,6 @@
   border: none;
   border-radius: 4px;
   padding: 10px 15px;
-  margin-left: 25px;
   cursor: pointer;
   font-family: "Inter", sans-serif;
   font-weight: bold;
@@ -84,13 +83,13 @@
   font-size: 40px;
   padding-top: 10px;
   padding-left: 70px;
-  transform: scaleY(1.05);
 }
 
 .main-content h2 {
   position: relative;
   font-weight: 400;
   padding-bottom: 20px;
+  transform: scaleY(1.05);
 }
 
 .main-content h2::after {
@@ -111,7 +110,7 @@
   justify-items: center;
   max-width: 1100px; 
   margin-left: 320px;
-  margin-top: -20px;
+  margin-top: -18px;
 }
 
 /* Định dạng từng mục chức năng */
@@ -121,7 +120,7 @@
   color: #333;
   text-align: center;
   width: 300px;         
-  height: 220px;        
+  height: 230px;        
   border: 2px solid #e6e6e6;
   border-radius: 10px;  
   padding: 20px;        

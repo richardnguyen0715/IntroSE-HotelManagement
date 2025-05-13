@@ -1,6 +1,6 @@
 import './App.css';
 
-function Login() {
+function Feature2() {
   return (
     <div className="app">
       
@@ -11,11 +11,11 @@ function Login() {
       </header>
 
       <main className="main-content">
-        <h2>Đăng nhập</h2>
+        <h2>Lập Phiếu thuê phòng</h2>
       </main>
 
     </div>
   );
 }
 
-export default Login;
+export default Feature2;
