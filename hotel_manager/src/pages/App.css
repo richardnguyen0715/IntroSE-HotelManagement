@@ -1,3 +1,7 @@
+body {
+  background-color: #fff; /*#99d6ff*/ 
+}
+
 /* Định dạng cơ bản cho toàn bộ App */
 .app {
   font-family: 'Newsreader', sans-serif;
@@ -7,7 +11,6 @@
 
 /* Phần Header */
 .app-header {
-  background: #fff;
   padding: 10px 20px;
   display: flex;
   justify-content: space-between;
@@ -116,12 +119,12 @@
 /* Định dạng từng mục chức năng */
 .function-item {
   display: block;
+  border: 2px solid #e6e6e6;
   background-color: #fafaf5;
   color: #333;
   text-align: center;
   width: 300px;         
   height: 230px;        
-  border: 2px solid #e6e6e6;
   border-radius: 10px;  
   padding: 20px;        
   text-decoration: none;
@@ -152,3 +155,30 @@
   font-size: 18px;
 }
 
+.project-description {
+  margin-left: 50px;
+  margin-right: 200px;
+  font-size: 30px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.team-box {
+  width: 500px;
+  margin: 30px auto;
+  padding: 20px;
+  border: 3px solid #8B5E3C; /* Đường viền màu đất */
+  border-radius: 10px;
+  background-color: #D2B48C; /* Màu nền */
+  text-align: left;
+}
+
+.team-box h3 {
+  font-size: 22px;
+  text-align: center;
+}
+
+.team-box p {
+  font-size: 16px;
+  margin: 10px 0;
+}
