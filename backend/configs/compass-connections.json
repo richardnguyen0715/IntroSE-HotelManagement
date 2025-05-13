@@ -1,0 +1,27 @@
+{
+  "type": "Compass Connections",
+  "version": {
+    "$numberInt": "1"
+  },
+  "connections": [
+    {
+      "id": "a2ea8ef2-6625-4a44-a592-597c48b0c062",
+      "lastUsed": {
+        "$date": {
+          "$numberLong": "1743272111506"
+        }
+      },
+      "favorite": {
+        "name": "hotel-management",
+        "color": "color1"
+      },
+      "savedConnectionType": "recent",
+      "connectionOptions": {
+        "connectionString": "mongodb://localhost:27017/",
+        "oidc": {
+          "serializedState": "eyJvaWRjUGx1Z2luU3RhdGVWZXJzaW9uIjowLCJzdGF0ZSI6W119"
+        }
+      }
+    }
+  ]
+}

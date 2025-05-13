@@ -1,0 +1,2 @@
+MONGODB_URI=mongodb://localhost:27017/hotel_management
+JWT_SECRET=538878f0f7432e7f3ed769fd50956897f64e81e6199fa3313ba5bd377ad2b06f
