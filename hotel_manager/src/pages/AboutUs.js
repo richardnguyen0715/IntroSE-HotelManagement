@@ -36,7 +36,7 @@ function AboutUs() {
             <img src="/icons/User.png" alt="User" className="user-icon"/>
             <div className="member-info">
               <p className='name'>NGUYỄN ANH TƯỜNG</p>
-              <p className='info'>22120412 - Trưởng nhóm, chịu trách nhiệm phần Backend</p>
+              <p className='info'>22120412 - Trưởng nhóm + Chịu trách nhiệm phần Backend</p>
             </div>
           </div>
 
@@ -67,7 +67,7 @@ function AboutUs() {
           <div className='team-member'>
             <img src="/icons/User.png" alt="User" className="user-icon"/>
             <div className="member-info">
-              <p className='name'>LÊ TUẤN VƯƠNG</p>
+              <p className='name'>PHẠM TUẤN VƯƠNG</p>
               <p className='info'>22120446 - Chịu trách nhiệm phần Frontend</p>
             </div>
           </div>

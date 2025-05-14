@@ -1,0 +1,130 @@
+.register-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 40px;
+  width: 1770px;
+}
+
+.register-card {
+  padding: 30px;
+  width: 800px;
+  height: 430px;
+  border-radius: 8px;
+  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
+  border: 2px solid #e6e6e6;
+  background-color: #fafaf5;
+  font-family: "Inter", sans-serif;
+  font-size: 20px;
+}
+
+.register-card form {
+  display: grid;
+  grid-template-columns: 1fr 1fr; 
+  row-gap: 10px; 
+  column-gap: 50px;
+}
+
+.form-group_name {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.form-group_email {
+  grid-column: 2;
+  grid-row: 1;
+}
+
+.form-group_pass {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+.form-group_confirm_pass {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+.form-group_name,
+.form-group_email,
+.form-group_pass,
+.form-group_confirm_pass {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group_name label {
+  margin-bottom: 5px;
+  font-style: bold;
+  margin-left: 5px;
+}
+
+.form-group_confirm_pass label {
+  margin-bottom: 5px;
+  font-style: bold;
+  margin-top: 20px;
+  margin-left: 5px;
+}
+
+.form-group_name input[type="name"],
+.form-group_email input[type="email"],
+.form-group_pass input[type="password"],
+.form-group_confirm_pass input[type="confirm_password"] {
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  outline: none;
+  font-size: 20px;
+  font-family: "Inter", sans-serif;
+  margin-top: 7px;
+  height: 30px; 
+}
+
+.checkbox-group {
+    margin-top: 30px;
+}
+
+.checkbox-group input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(2);
+  margin-left: 12px;
+}
+
+.checkbox-group label{
+  margin-left: 8px;
+}
+
+.register-button {
+  width: 100%;
+  padding: 12px;
+  font-size: 18px;
+  background: #426b1f;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  font-size: 20px;
+  font-family: "Inter", sans-serif;
+  margin-top: 35px;
+}
+
+.register-button:hover {
+  background: #d3f8b4;
+  color: #333;
+}
+
+.login {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 20px;
+}
+
+.login a {
+    color: #426b1f;
+}
+
+
+
+

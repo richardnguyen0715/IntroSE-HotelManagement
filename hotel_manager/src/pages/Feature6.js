@@ -18,6 +18,24 @@ function Feature6() {
             <img src="/icons/Navigate.png" alt="Back"/>
           </Link>
         </div>
+        <div className="function-grid">
+  
+          <Link to="/regulation1" className="function-item">
+            <img src="/icons/Pen.png" alt="Thay đổi quy định 1" />
+            <p>THAY ĐỔI QUY ĐỊNH 1</p>
+          </Link>
+
+          <Link to="/regulation2" className="function-item">
+            <img src="/icons/Pen.png" alt="Thay đổi quy định 2" />
+            <p>THAY ĐỔI QUY ĐỊNH 2</p>
+          </Link>
+
+          <Link to="/regulation4" className="function-item">
+            <img src="/icons/Pen.png" alt="Thay đổi quy định 4" />
+            <p>THAY ĐỔI QUY ĐỊNH 4</p>
+          </Link>
+
+        </div>
       </main>
 
     </div>
