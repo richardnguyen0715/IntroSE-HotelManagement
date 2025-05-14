@@ -26,7 +26,10 @@ function HomePage() {
 
       {/* Main Content */}
       <main className="main-content">
-        <h2>Trang chủ</h2>
+        <div className="header-container">
+          <h2>Trang chủ</h2>
+        </div>
+        
         <div className="function-grid">
   
           <Link to="/feature1" className="function-item">

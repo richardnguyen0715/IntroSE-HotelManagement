@@ -1,0 +1,63 @@
+.project-description {
+  margin-top: -30px;
+  margin-left: 30px;
+  margin-right: 130px;
+  font-size: 30px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.team-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px;  
+  border-radius: 10px;       
+  margin-right: 60px;
+  background-color: bisque;
+}
+
+.team-box h3 {
+  margin-bottom: 40px;
+  font-size: 40px;
+  text-align: center;
+}
+
+.team-member {
+  display: flex;         
+  align-items: center;    
+  margin-bottom: 30px;    
+  background-color: #d3f8b4;
+  width: 1000px;
+  border-radius: 10px;
+  border: #426b1f solid 3px;
+}
+
+.user-icon {
+  width: 150px;             
+  height: 150px;            
+  margin-right: 12px;      
+  object-fit: cover;       
+  border-radius: 50%;    
+  margin-left: 20px  
+}
+
+.member-info {
+  display: flex;               
+  flex-direction: column;     
+  padding-left: 20px; 
+}
+
+.name {
+    font-weight: bold;      
+    font-size: 28px;       
+    color: #333;     
+    font-family: "Inter", sans-serif;  
+}
+
+.info {
+  font-size: 25px;        
+  color: #333;      
+  margin-top: -5px;      
+}
+

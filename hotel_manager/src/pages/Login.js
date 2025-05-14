@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import './App.css';
 
 function Login() {
@@ -11,7 +12,12 @@ function Login() {
       </header>
 
       <main className="main-content">
-        <h2>Đăng nhập</h2>
+        <div className="header-container">
+          <h2>Đăng nhập</h2>
+          <Link to="/" className="back-button">
+            <img src="/icons/Navigate.png" alt="Back"/>
+          </Link>
+        </div>
       </main>
 
     </div>

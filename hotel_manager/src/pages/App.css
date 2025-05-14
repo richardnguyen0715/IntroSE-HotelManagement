@@ -88,14 +88,14 @@ body {
   padding-left: 70px;
 }
 
-.main-content h2 {
+.header-container h2 {
   position: relative;
   font-weight: 400;
   padding-bottom: 20px;
   transform: scaleY(1.05);
 }
 
-.main-content h2::after {
+.header-container h2::after {
   content: "";
   position: absolute;
   left: 0;
@@ -155,30 +155,15 @@ body {
   font-size: 18px;
 }
 
-.project-description {
-  margin-left: 50px;
-  margin-right: 200px;
-  font-size: 30px;
-  line-height: 1.6;
-  text-align: center;
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
 }
 
-.team-box {
-  width: 500px;
-  margin: 30px auto;
-  padding: 20px;
-  border: 3px solid #8B5E3C; /* Đường viền màu đất */
-  border-radius: 10px;
-  background-color: #D2B48C; /* Màu nền */
-  text-align: left;
-}
-
-.team-box h3 {
-  font-size: 22px;
-  text-align: center;
-}
-
-.team-box p {
-  font-size: 16px;
-  margin: 10px 0;
+.back-button img {
+  width: 70px;
+  height: 45px;
+  margin-right: 90px;
+  padding-bottom: 5px;
 }
