@@ -120,8 +120,20 @@ body {
   grid-template-columns: repeat(3, 1fr);
   gap: 20px; 
   justify-items: center;
+  justify-content: center;
   max-width: 1100px; 
-  margin-left: 320px;
+  margin-left: 330px;
+  margin-top: 35px;
+}
+
+.function-grid_2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px; 
+  justify-items: center;
+  justify-content: center;
+  max-width: 750px; 
+  margin-left: 510px;
   margin-top: 35px;
 }
 
@@ -137,6 +149,7 @@ body {
   border-radius: 10px;  
   padding: 20px;        
   text-decoration: none;
+  line-height: 1.3;
   
   /* Căn chỉnh nội dung (icon và text) vào giữa khung */
   display: flex;
@@ -154,6 +167,7 @@ body {
   height: 150px;
   object-fit: contain;
   transition: transform 0.2s;
+  margin-top: 10px;
 }
 
 .function-item p {
@@ -175,14 +189,4 @@ body {
   height: 45px;
   margin-right: 90px;
   padding-bottom: 5px;
-}
-
-.feature5-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px; 
-  justify-items: center;
-  max-width: 1100px; 
-  margin-left: 320px;
-  margin-top: -18px;
 }
