@@ -70,7 +70,7 @@
 .form-group_name input[type="name"],
 .form-group_email input[type="email"],
 .form-group_pass input[type="password"],
-.form-group_confirm_pass input[type="confirm_password"] {
+.form-group_confirm_pass input[type="password"] {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;

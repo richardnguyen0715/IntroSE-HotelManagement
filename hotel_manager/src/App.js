@@ -4,13 +4,17 @@ import HomePage from './pages/HomePage';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import AboutUs from './pages/AboutUs';
+import ForgotPassword from './pages/ForgotPassword';
+
 import Feature1 from './pages/Feature1';
 import Feature2 from './pages/Feature2';
 import Feature3 from './pages/Feature3';
 import Feature4 from './pages/Feature4';
+
 import Feature5 from './pages/Feature5';
 import Feature5a from './pages/Feature5a';
 import Feature5b from './pages/Feature5b';
+
 import Feature6 from './pages/Feature6';
 import Feature6a from './pages/Feature6a';
 import Feature6b from './pages/Feature6b';
@@ -34,6 +38,7 @@ function App() {
       <Route path="/regulation1" element={<Feature6a />} />
       <Route path="/regulation2" element={<Feature6b />} />
       <Route path="/regulation4" element={<Feature6c />} />
+      <Route path="/forgot_password" element={<ForgotPassword />} />
     </Routes>
   );
 }

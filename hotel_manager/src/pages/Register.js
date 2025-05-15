@@ -53,9 +53,9 @@ function Register() {
               <div className="form-group_confirm_pass">
                 <label htmlFor="password">Xác nhận mật khẩu</label>
                 <input 
-                  type="confirm_password" 
-                  id="confirm_password" 
-                  name="confirm_password" 
+                  type="password" 
+                  id="password" 
+                  name="password" 
                   placeholder="Nhập lại mật khẩu" />
               </div>
             </form>

@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
 import './App.css';
-import './Login.css'; 
+import './Login.css';
 
-function Login() {
+function ForgotPassword() {
   return (
     <div className="app">
       
@@ -14,8 +14,8 @@ function Login() {
 
       <main className="main-content">
         <div className="header-container">
-          <h2>Đăng nhập</h2>
-          <Link to="/" className="back-button">
+          <h2>Khôi phục mật khẩu</h2>
+          <Link to="/login" className="back-button">
             <img src="/icons/Navigate.png" alt="Back"/>
           </Link>
         </div>
@@ -29,37 +29,32 @@ function Login() {
                   type="email" 
                   id="email" 
                   name="email" 
-                  placeholder="Nhập email của bạn"/>
+                  placeholder="Nhập email khôi phục"/>
               </div>
 
               <div className="form-group_pass">
-                <label htmlFor="password">Mật khẩu</label>
+                <label htmlFor="password">Mật khẩu mới</label>
                 <input 
                   type="password" 
                   id="password" 
                   name="password" 
-                  placeholder="Nhập mật khẩu" />
+                  placeholder="Nhập mật khẩu mới" />
               </div>
 
-              <div className="checkbox-group">
-                <input type="checkbox" id="remember" name="remember" />
-                <label htmlFor="remember">Ghi nhớ đăng nhập</label>
+              <div className="form-group_pass">
+                <label htmlFor="password">Xác nhận mật khẩu</label>
+                <input 
+                  type="password" 
+                  id="password" 
+                  name="password" 
+                  placeholder="Nhập lại mật khẩu" />
               </div>
 
               <button type="submit" className="login-button">
-                Đăng nhập
+                Khôi phục
               </button>
 
             </form>
-            <div className="forgot-password">
-              <Link to="/forgot_password">Quên mật khẩu?</Link>
-            </div>
-
-            <div className="register">
-              <span>Chưa có tài khoản? </span>
-              <Link to="/register">Đăng ký ngay</Link>
-              
-            </div>
           </div>
         </div>
       </main>
@@ -68,4 +63,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default ForgotPassword;
