@@ -7,7 +7,9 @@ function Feature6() {
       
       <header className="app-header">
         <div className="header-left">
-          <h1>HotelManager</h1>
+          <Link to="/">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
       </header>
 
@@ -20,17 +22,17 @@ function Feature6() {
         </div>
         <div className="function-grid">
   
-          <Link to="/regulation1" className="function-item">
+          <Link to="regulation1" className="function-item">
             <img src="/icons/Pen.png" alt="Thay đổi quy định 1" />
             <p>THAY ĐỔI QUY ĐỊNH 1</p>
           </Link>
 
-          <Link to="/regulation2" className="function-item">
+          <Link to="regulation2" className="function-item">
             <img src="/icons/Pen.png" alt="Thay đổi quy định 2" />
             <p>THAY ĐỔI QUY ĐỊNH 2</p>
           </Link>
 
-          <Link to="/regulation4" className="function-item">
+          <Link to="regulation4" className="function-item">
             <img src="/icons/Pen.png" alt="Thay đổi quy định 4" />
             <p>THAY ĐỔI QUY ĐỊNH 4</p>
           </Link>

@@ -7,7 +7,9 @@ function Feature5() {
       
       <header className="app-header">
         <div className="header-left">
-          <h1>HotelManager</h1>
+          <Link to="/">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
       </header>
 
@@ -21,12 +23,12 @@ function Feature5() {
 
         <div className="function-grid_2">
   
-          <Link to="/report1" className="function-item">
+          <Link to="report1" className="function-item">
             <img src="/icons/Money.png" alt="Báo cáo doanh thu theo loại phòng" />
             <p>BÁO CÁO DOANH THU<br></br>THEO LOẠI PHÒNG</p>
           </Link>
 
-          <Link to="/report2" className="function-item">
+          <Link to="report2" className="function-item">
             <img src="/icons/Clock.png" alt="Báo cáo mật độ sử dụng phòng" />
             <p>BÁO CÁO MẬT ĐỘ<br></br>SỬ DỤNG PHÒNG</p>
           </Link>

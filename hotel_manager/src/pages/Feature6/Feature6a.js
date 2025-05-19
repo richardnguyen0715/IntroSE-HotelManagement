@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import './App.css';
+import '../App.css';
 
 function Feature6a() {
   return (
@@ -7,7 +7,9 @@ function Feature6a() {
       
       <header className="app-header">
         <div className="header-left">
-          <h1>HotelManager</h1>
+          <Link to="/">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
       </header>
 

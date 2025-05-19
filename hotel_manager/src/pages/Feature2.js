@@ -7,7 +7,9 @@ function Feature2() {
       
       <header className="app-header">
         <div className="header-left">
-          <h1>HotelManager</h1>
+          <Link to="/">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
       </header>
 
