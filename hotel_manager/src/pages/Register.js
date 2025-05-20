@@ -44,7 +44,7 @@ function Register() {
           <div className="register-card">
             <form onSubmit={handleSubmit}>
               <div className='grid-container'>
-                <div className="form-group_name">
+                <div className="form-group_name_reg">
                   <label htmlFor="name">Họ và tên <span className="required">*</span></label>
                   <input 
                     type="name" 
@@ -55,7 +55,7 @@ function Register() {
                     onChange={(e) => setName(e.target.value)}/>
                 </div>
 
-                <div className="form-group_email">
+                <div className="form-group_email_reg">
                   <label htmlFor="email">Email <span className="required">*</span></label>
                   <input 
                     type="email" 
@@ -66,7 +66,7 @@ function Register() {
                     onChange={(e) => setEmail(e.target.value)}/>
                 </div>
 
-                <div className="form-group_pass">
+                <div className="form-group_pass_reg">
                   <label htmlFor="password">Mật khẩu <span className="required">*</span></label>
                   <input 
                     type="password" 
@@ -77,7 +77,7 @@ function Register() {
                     onChange={(e) => setPassword(e.target.value)}/>
                 </div>
 
-                <div className="form-group_confirm_pass">
+                <div className="form-group_confirm_pass_reg">
                   <label htmlFor="confirm_password">Xác nhận mật khẩu <span className="required">*</span></label>
                   <input 
                     type="password" 

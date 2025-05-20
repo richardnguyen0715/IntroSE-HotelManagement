@@ -27,18 +27,11 @@
 
 .form-group_email label {
   margin-bottom: 5px;
-  font-style: bold;
   margin-left: 5px;
-}
-
-.required {
-  color: red;
-  font-size: 20px;
 }
 
 .form-group_pass label {
   margin-bottom: 5px;
-  font-style: bold;
   margin-top: 20px;
   margin-left: 5px;
 }
@@ -88,10 +81,6 @@
   color: #333
 }
 
-.login-button:disabled {
-  cursor: not-allowed;
-}
-
 .forgot-password {
   text-align: center;
   margin-bottom: 20px;
@@ -110,4 +99,9 @@
 
 .register a {
     color: #426b1f;
+}
+
+.required {
+  color: red;
+  font-size: 20px;
 }

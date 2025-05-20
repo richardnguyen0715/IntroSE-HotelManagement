@@ -25,57 +25,39 @@
   column-gap: 50px;
 }
 
-.form-group_name {
+.form-group_name_reg {
   grid-column: 1;
   grid-row: 1;
 }
 
-.form-group_email {
+.form-group_email_reg {
   grid-column: 2;
   grid-row: 1;
 }
 
-.form-group_pass {
+.form-group_pass_reg {
   grid-column: 1;
   grid-row: 2;
 }
 
-.form-group_confirm_pass {
+.form-group_confirm_pass_reg {
   grid-column: 2;
   grid-row: 2;
 }
 
-.form-group_name,
-.form-group_email,
-.form-group_pass,
-.form-group_confirm_pass {
-  margin-bottom: 15px;
+.form-group_name_reg,
+.form-group_email_reg,
+.form-group_pass_reg,
+.form-group_confirm_pass_reg {
+  margin-bottom: 35px;
   display: flex;
   flex-direction: column;
 }
 
-.form-group_name label {
-  margin-bottom: 5px;
-  font-style: bold;
-  margin-left: 5px;
-}
-
-.required {
-  color: red;
-  font-size: 20px;
-}
-
-.form-group_confirm_pass label {
-  margin-bottom: 5px;
-  font-style: bold;
-  margin-top: 20px;
-  margin-left: 5px;
-}
-
-.form-group_name input[type="name"],
-.form-group_email input[type="email"],
-.form-group_pass input[type="password"],
-.form-group_confirm_pass input[type="password"] {
+.form-group_name_reg input[type="name"],
+.form-group_email_reg input[type="email"],
+.form-group_pass_reg input[type="password"],
+.form-group_confirm_pass_reg input[type="password"] {
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
@@ -120,10 +102,6 @@
   color: #333;
 }
 
-.register-button:disabled {
-  cursor: not-allowed;
-}
-
 .login {
   text-align: center;
   margin-top: 25px;
@@ -134,6 +112,10 @@
     color: #426b1f;
 }
 
+.required {
+  color: red;
+  font-size: 20px;
+}
 
 
 
