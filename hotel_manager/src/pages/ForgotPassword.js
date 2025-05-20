@@ -51,12 +51,12 @@ function ForgotPassword() {
                   name="password" 
                   placeholder="Nhập lại mật khẩu" />
               </div>
-
-              <button type="submit" className="login-button">
-                Khôi phục
-              </button>
-
             </form>
+
+            <button type="submit" className="login-button">
+              Khôi phục
+            </button>
+            
           </div>
         </div>
       </main>

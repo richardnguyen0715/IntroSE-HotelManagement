@@ -47,12 +47,12 @@ function Login() {
                 <input type="checkbox" id="remember" name="remember" />
                 <label htmlFor="remember">Ghi nhớ đăng nhập</label>
               </div>
-
-              <button type="submit" className="login-button">
-                Đăng nhập
-              </button>
-
             </form>
+
+            <button type="submit" className="login-button">
+              Đăng nhập
+            </button>
+
             <div className="forgot-password">
               <Link to="/forgot_password">Quên mật khẩu?</Link>
             </div>
@@ -60,8 +60,8 @@ function Login() {
             <div className="register">
               <span>Chưa có tài khoản? </span>
               <Link to="/register">Đăng ký ngay</Link>
-              
             </div>
+            
           </div>
         </div>
       </main>

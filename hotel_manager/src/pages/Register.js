@@ -70,12 +70,12 @@ function Register() {
             <button type="submit" className="register-button">
               Đăng ký
             </button>
-
+            
             <div className="login">
               <span>Đã có tài khoản? </span>
               <Link to="/login">Đăng nhập</Link>
-              
             </div>
+
           </div>
         </div>
       </main>
