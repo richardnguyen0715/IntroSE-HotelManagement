@@ -60,6 +60,11 @@
   margin-left: 5px;
 }
 
+.required {
+  color: red;
+  font-size: 20px;
+}
+
 .form-group_confirm_pass label {
   margin-bottom: 5px;
   font-style: bold;
@@ -128,6 +133,7 @@
 .login a {
     color: #426b1f;
 }
+
 
 
 

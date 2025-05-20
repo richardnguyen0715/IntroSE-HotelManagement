@@ -43,7 +43,7 @@ function Login() {
           <div className="login-card">
             <form onSubmit={handleSubmit}>
               <div className="form-group_email">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">Email <span className="required">*</span></label>
                 <input 
                   type="email" 
                   id="email" 
@@ -54,7 +54,7 @@ function Login() {
               </div>
 
               <div className="form-group_pass">
-                <label htmlFor="password">Mật khẩu</label>
+                <label htmlFor="password">Mật khẩu <span className="required">*</span></label>
                 <input 
                   type="password" 
                   id="password" 

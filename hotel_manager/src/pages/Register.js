@@ -45,7 +45,7 @@ function Register() {
             <form onSubmit={handleSubmit}>
               <div className='grid-container'>
                 <div className="form-group_name">
-                  <label htmlFor="name">Họ và tên</label>
+                  <label htmlFor="name">Họ và tên <span className="required">*</span></label>
                   <input 
                     type="name" 
                     id="name" 
@@ -56,7 +56,7 @@ function Register() {
                 </div>
 
                 <div className="form-group_email">
-                  <label htmlFor="email">Email</label>
+                  <label htmlFor="email">Email <span className="required">*</span></label>
                   <input 
                     type="email" 
                     id="email" 
@@ -67,7 +67,7 @@ function Register() {
                 </div>
 
                 <div className="form-group_pass">
-                  <label htmlFor="password">Mật khẩu</label>
+                  <label htmlFor="password">Mật khẩu <span className="required">*</span></label>
                   <input 
                     type="password" 
                     id="password" 
@@ -78,7 +78,7 @@ function Register() {
                 </div>
 
                 <div className="form-group_confirm_pass">
-                  <label htmlFor="confirm_password">Xác nhận mật khẩu</label>
+                  <label htmlFor="confirm_password">Xác nhận mật khẩu <span className="required">*</span></label>
                   <input 
                     type="password" 
                     id="confirm_password" 
@@ -98,7 +98,7 @@ function Register() {
                 checked={acceptance}
                 onChange={(e) => setAcceptance(e.target.checked)}/>
                 
-                <label htmlFor="acceptance">Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật</label>
+                <label htmlFor="acceptance">Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật <span className="required">*</span></label>
               </div>
             
               <button type="submit" className="register-button" disabled={!isFormValid}>

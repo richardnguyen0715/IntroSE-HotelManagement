@@ -42,7 +42,7 @@ function ForgotPassword() {
           <div className="login-card">
             <form onSubmit={handleSubmit}>
               <div className="form-group_email">
-                <label htmlFor="email">Email</label>
+                <label htmlFor="email">Email <span className="required">*</span></label>
                 <input 
                   type="email" 
                   id="email" 
@@ -53,7 +53,7 @@ function ForgotPassword() {
               </div>
 
               <div className="form-group_pass">
-                <label htmlFor="new_password">Mật khẩu mới</label>
+                <label htmlFor="new_password">Mật khẩu mới <span className="required">*</span></label>
                 <input 
                   type="password" 
                   id="new_password" 
@@ -64,7 +64,7 @@ function ForgotPassword() {
               </div>
 
               <div className="form-group_pass">
-                <label htmlFor="confirm_new_password">Xác nhận mật khẩu</label>
+                <label htmlFor="confirm_new_password">Xác nhận mật khẩu <span className="required">*</span></label>
                 <input 
                   type="password" 
                   id="confirm_new_password" 
