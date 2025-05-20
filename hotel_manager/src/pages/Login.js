@@ -8,15 +8,39 @@ function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
+  const [errors, setErrors] = useState({});
 
-  // Kiểm tra form hợp lệ nếu email và password không rỗng
-  const isFormValid = email.trim() !== '' && password.trim() !== '';
+  // Hàm kiểm tra định dạng email
+  const validateEmail = (email) => {
+    const regex = /\S+@\S+\.\S+/;
+    return regex.test(email);
+  };
+
+  // Hàm kiểm tra form
+  const validateForm = () => {
+    const newErrors = {};
+
+    if (!email.trim()) {
+      newErrors.email = 'Vui lòng nhập email';
+    } else if (!validateEmail(email)) {
+      newErrors.email = 'Email không hợp lệ';
+    }
+
+    if (!password.trim()) {
+      newErrors.password = 'Vui lòng nhập mật khẩu';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isFormValid) {
-      // Xử lý đăng nhập (gọi API, xử lý xác thực, v.v.)
+    if (validateForm()) {
+      // Nếu form hợp lệ, xử lý đăng nhập
       console.log('Đăng nhập với:', { email, password, remember });
+    } else {
+      console.log('Form có lỗi');
     }
   };
 
@@ -50,7 +74,12 @@ function Login() {
                   name="email" 
                   placeholder="Nhập email của bạn"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}/>
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    setErrors((prev) => ({ ...prev, email: '' }));
+                  }}
+                />
+                <span className="error-message">{errors.email || "\u00A0"}</span>
               </div>
 
               <div className="form-group_pass">
@@ -61,7 +90,12 @@ function Login() {
                   name="password" 
                   placeholder="Nhập mật khẩu" 
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}/>
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setErrors((prev) => ({ ...prev, password: '' }));
+                  }}
+                />
+                <span className="error-message">{errors.password || "\u00A0"}</span>
               </div>
 
               <div className="checkbox-group">
@@ -74,7 +108,7 @@ function Login() {
                 <label htmlFor="remember">Ghi nhớ đăng nhập</label>
               </div>
             
-              <button type="submit" className="login-button" disabled={!isFormValid}>
+              <button type="submit" className="login-button">
                 Đăng nhập
               </button>
             </form>

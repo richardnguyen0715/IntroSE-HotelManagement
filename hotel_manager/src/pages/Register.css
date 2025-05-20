@@ -9,7 +9,7 @@
 .register-card {
   padding: 30px;
   width: 800px;
-  height: 430px;
+  height: 465px;
   border-radius: 8px;
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
   border: 2px solid #e6e6e6;
@@ -54,7 +54,19 @@
   flex-direction: column;
 }
 
-.form-group_name_reg input[type="name"],
+.form-group_name_reg label,
+.form-group_email_reg label,
+.form-group_pass_reg label,
+.form-group_confirm_pass_reg label {
+  margin-left: 5px;
+}
+
+.form-group_pass_reg,
+.form-group_confirm_pass_reg {
+  margin-top: -20px;
+}
+
+.form-group_name_reg input[type="text"],
 .form-group_email_reg input[type="email"],
 .form-group_pass_reg input[type="password"],
 .form-group_confirm_pass_reg input[type="password"] {
@@ -69,7 +81,7 @@
 }
 
 .checkbox-group {
-    margin-top: 30px;
+    padding-top: 10px;
 }
 
 .checkbox-group input[type="checkbox"] {
@@ -94,7 +106,7 @@
   transition: background 0.3s ease;
   font-size: 20px;
   font-family: "Inter", sans-serif;
-  margin-top: 35px;
+  margin-top: 30px;
 }
 
 .register-button:hover {
@@ -117,6 +129,18 @@
   font-size: 20px;
 }
 
+.error-message_reg {
+  color: red;
+  font-size: 16px;
+  margin-top: 8px;
+  display: block;
+  margin-left: 5px;
+  min-height: 20px; 
+}
+
+#recover {
+  margin-top: 20px;
+}
 
 
 
