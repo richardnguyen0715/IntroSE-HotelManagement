@@ -1,8 +1,25 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './App.css';
 import './Login.css'; 
 
 function Login() {
+  // Khai báo state cho các trường nhập liệu
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(false);
+
+  // Kiểm tra form hợp lệ nếu email và password không rỗng
+  const isFormValid = email.trim() !== '' && password.trim() !== '';
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isFormValid) {
+      // Xử lý đăng nhập (gọi API, xử lý xác thực, v.v.)
+      console.log('Đăng nhập với:', { email, password, remember });
+    }
+  };
+
   return (
     <div className="app">
       
@@ -24,14 +41,16 @@ function Login() {
 
         <div className="login-container">
           <div className="login-card">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="form-group_email">
                 <label htmlFor="email">Email</label>
                 <input 
                   type="email" 
                   id="email" 
                   name="email" 
-                  placeholder="Nhập email của bạn"/>
+                  placeholder="Nhập email của bạn"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}/>
               </div>
 
               <div className="form-group_pass">
@@ -40,18 +59,25 @@ function Login() {
                   type="password" 
                   id="password" 
                   name="password" 
-                  placeholder="Nhập mật khẩu" />
+                  placeholder="Nhập mật khẩu" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}/>
               </div>
 
               <div className="checkbox-group">
-                <input type="checkbox" id="remember" name="remember" />
+                <input 
+                type="checkbox" 
+                id="remember" 
+                name="remember" 
+                checked={remember}
+                onChange={(e) => setRemember(e.target.checked)}/>
                 <label htmlFor="remember">Ghi nhớ đăng nhập</label>
               </div>
+            
+              <button type="submit" className="login-button" disabled={!isFormValid}>
+                Đăng nhập
+              </button>
             </form>
-
-            <button type="submit" className="login-button">
-              Đăng nhập
-            </button>
 
             <div className="forgot-password">
               <Link to="/forgot_password">Quên mật khẩu?</Link>

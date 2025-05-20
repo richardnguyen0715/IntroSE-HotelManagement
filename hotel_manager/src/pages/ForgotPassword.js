@@ -1,8 +1,24 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import './App.css';
 import './Login.css';
 
 function ForgotPassword() {
+  // Khai báo state cho các trường nhập liệu
+  const [email, setEmail] = useState('');
+  const [newpassword, setNewpassword] = useState('');
+  const [renewpassword, setRenewpassword] = useState('');
+
+  const isFormValid = email.trim() !== '' && newpassword.trim() !== '' && renewpassword.trim() !== '';
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isFormValid) {
+      // Xử lý thay đổi mật khẩu (gọi API, xử lý xác thực, v.v.)
+      console.log('Thay đổi mật khẩu:', { email, newpassword });
+    }
+  };
+
   return (
     <div className="app">
       
@@ -24,39 +40,44 @@ function ForgotPassword() {
 
         <div className="login-container">
           <div className="login-card">
-            <form>
+            <form onSubmit={handleSubmit}>
               <div className="form-group_email">
                 <label htmlFor="email">Email</label>
                 <input 
                   type="email" 
                   id="email" 
                   name="email" 
-                  placeholder="Nhập email khôi phục"/>
+                  placeholder="Nhập email khôi phục"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}/>
               </div>
 
               <div className="form-group_pass">
-                <label htmlFor="password">Mật khẩu mới</label>
+                <label htmlFor="new_password">Mật khẩu mới</label>
                 <input 
                   type="password" 
-                  id="password" 
-                  name="password" 
-                  placeholder="Nhập mật khẩu mới" />
+                  id="new_password" 
+                  name="new_password" 
+                  placeholder="Nhập mật khẩu mới" 
+                  value={newpassword}
+                  onChange={(e) => setNewpassword(e.target.value)}/>
               </div>
 
               <div className="form-group_pass">
-                <label htmlFor="password">Xác nhận mật khẩu</label>
+                <label htmlFor="confirm_new_password">Xác nhận mật khẩu</label>
                 <input 
                   type="password" 
-                  id="password" 
-                  name="password" 
-                  placeholder="Nhập lại mật khẩu" />
+                  id="confirm_new_password" 
+                  name="confirm_new_password" 
+                  placeholder="Nhập lại mật khẩu" 
+                  value={renewpassword}
+                  onChange={(e) => setRenewpassword(e.target.value)}/>
               </div>
-            </form>
-
-            <button type="submit" className="login-button">
-              Khôi phục
-            </button>
             
+              <button type="submit" className="login-button" disabled={!isFormValid}>
+                Khôi phục
+              </button>
+            </form>
           </div>
         </div>
       </main>

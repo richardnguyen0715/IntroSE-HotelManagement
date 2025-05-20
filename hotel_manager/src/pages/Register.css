@@ -18,7 +18,7 @@
   font-size: 20px;
 }
 
-.register-card form {
+.grid-container {
   display: grid;
   grid-template-columns: 1fr 1fr; 
   row-gap: 10px; 
@@ -113,6 +113,10 @@
 .register-button:hover {
   background: #d3f8b4;
   color: #333;
+}
+
+.register-button:disabled {
+  cursor: not-allowed;
 }
 
 .login {
