@@ -9,7 +9,8 @@ const roomRoutes = require('./routes/roomRoutes');
 const authRoutes = require('./routes/authRoutes');
 const invoiceRoutes = require('./routes/invoiceRoutes');
 const bookingRoutes = require('./routes/bookingRoutes');
-
+const hotelPolicyRoutes = require('./routes/hotelPolicyRoutes');
+const reportRoutes = require('./routes/reportRoutes');
 // Khởi tạo Express app
 const app = express();
 
@@ -53,7 +54,8 @@ app.use('/api/users', userRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/bookings', bookingRoutes);
-
+app.use('/api/policy', hotelPolicyRoutes);
+app.use('/api/reports', reportRoutes);
 // Simple test route
 app.get('/', (req, res) => {
   res.send('Hotel Management API is running');

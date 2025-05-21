@@ -5,7 +5,6 @@ const Room = require('./Room');
 const bookingSchema = new mongoose.Schema({
   email: {
     type: String,
-    unique: true,
     required: true
   },
   room: {

@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:db": "node app/utils/testDbConnection.js",
     "dev": "nodemon app/server.js",
-    "start": "node app/server.js"
+    "start": "node app/server.js",
+    "seed": "node app/db_creator.js"
   },
   "keywords": [
     "hotel-management"

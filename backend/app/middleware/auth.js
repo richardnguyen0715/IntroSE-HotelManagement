@@ -64,10 +64,37 @@ const invalidateToken = async (token) => {
   await BlacklistedToken.create({ token });
 };
 
+// Alias of authenticate for consistency with report routes
+const protect = authenticate;
+
+// Role-based authorization middleware that accepts an array of roles
+const authorize = (roles = []) => {
+  return (req, res, next) => {
+    // Convert string to array if needed
+    if (typeof roles === 'string') {
+      roles = [roles];
+    }
+
+    if (!req.user) {
+      return res.status(401).json({ message: 'User not authenticated' });
+    }
+    
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ 
+        message: `Role ${req.user.role} is not authorized to access this route`
+      });
+    }
+    
+    next();
+  };
+};
+
 module.exports = {
   authenticate,
   generateToken,
   authorizeAdmin,
   authorizeUser,
-  invalidateToken
+  invalidateToken,
+  protect, // Added alias for authenticate
+  authorize // Added new role-based middleware
 };
