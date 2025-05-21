@@ -316,7 +316,7 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:5000/api/reports/revenue?year=2025&month=5",
+					"raw": "http://localhost:5000/api/reports/revenue?year=2025&month=2",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -334,7 +334,48 @@
 						},
 						{
 							"key": "month",
-							"value": "5"
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOccupancyReport",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODJlMmZkNGE0MDZkNDhlNDdhOGM4ZDYiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDc4NjQ2MzMsImV4cCI6MTc0Nzk1MTAzM30.G2tKyUR_xBozOSN1uUSo_Ytb8kEBTkwFfpXLqeTkpHA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/reports/occupancy?year=2025&month=2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"reports",
+						"occupancy"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2025"
+						},
+						{
+							"key": "month",
+							"value": "2"
 						}
 					]
 				}
