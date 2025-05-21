@@ -8,6 +8,7 @@ const {
 } = require('../controllers/userController');
 
 const router = express.Router();
+  
 
 router
   .route('/')
@@ -19,5 +20,11 @@ router
   .get(getUser)
   .put(updateUser)
   .delete(deleteUser);
+
+// // Trong routes
+// const { authenticate, authorizeAdmin, authorizeUser } = require('../middleware/auth');
+
+// router.get('/users', authenticate, authorizeAdmin, userController.getAllUsers);
+// router.put('/users/:id', authenticate, authorizeUser, userController.updateUser);
 
 module.exports = router;

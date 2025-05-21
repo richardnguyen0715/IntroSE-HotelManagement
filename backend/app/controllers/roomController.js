@@ -1,11 +1,9 @@
-const Room = require('../models/Room');
+const { Room, RoomType } = require('../models/Room');
 
 // Get all rooms
-exports.getAllRooms = async (req, res) => {
+exports.getAllRooms = async (req, res, next) => {
   try {
-    // Build query
     let query = Room.find();
-    
     // Filter by room type
     if (req.query.type) {
       query = query.find({ type: req.query.type });
@@ -16,18 +14,11 @@ exports.getAllRooms = async (req, res) => {
       query = query.find({ status: req.query.status });
     }
     
-    // Filter by price range
-    if (req.query.minPrice && req.query.maxPrice) {
-      query = query.find({
-        price: { $gte: req.query.minPrice, $lte: req.query.maxPrice }
-      });
-    } else if (req.query.minPrice) {
-      query = query.find({ price: { $gte: req.query.minPrice } });
-    } else if (req.query.maxPrice) {
-      query = query.find({ price: { $lte: req.query.maxPrice } });
+    // Filter by capacity
+    if (req.query.capacity) {
+      query = query.find({ capacity: { $gte: req.query.capacity } });
     }
     
-    // Execute query
     const rooms = await query;
     
     res.status(200).json({
@@ -36,23 +27,18 @@ exports.getAllRooms = async (req, res) => {
       data: rooms
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
+    next(error);
   }
 };
 
 // Get single room
-exports.getRoom = async (req, res) => {
+exports.getRoom = async (req, res, next) => {
   try {
-    const room = await Room.findById(req.params.id);
-    
+    const room = await Room.findById(req.params.id); 
     if (!room) {
-      return res.status(404).json({
-        success: false,
-        error: 'Room not found'
-      });
+      const error = new Error('Room not found');
+      error.statusCode = 404;
+      throw error;
     }
     
     res.status(200).json({
@@ -60,18 +46,15 @@ exports.getRoom = async (req, res) => {
       data: room
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
+    next(error);
   }
 };
 
 // Create new room
-exports.createRoom = async (req, res) => {
+exports.createRoom = async (req, res, next) => {
   try {
     const room = await Room.create(req.body);
-    
+
     res.status(201).json({
       success: true,
       data: room
@@ -79,27 +62,18 @@ exports.createRoom = async (req, res) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(val => val.message);
-      
-      return res.status(400).json({
-        success: false,
-        error: messages
-      });
+      error.statusCode = 400;
+      error.message = messages;
     } else if (error.code === 11000) {
-      return res.status(400).json({
-        success: false,
-        error: 'Room number already exists'
-      });
-    } else {
-      res.status(500).json({
-        success: false,
-        error: 'Server Error'
-      });
+      error.statusCode = 400;
+      error.message = 'Room number already exists';
     }
+    next(error);
   }
 };
 
 // Update room
-exports.updateRoom = async (req, res) => {
+exports.updateRoom = async (req, res, next) => {
   try {
     const room = await Room.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
@@ -107,10 +81,9 @@ exports.updateRoom = async (req, res) => {
     });
     
     if (!room) {
-      return res.status(404).json({
-        success: false,
-        error: 'Room not found'
-      });
+      const error = new Error('Room not found');
+      error.statusCode = 404;
+      throw error;
     }
     
     res.status(200).json({
@@ -118,23 +91,18 @@ exports.updateRoom = async (req, res) => {
       data: room
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
+    next(error);
   }
 };
 
 // Delete room
-exports.deleteRoom = async (req, res) => {
+exports.deleteRoom = async (req, res, next) => {
   try {
     const room = await Room.findByIdAndDelete(req.params.id);
-    
     if (!room) {
-      return res.status(404).json({
-        success: false,
-        error: 'Room not found'
-      });
+      const error = new Error('Room not found');
+      error.statusCode = 404;
+      throw error;
     }
     
     res.status(200).json({
@@ -142,9 +110,24 @@ exports.deleteRoom = async (req, res) => {
       data: {}
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Server Error'
-    });
+    next(error);
   }
 };
+
+// Get room types
+exports.getRoomTypes = async (_, res, next) => {
+  try {
+    const roomTypes = Object.entries(RoomType).map(([type, price]) => ({
+      type,
+      price
+    }));
+    
+    res.status(200).json({
+      success: true,
+      count: roomTypes.length,
+      data: roomTypes
+    });
+  } catch (error) {
+    next(error);
+  }
+}; 
