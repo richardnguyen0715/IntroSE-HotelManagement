@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "1e5990ef-a45e-459e-a6b9-64d64b811e35",
+		"_postman_id": "09f1ccee-d0a8-4fbc-bf77-0f8816334569",
 		"name": "hotel-management",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "42573703"
+		"_exporter_id": "43065407"
 	},
 	"item": [
 		{
@@ -62,7 +62,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"roomNumber\": \"103\",\n  \"type\": \"standard\",\n  \"price\": 150,\n  \"capacity\": 2,\n  \"amenities\": [\"TV\", \"WiFi\", \"Mini bar\"]\n}",
+					"raw": "{\n  \"roomNumber\": \"103\",\n  \"type\": \"A\",\n  \"price\": 150,\n  \"capacity\": 2,\n  \"amenities\": [\"TV\", \"WiFi\", \"Mini bar\"]\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -209,7 +209,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"email\": \"test@example.com\",\n  \"password\": \"yourpassword\"\n}",
+					"raw": "{\n  \"email\": \"test2@example.com\",\n  \"password\": \"yourpassword2\"\n}\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -236,7 +236,149 @@
 			"name": "homepage",
 			"request": {
 				"method": "GET",
-				"header": []
+				"header": [],
+				"url": {
+					"raw": ""
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getPolicy",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Test User 2\",\n  \"email\": \"test2@example.com\",\n  \"password\": \"yourpassword2\",\n  \"role\": \"admin\"\n}\n"
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/policy/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"policy",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "createPolicy",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"maxUser\": 4,\n  \"domesticPolicy\": 1.2,\n  \"foreignPolicy\": 1.8,\n  \"surchargePolicy\": 0.3\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:5000/api/policy",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"policy"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getRevenueReport",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODJlMmZkNGE0MDZkNDhlNDdhOGM4ZDYiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDc4NjQ2MzMsImV4cCI6MTc0Nzk1MTAzM30.G2tKyUR_xBozOSN1uUSo_Ytb8kEBTkwFfpXLqeTkpHA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/reports/revenue?year=2025&month=2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"reports",
+						"revenue"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2025"
+						},
+						{
+							"key": "month",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "getOccupancyReport",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODJlMmZkNGE0MDZkNDhlNDdhOGM4ZDYiLCJyb2xlIjoiYWRtaW4iLCJpYXQiOjE3NDc4NjQ2MzMsImV4cCI6MTc0Nzk1MTAzM30.G2tKyUR_xBozOSN1uUSo_Ytb8kEBTkwFfpXLqeTkpHA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:5000/api/reports/occupancy?year=2025&month=2",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "5000",
+					"path": [
+						"api",
+						"reports",
+						"occupancy"
+					],
+					"query": [
+						{
+							"key": "year",
+							"value": "2025"
+						},
+						{
+							"key": "month",
+							"value": "2"
+						}
+					]
+				}
 			},
 			"response": []
 		}
