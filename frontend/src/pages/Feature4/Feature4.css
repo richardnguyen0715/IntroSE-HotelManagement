@@ -1,0 +1,30 @@
+.feature4-container {
+    padding: 20px;
+}
+
+.bill-paper {
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.bill-table {
+    margin: 20px 0;
+}
+
+.total-amount {
+    margin: 20px 0;
+    font-weight: bold;
+}
+
+.print-button {
+    margin-top: 20px;
+    float: right;
+}
+
+.MuiTableCell-root {
+    padding: 8px;
+}
+
+.MuiTextField-root {
+    width: 100%;
+}
