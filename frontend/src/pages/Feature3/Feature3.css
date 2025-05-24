@@ -1,0 +1,96 @@
+.search-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+.search-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.search-input input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    background-color: #FFB6C1;
+}
+
+.search-button {
+    padding: 10px 20px;
+    background-color: #90EE90;
+    border: none;
+    border-radius: 5px;
+    color: black;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.search-button:hover {
+    background-color: #98FB98;
+}
+
+.room-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.room-table th,
+.room-table td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+
+.room-table th {
+    background-color: #B0C4DE;
+}
+
+.room-table tr:nth-child(even) {
+    background-color: #FFFFE0;
+}
+
+.room-table tr:nth-child(odd) {
+    background-color: #fff;
+}
+
+.section-title {
+    margin: 20px 0;
+    font-size: 1.2em;
+    color: #333;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.back-button:hover {
+    opacity: 0.8;
+}
+
+.back-button img {
+    width: 24px;
+    height: 24px;
+}
+
+/* Room status styles */
+.status-available {
+    color: #2ecc71;
+    font-weight: bold;
+}
+
+.status-occupied {
+    color: #e74c3c;
+    font-weight: bold;
+}
