@@ -1,90 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { useRegulation } from './RegulationContext';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import './Feature6.css';
 
-function RoomTypeForm() {
+const RoomTypeForm = () => {
     const navigate = useNavigate();
-    const location = useLocation();
-    const { roomTypes, updateRoomTypes } = useRegulation();
-
     const [formData, setFormData] = useState({
-        type: '',
-        price: '',
-        quantity: ''
+        roomType: '',
+        price: ''
     });
-    const [errors, setErrors] = useState({});
-
-    useEffect(() => {
-        if (location.state?.roomId) {
-            const roomToEdit = roomTypes.find(room => room.id === location.state.roomId);
-            if (roomToEdit) {
-                setFormData({
-                    type: roomToEdit.type,
-                    price: roomToEdit.price.toString(),
-                    quantity: roomToEdit.quantity.toString()
-                });
-            }
-        }
-    }, [location.state, roomTypes]);
-
-    const validateForm = () => {
-        const newErrors = {};
-
-        // Validate room type (A-Z)
-        if (!formData.type) {
-            newErrors.type = 'Vui lòng nhập loại phòng';
-        } else if (!/^[A-Z]$/.test(formData.type)) {
-            newErrors.type = 'Loại phòng phải là một chữ cái in hoa (A-Z)';
-        }
-
-        // Validate price
-        if (!formData.price) {
-            newErrors.price = 'Vui lòng nhập đơn giá';
-        } else if (isNaN(formData.price) || parseInt(formData.price) <= 0) {
-            newErrors.price = 'Đơn giá phải là số dương';
-        }
-
-        // Validate quantity
-        if (!formData.quantity) {
-            newErrors.quantity = 'Vui lòng nhập số lượng phòng';
-        } else if (isNaN(formData.quantity) || parseInt(formData.quantity) <= 0) {
-            newErrors.quantity = 'Số lượng phòng phải là số dương';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        if (!validateForm()) {
-            return;
-        }
-
-        const roomTypeData = {
-            type: formData.type,
-            price: parseInt(formData.price),
-            quantity: parseInt(formData.quantity)
-        };
-
-        if (location.state?.roomId) {
-            // Edit existing room type
-            const updatedRoomTypes = roomTypes.map(room =>
-                room.id === location.state.roomId
-                    ? { ...room, ...roomTypeData }
-                    : room
-            );
-            updateRoomTypes(updatedRoomTypes);
-        } else {
-            // Add new room type
-            const newId = Math.max(...roomTypes.map(room => room.id), 0) + 1;
-            updateRoomTypes([...roomTypes, { id: newId, ...roomTypeData }]);
-        }
-
-        navigate('/feature6/regulation1');
-    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -92,13 +15,12 @@ function RoomTypeForm() {
             ...prev,
             [name]: value
         }));
-        // Clear error when user starts typing
-        if (errors[name]) {
-            setErrors(prev => ({
-                ...prev,
-                [name]: ''
-            }));
-        }
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // Xử lý lưu dữ liệu
+        navigate('/feature6/regulation1');
     };
 
     return (
@@ -124,64 +46,54 @@ function RoomTypeForm() {
 
             <main className="main-content">
                 <div className="header-container">
-                    <h2>{location.state?.roomId ? 'Sửa loại phòng' : 'Thêm loại phòng'}</h2>
+                    <h2>Thêm loại phòng</h2>
                     <Link to="/feature6/regulation1" className="back-button">
                         <img src="/icons/Navigate.png" alt="Back" />
                     </Link>
                 </div>
 
-                <form className="room-type-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="type">Loại phòng:</label>
-                        <input
-                            type="text"
-                            id="type"
-                            name="type"
-                            value={formData.type}
-                            onChange={handleChange}
-                            placeholder="Nhập loại phòng (A-Z)"
-                        />
-                        {errors.type && <div className="error-message">{errors.type}</div>}
-                    </div>
+                <div className="form-container">
+                    <form onSubmit={handleSubmit} className="room-type-form">
+                        <div className="form-group">
+                            <label>Loại phòng:</label>
+                            <input
+                                type="text"
+                                name="roomType"
+                                value={formData.roomType}
+                                onChange={handleChange}
+                                placeholder="Nhập loại phòng (A-Z)"
+                                required
+                            />
+                        </div>
 
-                    <div className="form-group">
-                        <label htmlFor="price">Đơn giá (VNĐ):</label>
-                        <input
-                            type="number"
-                            id="price"
-                            name="price"
-                            value={formData.price}
-                            onChange={handleChange}
-                            placeholder="Nhập đơn giá"
-                        />
-                        {errors.price && <div className="error-message">{errors.price}</div>}
-                    </div>
+                        <div className="form-group">
+                            <label>Đơn giá (VND):</label>
+                            <input
+                                type="number"
+                                name="price"
+                                value={formData.price}
+                                onChange={handleChange}
+                                placeholder="Nhập đơn giá"
+                                min="0"
+                                required
+                            />
+                        </div>
 
-                    <div className="form-group">
-                        <label htmlFor="quantity">Số lượng phòng:</label>
-                        <input
-                            type="number"
-                            id="quantity"
-                            name="quantity"
-                            value={formData.quantity}
-                            onChange={handleChange}
-                            placeholder="Nhập số lượng phòng"
-                        />
-                        {errors.quantity && <div className="error-message">{errors.quantity}</div>}
-                    </div>
-
-                    <div className="form-actions">
-                        <Link to="/feature6/regulation1">
-                            <button type="button" className="action-button cancel">Hủy</button>
-                        </Link>
-                        <button type="submit" className="action-button confirm">
-                            {location.state?.roomId ? 'Cập nhật' : 'Thêm'}
-                        </button>
-                    </div>
-                </form>
+                        <div className="actions-container">
+                            <Link to="/feature6/regulation1">
+                                <button type="button" className="action-button delete">
+                                    Hủy
+                                </button>
+                            </Link>
+                            <button type="submit" className="action-button add">
+                                Thêm
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </main>
         </div>
     );
-}
+};
 
 export default RoomTypeForm; 

@@ -1,3 +1,6 @@
+const dotenv = require('dotenv');
+dotenv.config({ path: '../../.env' });
+
 const mongoose = require('mongoose');
 const config = require('./config/config');
 const dbSeeder = require('./utils/dbSeeder');
@@ -6,9 +9,9 @@ const dbSeeder = require('./utils/dbSeeder');
 mongoose.connect(config.MONGODB_URI)
   .then(() => {
     console.log('MongoDB Connected: ' + config.MONGODB_URI);
-    
+
     // Chạy seeder
-    return dbSeeder.seedDatabase();
+    return dbSeeder.seedDatabase(); np
   })
   .then(() => {
     console.log('Database seeding completed successfully');

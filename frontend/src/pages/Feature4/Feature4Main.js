@@ -1,161 +1,159 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Paper, Typography, Grid, TextField, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Button, FormControlLabel, Checkbox } from '@mui/material';
-import { useBill } from './BillContext';
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import './Feature4.css';
 
 const Feature4Main = () => {
-    const { calculateRoomPrice, regulations } = useBill();
-    const [billData, setBillData] = useState({
-        customerName: '',
-        address: '',
-        totalAmount: 0,
-        items: [
-            {
-                id: 1,
-                room: '',
-                days: 0,
-                price: regulations.basePrice,
-                numGuests: 2,
-                hasForeigner: false,
-                total: 0
-            },
-            {
-                id: 2,
-                room: '',
-                days: 0,
-                price: regulations.basePrice,
-                numGuests: 2,
-                hasForeigner: false,
-                total: 0
+    const [bills, setBills] = useState([
+        {
+            id: 1,
+            status: 'paid',
+            customer: 'Nguyễn Văn A',
+            address: 'Quận 1, TPHCM',
+            totalAmount: '1,150,000 VND',
+            rooms: [
+                { id: 1, roomNumber: '301', days: 2, price: 150000, total: 300000 },
+                { id: 2, roomNumber: '302', days: 5, price: 170000, total: 850000 }
+            ]
+        },
+        {
+            id: 2,
+            status: 'unpaid',
+            customer: 'Lê Văn B',
+            address: 'Quận 12, TPHCM',
+            totalAmount: '2,500,000 VND',
+            rooms: [
+                { id: 1, roomNumber: '101', days: 10, price: 150000, total: 1500000 },
+                { id: 2, roomNumber: '103', days: 5, price: 200000, total: 1000000 }
+            ]
+        }
+    ]);
+
+    const [selectedBill, setSelectedBill] = useState(null);
+
+    const handleDelete = () => {
+        if (selectedBill) {
+            if (window.confirm('Bạn có chắc chắn muốn xóa hóa đơn này không?')) {
+                setBills(bills.filter(bill => bill.id !== selectedBill.id));
+                setSelectedBill(null);
             }
-        ]
-    });
-
-    const calculateTotal = (item) => {
-        const adjustedPrice = calculateRoomPrice(
-            item.price,
-            item.numGuests,
-            item.hasForeigner
-        );
-        return item.days * adjustedPrice;
+        }
     };
 
-    const handleItemChange = (id, field, value) => {
-        const newItems = billData.items.map(item => {
-            if (item.id === id) {
-                const updatedItem = { ...item, [field]: value };
-                updatedItem.total = calculateTotal(updatedItem);
-                return updatedItem;
-            }
-            return item;
-        });
+    const renderBillTable = (bill) => (
+        <div
+            className={`bill-section ${selectedBill?.id === bill.id ? 'selected' : ''}`}
+            key={bill.id}
+            onClick={() => setSelectedBill(bill)}
+        >
+            <div className={`bill-status ${bill.status === 'paid' ? 'paid' : 'unpaid'}`}>
+                <div className="status-header">
+                    <h3>Trạng thái</h3>
+                    <span className="status-text">
+                        {bill.status === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                    </span>
+                </div>
+            </div>
 
-        const totalAmount = newItems.reduce((sum, item) => sum + item.total, 0);
-        setBillData({ ...billData, items: newItems, totalAmount });
-    };
+            <div className="bill-info">
+                <div className="customer-info">
+                    <div className="info-row">
+                        <span className="label">Khách hàng/Cơ quan:</span>
+                        <span className="value">{bill.customer}</span>
+                    </div>
+                    <div className="info-row">
+                        <span className="label">Địa chỉ:</span>
+                        <span className="value">{bill.address}</span>
+                    </div>
+                    <div className="info-row">
+                        <span className="label">Trị giá:</span>
+                        <span className="value">{bill.totalAmount}</span>
+                    </div>
+                </div>
 
-    const handlePrint = () => {
-        window.print();
-    };
+                <table className="bill-table">
+                    <thead>
+                        <tr>
+                            <th>STT</th>
+                            <th>Phòng</th>
+                            <th>Số ngày thuê</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {bill.rooms.map((room, index) => (
+                            <tr key={room.id}>
+                                <td>{index + 1}</td>
+                                <td>{room.roomNumber}</td>
+                                <td>{room.days}</td>
+                                <td>{room.price.toLocaleString('vi-VN')}</td>
+                                <td>{room.total.toLocaleString('vi-VN')}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
 
     return (
-        <Container maxWidth="lg" className="feature4-container">
-            <Paper elevation={3} className="bill-paper">
-                <Typography variant="h4" align="center" gutterBottom>
-                    Hóa Đơn Thanh Toán
-                </Typography>
+        <div className="app">
+            <header className="app-header">
+                <div className="header-left">
+                    <Link to="/">
+                        <h1>HotelManager</h1>
+                    </Link>
+                </div>
 
-                <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Khách hàng/Cơ quan"
-                            value={billData.customerName}
-                            onChange={(e) => setBillData({ ...billData, customerName: e.target.value })}
-                        />
-                    </Grid>
-                    <Grid item xs={12} md={6}>
-                        <TextField
-                            fullWidth
-                            label="Địa chỉ"
-                            value={billData.address}
-                            onChange={(e) => setBillData({ ...billData, address: e.target.value })}
-                        />
-                    </Grid>
-                </Grid>
+                <nav className="header-right">
+                    <Link to="/about">Về chúng tôi</Link>
+                    <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag" />
+                    <Link to="/register">
+                        <button className="button-reg">Đăng ký</button>
+                    </Link>
+                    <Link to='/login'>
+                        <button className="button-log">Đăng nhập</button>
+                    </Link>
+                </nav>
+            </header>
 
-                <TableContainer component={Paper} className="bill-table">
-                    <Table>
-                        <TableHead>
-                            <TableRow>
-                                <TableCell>STT</TableCell>
-                                <TableCell>Phòng</TableCell>
-                                <TableCell>Số Ngày Thuê</TableCell>
-                                <TableCell>Đơn Giá</TableCell>
-                                <TableCell>Số khách</TableCell>
-                                <TableCell>Khách nước ngoài</TableCell>
-                                <TableCell>Thành Tiền</TableCell>
-                            </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {billData.items.map((item) => (
-                                <TableRow key={item.id}>
-                                    <TableCell>{item.id}</TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            value={item.room}
-                                            onChange={(e) => handleItemChange(item.id, 'room', e.target.value)}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            type="number"
-                                            value={item.days}
-                                            onChange={(e) => handleItemChange(item.id, 'days', parseInt(e.target.value) || 0)}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            type="number"
-                                            value={item.price}
-                                            onChange={(e) => handleItemChange(item.id, 'price', parseFloat(e.target.value) || 0)}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <TextField
-                                            type="number"
-                                            value={item.numGuests}
-                                            onChange={(e) => handleItemChange(item.id, 'numGuests', parseInt(e.target.value) || 2)}
-                                            inputProps={{ min: 2, max: 3 }}
-                                        />
-                                    </TableCell>
-                                    <TableCell>
-                                        <FormControlLabel
-                                            control={
-                                                <Checkbox
-                                                    checked={item.hasForeigner}
-                                                    onChange={(e) => handleItemChange(item.id, 'hasForeigner', e.target.checked)}
-                                                />
-                                            }
-                                            label=""
-                                        />
-                                    </TableCell>
-                                    <TableCell>{item.total.toLocaleString()} VND</TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </TableContainer>
+            <main className="main-content">
+                <div className="header-container">
+                    <h2>Lập Hóa đơn thanh toán</h2>
+                    <Link to="/" className="back-button">
+                        <img src="/icons/Navigate.png" alt="Back" />
+                    </Link>
+                </div>
 
-                <Typography variant="h6" align="right" className="total-amount">
-                    Tổng tiền: {billData.totalAmount.toLocaleString()} VND
-                </Typography>
+                <div className="bills-container">
+                    <h3>Danh sách các hóa đơn thanh toán</h3>
+                    {bills.map(bill => renderBillTable(bill))}
 
-                <Button variant="contained" color="primary" className="print-button" onClick={handlePrint}>
-                    In hóa đơn
-                </Button>
-            </Paper>
-        </Container>
+                    <div className="actions-container">
+                        <Link to="/feature4/add">
+                            <button className="action-button add">
+                                Thêm
+                            </button>
+                        </Link>
+                        <Link to={selectedBill ? `/feature4/edit/${selectedBill.id}` : '#'}>
+                            <button
+                                className="action-button edit"
+                                disabled={!selectedBill}
+                            >
+                                Chỉnh sửa
+                            </button>
+                        </Link>
+                        <button
+                            className="action-button delete"
+                            onClick={handleDelete}
+                            disabled={!selectedBill}
+                        >
+                            Xóa
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
     );
 };
 
