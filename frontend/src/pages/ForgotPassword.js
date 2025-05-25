@@ -73,10 +73,10 @@ function ForgotPassword() {
             <form onSubmit={handleSubmit}>
               <div className="form-group_email">
                 <label htmlFor="email">Email <span className="required">*</span></label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  name="email" 
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
                   placeholder="Nhập email khôi phục"
                   value={email}
                   onChange={(e) => {
@@ -89,11 +89,11 @@ function ForgotPassword() {
 
               <div className="form-group_pass">
                 <label htmlFor="new_password">Mật khẩu mới <span className="required">*</span></label>
-                <input 
-                  type="password" 
-                  id="new_password" 
-                  name="new_password" 
-                  placeholder="Nhập mật khẩu mới" 
+                <input
+                  type="password"
+                  id="new_password"
+                  name="new_password"
+                  placeholder="Nhập mật khẩu mới"
                   value={newpassword}
                   onChange={(e) => {
                     setNewpassword(e.target.value);
@@ -105,11 +105,11 @@ function ForgotPassword() {
 
               <div className="form-group_pass">
                 <label htmlFor="confirm_new_password">Xác nhận mật khẩu <span className="required">*</span></label>
-                <input 
-                  type="password" 
-                  id="confirm_new_password" 
-                  name="confirm_new_password" 
-                  placeholder="Nhập lại mật khẩu" 
+                <input
+                  type="password"
+                  id="confirm_new_password"
+                  name="confirm_new_password"
+                  placeholder="Nhập lại mật khẩu"
                   value={renewpassword}
                   onChange={(e) => {
                     setRenewpassword(e.target.value);

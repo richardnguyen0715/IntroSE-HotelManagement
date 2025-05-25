@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import './App.css';
-import './Login.css'; 
+import './Login.css';
 
 function Login() {
   // Khai báo state cho các trường nhập liệu
@@ -9,6 +10,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState('');
 
   // Hàm kiểm tra định dạng email
   const validateEmail = (email) => {
@@ -34,19 +36,39 @@ function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (validateForm()) {
-      // Nếu form hợp lệ, xử lý đăng nhập
-      console.log('Đăng nhập với:', { email, password, remember });
-    } else {
-      console.log('Form có lỗi');
+      try {
+        const response = await axios.post("http://localhost:5000/api/auth/login", {
+          email,
+          password
+        });
+
+        if (response.status === 200) {
+          console.log("Đăng nhập thành công");
+          localStorage.setItem("token", response.data.token);
+        }
+      }
+
+      catch (error) {
+        if (error.response.status === 400) {
+          console.log("Tài khoản hoặc mật khẩu không đúng");
+          setMessage("Tài khoản hoặc mật khẩu không đúng");
+        }
+
+        else if (error.response.status === 500) {
+          console.log("Lỗi từ server");
+          setMessage("Lỗi từ server");
+        }
+      }
     }
   };
 
   return (
     <div className="app">
-      
+
       <header className="app-header">
         <div className="header-left">
           <Link to="/">
@@ -59,7 +81,7 @@ function Login() {
         <div className="header-container">
           <h2>Đăng nhập</h2>
           <Link to="/" className="back-button">
-            <img src="/icons/Navigate.png" alt="Back"/>
+            <img src="/icons/Navigate.png" alt="Back" />
           </Link>
         </div>
 
@@ -68,15 +90,16 @@ function Login() {
             <form onSubmit={handleSubmit}>
               <div className="form-group_email">
                 <label htmlFor="email">Email <span className="required">*</span></label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  name="email" 
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
                   placeholder="Nhập email của bạn"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
                     setErrors((prev) => ({ ...prev, email: '' }));
+                    setMessage("")
                   }}
                 />
                 <span className="error-message">{errors.email || "\u00A0"}</span>
@@ -84,33 +107,39 @@ function Login() {
 
               <div className="form-group_pass">
                 <label htmlFor="password">Mật khẩu <span className="required">*</span></label>
-                <input 
-                  type="password" 
-                  id="password" 
-                  name="password" 
-                  placeholder="Nhập mật khẩu" 
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Nhập mật khẩu"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
                     setErrors((prev) => ({ ...prev, password: '' }));
+                    setMessage("")
                   }}
                 />
                 <span className="error-message">{errors.password || "\u00A0"}</span>
               </div>
 
               <div className="checkbox-group">
-                <input 
-                type="checkbox" 
-                id="remember" 
-                name="remember" 
-                checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}/>
+                <input
+                  type="checkbox"
+                  id="remember"
+                  name="remember"
+                  checked={remember}
+                  onChange={(e) => {
+                    setRemember(e.target.checked);
+                    setMessage("");
+                  }}
+                />
                 <label htmlFor="remember">Ghi nhớ đăng nhập</label>
               </div>
-            
+
               <button type="submit" className="login-button">
                 Đăng nhập
               </button>
+              <span className="error-message">{message || "\u00A0"}</span>
             </form>
 
             <div className="forgot-password">
@@ -121,11 +150,10 @@ function Login() {
               <span>Chưa có tài khoản? </span>
               <Link to="/register">Đăng ký ngay</Link>
             </div>
-            
+
           </div>
         </div>
       </main>
-
     </div>
   );
 }

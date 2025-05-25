@@ -9,7 +9,7 @@
 .register-card {
   padding: 30px;
   width: 800px;
-  height: 465px;
+  height: 480px;
   border-radius: 8px;
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
   border: 2px solid #e6e6e6;
@@ -20,8 +20,8 @@
 
 .grid-container {
   display: grid;
-  grid-template-columns: 1fr 1fr; 
-  row-gap: 10px; 
+  grid-template-columns: 1fr 1fr;
+  row-gap: 10px;
   column-gap: 50px;
 }
 
@@ -77,11 +77,11 @@
   font-size: 20px;
   font-family: "Inter", sans-serif;
   margin-top: 7px;
-  height: 30px; 
+  height: 30px;
 }
 
 .checkbox-group {
-    padding-top: 10px;
+  padding-top: 10px;
 }
 
 .checkbox-group input[type="checkbox"] {
@@ -90,7 +90,7 @@
   margin-left: 12px;
 }
 
-.checkbox-group label{
+.checkbox-group label {
   margin-left: 8px;
 }
 
@@ -106,7 +106,7 @@
   transition: background 0.3s ease;
   font-size: 20px;
   font-family: "Inter", sans-serif;
-  margin-top: 30px;
+  margin-top: 25px;
 }
 
 .register-button:hover {
@@ -116,12 +116,12 @@
 
 .login {
   text-align: center;
-  margin-top: 25px;
+  margin-top: 20px;
   font-size: 20px;
 }
 
 .login a {
-    color: #426b1f;
+  color: #426b1f;
 }
 
 .required {
@@ -135,12 +135,9 @@
   margin-top: 8px;
   display: block;
   margin-left: 5px;
-  min-height: 20px; 
+  min-height: 20px;
 }
 
 #recover {
   margin-top: 20px;
 }
-
-
-
