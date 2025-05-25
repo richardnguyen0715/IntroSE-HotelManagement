@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import './App.css';
 import './Login.css'; 
 
@@ -9,6 +10,7 @@ function Login() {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState('');
 
   // Hàm kiểm tra định dạng email
   const validateEmail = (email) => {
@@ -34,13 +36,33 @@ function Login() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (validateForm()) {
-      // Nếu form hợp lệ, xử lý đăng nhập
-      console.log('Đăng nhập với:', { email, password, remember });
-    } else {
-      console.log('Form có lỗi');
+      try {
+        const response = await axios.post("http://localhost:5000/api/auth/login", {
+          email,
+          password
+        });
+        
+        if (response.status === 200) {
+          console.log("Đăng nhập thành công");
+          localStorage.setItem("token", response.data.token);
+        }   
+      } 
+
+      catch (error) {
+        if (error.response.status === 400) {
+          console.log("Tài khoản hoặc mật khẩu không đúng");
+          setMessage("Tài khoản hoặc mật khẩu không đúng");
+        }
+        
+        else if (error.response.status === 500) {
+          console.log("Lỗi từ server");
+          setMessage("Lỗi từ server");
+        }
+      }
     }
   };
 
@@ -77,6 +99,7 @@ function Login() {
                   onChange={(e) => {
                     setEmail(e.target.value);
                     setErrors((prev) => ({ ...prev, email: '' }));
+                    setMessage("")
                   }}
                 />
                 <span className="error-message">{errors.email || "\u00A0"}</span>
@@ -93,6 +116,7 @@ function Login() {
                   onChange={(e) => {
                     setPassword(e.target.value);
                     setErrors((prev) => ({ ...prev, password: '' }));
+                    setMessage("")
                   }}
                 />
                 <span className="error-message">{errors.password || "\u00A0"}</span>
@@ -104,13 +128,18 @@ function Login() {
                 id="remember" 
                 name="remember" 
                 checked={remember}
-                onChange={(e) => setRemember(e.target.checked)}/>
+                onChange={(e) => {
+                setRemember(e.target.checked);
+                setMessage("");
+                }}
+                />
                 <label htmlFor="remember">Ghi nhớ đăng nhập</label>
               </div>
             
               <button type="submit" className="login-button">
                 Đăng nhập
               </button>
+              <span className="error-message">{message || "\u00A0"}</span>
             </form>
 
             <div className="forgot-password">
@@ -125,7 +154,6 @@ function Login() {
           </div>
         </div>
       </main>
-
     </div>
   );
 }

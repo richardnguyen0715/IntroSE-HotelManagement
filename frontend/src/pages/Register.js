@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import './App.css';
 import './Register.css';
 
@@ -11,6 +12,7 @@ function Register() {
   const [repassword, setRepassword] = useState('');
   const [acceptance, setAcceptance] = useState(false);
   const [errors, setErrors] = useState({});
+  const [message, setMessage] = useState('');
 
   // Hàm kiểm tra định dạng email
   const validateEmail = (email) => {
@@ -46,14 +48,35 @@ function Register() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (validateForm()) {
-      // Nếu form hợp lệ, xử lý đăng ký (gọi API, xác thực, v.v.)
-      console.log('Đăng ký với:', { name, email, password });
-      // Có thể reset form hoặc chuyển hướng người dùng ở đây
-    } else {
-      console.log('Form có lỗi');
+      try {
+        const response = await axios.post("http://localhost:5000/api/users", {
+          name,
+          email,
+          password,
+          role: "admin"
+        });
+        
+        if (response.status === 201) {
+          console.log("Tạo người dùng mới thành công");
+          localStorage.setItem("token", response.data.token);
+        }   
+      } 
+
+      catch (error) {
+        if (error.response.status === 400) {
+          console.log("Email đã tồn tại");
+          setMessage("Email đã tồn tại. Vui lòng chọn email khác");
+        }
+        
+        else if (error.response.status === 500) {
+          console.log("Lỗi từ server");
+          setMessage("Lỗi từ server");
+        }
+      }
     }
   };
 
@@ -92,6 +115,7 @@ function Register() {
                     onChange={(e) => {
                       setName(e.target.value);
                       setErrors((prev) => ({ ...prev, name: '' }));
+                      setMessage("")
                     }}
                   />
                   {/* Luôn render span để dành chỗ */}
@@ -111,6 +135,7 @@ function Register() {
                     onChange={(e) => {
                       setEmail(e.target.value);
                       setErrors((prev) => ({ ...prev, email: '' }));
+                      setMessage("")
                     }}
                   />
                   <span className="error-message_reg">{errors.email || "\u00A0"}</span>
@@ -129,6 +154,7 @@ function Register() {
                     onChange={(e) => {
                       setPassword(e.target.value);
                       setErrors((prev) => ({ ...prev, password: '' }));
+                      setMessage("")
                     }}
                   />
                   <span className="error-message_reg">{errors.password || "\u00A0"}</span>
@@ -147,6 +173,7 @@ function Register() {
                     onChange={(e) => {
                       setRepassword(e.target.value);
                       setErrors((prev) => ({ ...prev, repassword: '' }));
+                      setMessage("")
                     }}
                   />
                   <span className="error-message_reg">{errors.repassword || "\u00A0"}</span>
@@ -162,6 +189,7 @@ function Register() {
                   onChange={(e) => {
                     setAcceptance(e.target.checked);
                     setErrors((prev) => ({ ...prev, acceptance: '' }));
+                    setMessage("")
                   }}
                 />
                 <label htmlFor="acceptance">
@@ -175,6 +203,7 @@ function Register() {
               <button type="submit" className="register-button">
                 Đăng ký
               </button>
+              <span className="error-message">{message || "\u00A0"}</span>
             </form>
 
             <div className="login">

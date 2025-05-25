@@ -22,9 +22,9 @@ const rateLimit = require('express-rate-limit');
 // Database connection
 connectDB();
 
-// Setting cors request to frontend (example: http://localhost:5000)
+// Setting cors request to frontend (example: http://localhost:3000)
 const corsOptions = {
-  origin: 'http://localhost:5000',
+  origin: 'http://localhost:3000',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   credentials: true,
 };
