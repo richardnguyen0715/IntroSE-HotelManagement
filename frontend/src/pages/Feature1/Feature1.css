@@ -447,3 +447,22 @@ input[type="checkbox"] {
     font-weight: 500;
     padding: 10px 20px;
 }
+/* Thêm vào cuối file */
+.action-button.booking {
+    background-color: #2196F3;
+    color: white;
+}
+
+.action-button.booking:not(.clickable) {
+    cursor: default;
+    opacity: 0.6;
+}
+
+.action-button.booking.clickable {
+    cursor: pointer !important;
+}
+
+.action-button.booking.clickable:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}

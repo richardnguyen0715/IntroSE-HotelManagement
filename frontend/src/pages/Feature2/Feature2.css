@@ -49,82 +49,87 @@
 
 /* Modal styles */
 .modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-    background-color: #fff;
-    padding: 2rem;
-    border-radius: 8px;
-    width: 90%;
-    max-width: 800px;
-    max-height: 90vh;
-    overflow-y: auto;
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  width: 80%;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Form styles */
 .form-group {
-    margin-bottom: 1rem;
+  margin-bottom: 15px;
 }
 
 .form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-weight: 500;
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
 }
 
 .form-group input,
 .form-group select {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.form-group input:disabled {
+  background-color: #f5f5f5;
+  cursor: not-allowed;
 }
 
 .customers-section {
-    margin-top: 2rem;
+  margin-top: 20px;
 }
 
 .customer-form {
-    background-color: #f8f9fa;
-    padding: 1rem;
-    border-radius: 4px;
-    margin-bottom: 1rem;
+  border: 1px solid #eee;
+  padding: 15px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  background-color: #f9f9f9;
 }
 
 .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 10px;
 }
 
-.cancel-button,
-.confirm-button {
-    padding: 0.5rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
+button.cancel-button,
+button.confirm-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
 }
 
-.cancel-button {
-    background-color: #e0e0e0;
+button.cancel-button {
+  background-color: #ccc;
 }
 
-.confirm-button {
-    background-color: #4CAF50;
-    color: white;
+button.confirm-button {
+  background-color: #2196F3;
+  color: white;
 }
 
 .button-container {
@@ -133,7 +138,10 @@
     justify-content: center;
     margin-top: 2rem;
 }
-
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 .action-button {
     padding: 0.5rem 1.5rem;
     border: none;
@@ -188,4 +196,56 @@ button:not([disabled]).action-button.add,
 button:not([disabled]).action-button.edit.clickable,
 button:not([disabled]).action-button.delete.clickable {
     cursor: pointer !important;
+}
+/* Thêm vào file Feature2.css */
+.success-message {
+  background-color: #4CAF50;
+  color: white;
+  padding: 10px 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+  animation: fadeIn 0.3s, fadeOut 0.5s 2.5s;
+}
+
+.empty-message {
+  text-align: center;
+  margin: 20px 0;
+  color: #666;
+  font-style: italic;
+}
+/* Thêm vào file CSS hiện có */
+
+.loading-message {
+  text-align: center;
+  margin: 20px 0;
+  color: #2196F3;
+  font-style: italic;
+}
+
+.error-message {
+  background-color: #f44336;
+  color: white;
+  padding: 10px 15px;
+  margin: 10px 0;
+  border-radius: 4px;
+  font-weight: bold;
+}
+
+.action-button.refresh {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.action-button.refresh:hover {
+  background-color: #45a049;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
