@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import './App.css';
-import './Login.css';
+import '../App.css';
+import './ForgotPassword.css';
 
 function ForgotPassword() {
   // Khai báo state cho các trường nhập liệu
@@ -68,8 +68,8 @@ function ForgotPassword() {
           </Link>
         </div>
 
-        <div className="login-container">
-          <div className="login-card">
+        <div className="forgot_pass-container">
+          <div className="forgot_pass-card">
             <form onSubmit={handleSubmit}>
               <div className="form-group_email">
                 <label htmlFor="email">Email <span className="required">*</span></label>
@@ -119,7 +119,7 @@ function ForgotPassword() {
                 <span className="error-message">{errors.renewpassword || "\u00A0"}</span>
               </div>
 
-              <button type="submit" className="login-button" id="recover">
+              <button type="submit" id="recover">
                 Khôi phục
               </button>
             </form>

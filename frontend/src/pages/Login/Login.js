@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import './App.css';
+import '../App.css';
 import './Login.css'; 
 
 function Login() {
+  const navigate = useNavigate();
   // Khai báo state cho các trường nhập liệu
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -49,6 +50,7 @@ function Login() {
         if (response.status === 200) {
           console.log("Đăng nhập thành công");
           localStorage.setItem("token", response.data.token);
+          navigate("/")
         }   
       } 
 
@@ -62,6 +64,11 @@ function Login() {
           console.log("Lỗi từ server");
           setMessage("Lỗi từ server");
         }
+      }
+
+      finally {
+        console.log("Lỗi không xác định");
+        setMessage("Lỗi không xác định");
       }
     }
   };

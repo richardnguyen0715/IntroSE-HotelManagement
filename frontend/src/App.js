@@ -1,10 +1,10 @@
 import { Routes, Route } from 'react-router-dom';
 
 import HomePage from './pages/HomePage';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import AboutUs from './pages/AboutUs';
-import ForgotPassword from './pages/ForgotPassword';
+import Login from './pages/Login/Login';
+import Register from './pages/Register/Register';
+import AboutUs from './pages/AboutUs/AboutUs';
+import ForgotPassword from './pages/ForgotPassword/ForgotPassword';
 
 import Feature1 from './pages/Feature1';
 import Feature2 from './pages/Feature2';
