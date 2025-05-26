@@ -39,7 +39,7 @@ const limiter = rateLimit({
   max: 20, // 20 requests per windowMs
   message: "Too many requests from this IP, please try again later.",
 });
-// app.use(limiter);
+//app.use(limiter);
 
 // middleware
 app.use(express.json());

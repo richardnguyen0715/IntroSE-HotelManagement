@@ -3,6 +3,7 @@ import { useRooms } from "../Feature1/RoomContext";
 import { useRentals } from "./RentalContext";
 import { useLocation } from "react-router-dom";
 import RentalForm from "./RentalForm";
+import { formatDateForUI } from "../../services/bookings";
 import "./Feature2.css";
 
 function Feature2Main() {
@@ -55,6 +56,13 @@ function Feature2Main() {
       return () => clearTimeout(timer);
     }
   }, [successMessage]);
+
+  // Khi component unmount, refresh lại room status
+  useEffect(() => {
+    return () => {
+      fetchRooms();
+    };
+  }, [fetchRooms]);
 
   // Xử lý khi chỉ có 1 phòng được chuyển từ Feature1
   const handleAddWithRoom = (roomData) => {
@@ -115,6 +123,8 @@ function Feature2Main() {
       if (success) {
         setSelectedRentals([]);
         setSuccessMessage("Xóa phiếu thuê thành công!");
+        // Refresh room status after deletion
+        fetchRooms();
       } else {
         setSuccessMessage("Có lỗi xảy ra khi xóa phiếu thuê!");
       }
@@ -123,28 +133,53 @@ function Feature2Main() {
 
   const handleSuccess = (message) => {
     setSuccessMessage(message);
-    // Refresh rentals after successful operation
+    // Refresh rentals & rooms after successful operation
     fetchRentals();
+    fetchRooms();
   };
 
-  // Khi component unmount, refresh lại room status
-  useEffect(() => {
-    return () => {
-      // Gọi fetchRooms từ RoomContext để cập nhật trạng thái phòng
-      fetchRooms();
-    };
-  }, []);
+  // Function to format VND price
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  // Function to get status text in Vietnamese
+  const getStatusText = (status) => {
+    switch (status) {
+      case "confirmed":
+        return "Đã xác nhận";
+      case "pending":
+        return "Đang chờ";
+      case "cancelled":
+        return "Đã hủy";
+      default:
+        return status;
+    }
+  };
+
+  // Function to get payment status text in Vietnamese
+  const getPaymentStatusText = (status) => {
+    switch (status) {
+      case "paid":
+        return "Đã thanh toán";
+      case "pending":
+        return "Chưa thanh toán";
+      default:
+        return status;
+    }
+  };
 
   return (
     <div className="feature-content">
       <h3>Danh sách các phiếu thuê phòng</h3>
-
       {successMessage && (
         <div className="success-message">{successMessage}</div>
       )}
-
       {error && <div className="error-message">{error}</div>}
-
       {loading && <div className="loading-message">Đang tải dữ liệu...</div>}
 
       <div className="table-section">
@@ -154,41 +189,92 @@ function Feature2Main() {
           rentals.map((rental) => (
             <div key={rental.id} className="rental-card">
               <div className="rental-header">
-                <div className="rental-room">
-                  <span>
-                    Phòng: {rental.roomNumber}
-                    {rental.roomType && ` (Loại: ${rental.roomType})`}
-                  </span>
+                <div className="rental-checkbox">
                   <input
                     type="checkbox"
                     checked={selectedRentals.includes(rental.id)}
                     onChange={() => handleCheckboxChange(rental.id)}
                   />
+                  <span className="rental-id">ID: {rental.id}</span>
                 </div>
-                <span>Ngày bắt đầu thuê: {rental.startDate}</span>
+                <span>Email: {rental.email}</span>
               </div>
-              <table className="customer-table">
-                <thead>
-                  <tr>
-                    <th>STT</th>
-                    <th>Khách hàng</th>
-                    <th>Loại khách</th>
-                    <th>CMND</th>
-                    <th>Địa chỉ</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rental.customers.map((customer, index) => (
-                    <tr key={customer.id || customer._id || index}>
-                      <td>{index + 1}</td>
-                      <td>{customer.name}</td>
-                      <td>{customer.type}</td>
-                      <td>{customer.idNumber}</td>
-                      <td>{customer.address}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+              <div className="rental-details">
+                <div className="rental-info-row">
+                  <div className="rental-info-item">
+                    <strong>Phòng:</strong> {rental.room}
+                  </div>
+                  <div className="rental-info-item">
+                    <strong>Loại phòng:</strong>{" "}
+                    {rental.room ? rental.room.charAt(0) : ""}
+                  </div>
+                  <div className="rental-info-item">
+                    <strong>Tổng tiền:</strong> {formatPrice(rental.totalPrice)}
+                  </div>
+                </div>
+
+                <div className="rental-info-row">
+                  <div className="rental-info-item">
+                    <strong>Ngày nhận:</strong>{" "}
+                    {formatDateForUI(rental.checkInDate)}
+                  </div>
+                  <div className="rental-info-item">
+                    <strong>Ngày trả:</strong>{" "}
+                    {formatDateForUI(rental.checkOutDate)}
+                  </div>
+                </div>
+
+                <div className="rental-info-row">
+                  <div className="rental-info-item">
+                    <strong>Trạng thái:</strong>{" "}
+                    <span className={`status-${rental.status}`}>
+                      {getStatusText(rental.status)}
+                    </span>
+                  </div>
+                  <div className="rental-info-item">
+                    <strong>Thanh toán:</strong>{" "}
+                    <span className={`payment-${rental.paymentStatus}`}>
+                      {getPaymentStatusText(rental.paymentStatus)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="rental-info-row">
+                  <div className="rental-info-item">
+                    <strong>Ngày tạo:</strong>{" "}
+                    {formatDateForUI(rental.createdAt)}
+                  </div>
+                </div>
+              </div>
+
+              {rental.customers && rental.customers.length > 0 && (
+                <div className="rental-customers">
+                  <h4>Danh sách khách hàng</h4>
+                  <table className="customer-table">
+                    <thead>
+                      <tr>
+                        <th>STT</th>
+                        <th>Họ tên</th>
+                        <th>Loại khách</th>
+                        <th>CMND/Passport</th>
+                        <th>Địa chỉ</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {rental.customers.map((customer, index) => (
+                        <tr key={customer.id || customer._id || index}>
+                          <td>{index + 1}</td>
+                          <td>{customer.name}</td>
+                          <td>{customer.type}</td>
+                          <td>{customer.idNumber}</td>
+                          <td>{customer.address}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           ))
         )}

@@ -71,6 +71,8 @@ export const getBooking = async (id) => {
  */
 export const createBooking = async (bookingData) => {
   try {
+    console.log("Sending booking data to API:", bookingData);
+
     const response = await fetch(`${API_URL}/bookings`, {
       method: "POST",
       headers: {
@@ -79,16 +81,28 @@ export const createBooking = async (bookingData) => {
       body: JSON.stringify(bookingData),
     });
 
+    // Log raw response for debugging
+    console.log("Raw API response status:", response.status);
+
+    // Xử lý trường hợp API trả về lỗi nhưng không có JSON
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error: ${response.status}`);
+      if (response.status === 404) {
+        throw new Error("API endpoint không tồn tại");
+      }
+
+      try {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Lỗi HTTP: ${response.status}`);
+      } catch (jsonError) {
+        throw new Error(`Lỗi HTTP: ${response.status}`);
+      }
     }
 
     const data = await response.json();
-    return data;
+    return { success: true, data: data.data || data };
   } catch (error) {
     console.error("Error creating booking:", error);
-    throw error;
+    return { success: false, message: error.message };
   }
 };
 

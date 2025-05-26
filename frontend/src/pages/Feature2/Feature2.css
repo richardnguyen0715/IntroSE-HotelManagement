@@ -1,50 +1,75 @@
 .feature-content {
-    padding: 2rem;
+  padding: 2rem;
 }
 
 .rental-card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    margin-bottom: 2rem;
-    padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 15px;
 }
 
 .rental-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 1rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
 }
 
-.rental-room {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+.rental-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rental-id {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.rental-details {
+  margin-bottom: 15px;
+}
+
+.rental-info-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.rental-info-item {
+  flex: 1;
+  min-width: 150px;
+  padding: 5px 10px;
+}
+
+.rental-customers {
+  margin-top: 15px;
+}
+
+.rental-customers h4 {
+  margin-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 5px;
 }
 
 .customer-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
+  width: 100%;
+  border-collapse: collapse;
 }
 
-.customer-table th,
-.customer-table td {
-    padding: 0.75rem;
-    text-align: left;
-    border: 1px solid #ddd;
+.customer-table th, .customer-table td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
 }
 
 .customer-table th {
-    background-color: #f8f9fa;
-    font-weight: 500;
-}
-
-.customer-table tr:nth-child(even) {
-    background-color: #FFFFE0;
+  background-color: #f5f5f5;
+  font-weight: 600;
 }
 
 /* Modal styles */
@@ -133,71 +158,80 @@ button.confirm-button {
 }
 
 .button-container {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
 }
+
 button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
+
 .action-button {
-    padding: 0.5rem 1.5rem;
-    border: none;
-    border-radius: 4px;
-    font-weight: 500;
-    text-transform: uppercase;
-    cursor: default; /* Mặc định là default */
-    transition: all 0.3s ease;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  cursor: default;
+  transition: all 0.3s ease;
 }
 
 .action-button.add {
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer !important; /* Luôn là pointer */
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer !important;
 }
 
 .action-button.edit, .action-button.delete {
-    /* Mặc định cho nút sửa và xóa khi không có gì được chọn */
-    opacity: 0.6;
-    cursor: not-allowed;
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .action-button.edit.clickable, .action-button.delete.clickable {
-    /* Khi có thể click được */
-    opacity: 1;
-    cursor: pointer !important;
+  opacity: 1;
+  cursor: pointer !important;
 }
 
 .action-button.edit {
-    background-color: #FFC107;
-    color: black;
+  background-color: #FFC107;
+  color: black;
 }
 
 .action-button.delete {
-    background-color: #F44336;
-    color: white;
+  background-color: #F44336;
+  color: white;
 }
 
 .action-button.clickable:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    cursor: pointer !important;
+  opacity: 0.9;
+  transform: translateY(-1px);
+  cursor: pointer !important;
 }
 
 .action-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed !important;
+  opacity: 0.6;
+  cursor: not-allowed !important;
 }
 
-/* Đảm bảo không bị ghi đè */
 button:not([disabled]).action-button.add,
 button:not([disabled]).action-button.edit.clickable,
 button:not([disabled]).action-button.delete.clickable {
-    cursor: pointer !important;
+  cursor: pointer !important;
 }
-/* Thêm vào file Feature2.css */
+
+.action-button.refresh {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.action-button.refresh:hover {
+  background-color: #45a049;
+}
+
+/* Messages */
 .success-message {
   background-color: #4CAF50;
   color: white;
@@ -213,7 +247,6 @@ button:not([disabled]).action-button.delete.clickable {
   color: #666;
   font-style: italic;
 }
-/* Thêm vào file CSS hiện có */
 
 .loading-message {
   text-align: center;
@@ -229,15 +262,6 @@ button:not([disabled]).action-button.delete.clickable {
   margin: 10px 0;
   border-radius: 4px;
   font-weight: bold;
-}
-
-.action-button.refresh {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.action-button.refresh:hover {
-  background-color: #45a049;
 }
 
 @keyframes fadeIn {
