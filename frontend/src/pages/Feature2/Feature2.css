@@ -263,7 +263,109 @@ button:not([disabled]).action-button.delete.clickable {
   border-radius: 4px;
   font-weight: bold;
 }
+/* Styles cho phần bộ lọc */
+.filter-section {
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
 
+.filter-section h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #333;
+  font-size: 1rem;
+}
+
+.filter-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: flex-end;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 120px;
+}
+
+.filter-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.filter-group input,
+.filter-group select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+  align-self: flex-end;
+}
+
+.filter-button {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 4px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-button.apply {
+  background-color: #2196F3;
+  color: white;
+}
+
+.filter-button.apply:hover {
+  background-color: #0d8aee;
+}
+
+.filter-button.reset {
+  background-color: #f1f1f1;
+  color: #333;
+}
+
+.filter-button.reset:hover {
+  background-color: #e0e0e0;
+}
+
+.filter-status {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  color: #0d47a1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .filter-controls {
+    flex-direction: column;
+  }
+  
+  .filter-group {
+    width: 100%;
+  }
+  
+  .filter-buttons {
+    width: 100%;
+    margin-left: 0;
+    justify-content: space-between;
+  }
+}
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

@@ -1,152 +1,149 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './Feature5.css';
-import { useReports } from './ReportContext';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useReports } from "./ReportContext";
+import "./Feature5.css";
+import { formatCurrency } from "../../services/reports";
 
 function RevenueReport() {
-    const navigate = useNavigate();
-    const { reports, deleteReports } = useReports();
-    const [selectedReports, setSelectedReports] = useState([]);
+  const navigate = useNavigate();
+  const { revenueReport, loading, error, fetchRevenueReport } = useReports();
+  const [yearMonth, setYearMonth] = useState({
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+  });
 
-    const handleGoBack = () => {
-        navigate(-1);
-    };
+  // Fetch report when component mounts or year/month changes
+  useEffect(() => {
+    fetchRevenueReport(yearMonth.year, yearMonth.month);
+  }, [yearMonth]);
 
-    const handleCheckboxChange = (month, id) => {
-        const key = `${month}-${id}`;
-        setSelectedReports(prev => {
-            if (prev.includes(key)) {
-                return prev.filter(item => item !== key);
-            }
-            return [...prev, key];
-        });
-    };
+  const handleGoBack = () => {
+    navigate("/feature5");
+  };
 
-    const handleAdd = () => {
-        navigate('/feature5/revenue/add');
-    };
+  const handleMonthChange = (e) => {
+    setYearMonth((prev) => ({ ...prev, month: parseInt(e.target.value) }));
+  };
 
-    const handleEdit = () => {
-        const [month, id] = selectedReports[0].split('-');
-        const report = reports.find(r => r.month === month)?.items.find(item => item.id === parseInt(id));
+  const handleYearChange = (e) => {
+    setYearMonth((prev) => ({ ...prev, year: parseInt(e.target.value) }));
+  };
 
-        if (report) {
-            navigate('/feature5/revenue/edit', {
-                state: {
-                    month,
-                    id: parseInt(id),
-                    roomType: report.roomType,
-                    revenue: report.revenue,
-                    rentDays: report.rentDays
-                }
-            });
-        }
-    };
-
-    const handleDelete = () => {
-        if (window.confirm('Bạn có chắc chắn muốn xóa các báo cáo đã chọn?')) {
-            deleteReports(selectedReports);
-            setSelectedReports([]);
-        }
-    };
-
-    return (
-        <div className="app">
-            {/* Header */}
-            <header className="app-header">
-                <div className="header-left">
-                    <h1>HotelManager</h1>
-                </div>
-
-                <nav className="header-right">
-                    <Link to="/about">Về chúng tôi</Link>
-                    <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag" />
-                    <Link to="/register">
-                        <button className="button-reg">Đăng ký</button>
-                    </Link>
-                    <Link to='/login'>
-                        <button className="button-log">Đăng nhập</button>
-                    </Link>
-                </nav>
-            </header>
-
-            {/* Main Content */}
-            <main className="main-content">
-                <div className="header-container">
-                    <h2>Báo cáo doanh thu theo loại phòng</h2>
-                    <button onClick={handleGoBack} className="back-button">
-                        <img src="/icons/Navigate.png" alt="Back" />
-                    </button>
-                </div>
-
-                <div className="reports-container">
-                    {reports.length === 0 ? (
-                        <div className="no-data">
-                            <p>Chưa có báo cáo nào. Vui lòng thêm báo cáo mới.</p>
-                        </div>
-                    ) : (
-                        reports.map((monthReport) => (
-                            <div key={monthReport.month} className="revenue-report">
-                                <table className="report-table">
-                                    <thead>
-                                        <tr>
-                                            <th colSpan="6" style={{ textAlign: 'center' }}>
-                                                Tháng {monthReport.month}
-                                            </th>
-                                        </tr>
-                                        <tr>
-                                            <th></th>
-                                            <th>STT</th>
-                                            <th>Loại phòng</th>
-                                            <th>Doanh thu</th>
-                                            <th>Số ngày thuê</th>
-                                            <th>Tỉ lệ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {monthReport.items.map((report) => (
-                                            <tr key={report.id}>
-                                                <td className="checkbox-cell">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={selectedReports.includes(`${monthReport.month}-${report.id}`)}
-                                                        onChange={() => handleCheckboxChange(monthReport.month, report.id)}
-                                                    />
-                                                </td>
-                                                <td>{report.id}</td>
-                                                <td>{report.roomType}</td>
-                                                <td data-type="currency">{report.revenue}</td>
-                                                <td>{report.rentDays}</td>
-                                                <td data-type="percentage">{report.percentage}%</td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        ))
-                    )}
-
-                    <div className="report-actions">
-                        <button className="action-button add-button" onClick={handleAdd}>Thêm</button>
-                        <button
-                            className="action-button edit-button"
-                            onClick={handleEdit}
-                            disabled={selectedReports.length !== 1}
-                        >
-                            Sửa
-                        </button>
-                        <button
-                            className="action-button delete-button"
-                            onClick={handleDelete}
-                            disabled={selectedReports.length === 0}
-                        >
-                            Xóa
-                        </button>
-                    </div>
-                </div>
-            </main>
-        </div>
+  // Generate month options
+  const monthOptions = [];
+  for (let i = 1; i <= 12; i++) {
+    monthOptions.push(
+      <option key={i} value={i}>
+        {new Date(2000, i - 1, 1).toLocaleString("default", { month: "long" })}
+      </option>
     );
+  }
+
+  // Generate year options (from 2020 to current year + 1)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = [];
+  for (let year = 2020; year <= currentYear + 1; year++) {
+    yearOptions.push(
+      <option key={year} value={year}>
+        {year}
+      </option>
+    );
+  }
+
+  return (
+    <div className="app">
+      {/* Header */}
+      <header className="app-header">
+        <div className="header-left">
+          <h1>HotelManager</h1>
+        </div>
+
+        <nav className="header-right">
+          <Link to="/about">Về chúng tôi</Link>
+          <img
+            src="/icons/VietnamFlag.png"
+            alt="Vietnam Flag"
+            className="flag"
+          />
+          <Link to="/register">
+            <button className="button-reg">Đăng ký</button>
+          </Link>
+          <Link to="/login">
+            <button className="button-log">Đăng nhập</button>
+          </Link>
+        </nav>
+      </header>
+
+      {/* Main Content */}
+      <main className="main-content">
+        <div className="header-container">
+          <h2>Báo cáo doanh thu theo loại phòng</h2>
+          <button onClick={handleGoBack} className="back-button">
+            <img src="/icons/Navigate.png" alt="Back" />
+          </button>
+        </div>
+
+        <div className="filter-container">
+          <div className="filter-group">
+            <label>Tháng:</label>
+            <select value={yearMonth.month} onChange={handleMonthChange}>
+              {monthOptions}
+            </select>
+          </div>
+          <div className="filter-group">
+            <label>Năm:</label>
+            <select value={yearMonth.year} onChange={handleYearChange}>
+              {yearOptions}
+            </select>
+          </div>
+        </div>
+
+        <div className="reports-container">
+          {loading && (
+            <div className="loading-message">Đang tải dữ liệu...</div>
+          )}
+          {error && <div className="error-message">{error}</div>}
+
+          {!loading && !revenueReport ? (
+            <div className="no-data">
+              <p>Không có dữ liệu báo cáo cho thời gian đã chọn.</p>
+            </div>
+          ) : !loading && revenueReport ? (
+            <div className="revenue-report">
+              <h3>
+                Tháng {revenueReport.month}/{revenueReport.year} -{" "}
+                {revenueReport.monthName}
+              </h3>
+              <table className="report-table">
+                <thead>
+                  <tr>
+                    <th>Loại phòng</th>
+                    <th>Giá cơ bản</th>
+                    <th>Số phòng</th>
+                    <th>Doanh thu</th>
+                    <th>Số ngày thuê</th>
+                    <th>Tỷ lệ lấp đầy</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {revenueReport.roomTypes.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.roomType}</td>
+                      <td>{formatCurrency(item.basePrice)}</td>
+                      <td>{item.roomCount}</td>
+                      <td>{formatCurrency(item.revenue)}</td>
+                      <td>{item.occupiedDays}</td>
+                      <td>{item.occupancyRate}%</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
+        </div>
+      </main>
+    </div>
+  );
 }
 
-export default RevenueReport; 
+export default RevenueReport;

@@ -12,13 +12,115 @@ function Feature2Main() {
   const [showForm, setShowForm] = useState(false);
   const [editingRental, setEditingRental] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
-  const { fetchRooms } = useRooms();
+  const { fetchRooms, rooms } = useRooms();
   const location = useLocation();
+
+  // Thêm trường checkInDate vào filters
+  const [filters, setFilters] = useState({
+    room: "",
+    email: "",
+    checkInDate: "",
+  });
+  const [filteredRentals, setFilteredRentals] = useState([]);
+  const [allRooms, setAllRooms] = useState([]);
+  const [isFiltering, setIsFiltering] = useState(false);
 
   // Refresh rentals when component mounts
   useEffect(() => {
     fetchRentals();
+    fetchAllRooms();
   }, []);
+
+  // Fetch tất cả phòng để hiển thị trong dropdown
+  const fetchAllRooms = async () => {
+    try {
+      await fetchRooms();
+      if (rooms && rooms.length > 0) {
+        // Lấy danh sách phòng từ useRooms sau khi đã fetch
+        const uniqueRooms = [
+          ...new Set(rooms.map((room) => room.roomNumber)),
+        ].sort();
+        setAllRooms(uniqueRooms);
+      }
+    } catch (error) {
+      console.error("Lỗi khi lấy danh sách phòng:", error);
+    }
+  };
+
+  // Cập nhật filteredRentals khi rentals hoặc filters thay đổi
+  useEffect(() => {
+    if (!isFiltering) {
+      setFilteredRentals(rentals);
+      return;
+    }
+
+    filterRentals();
+  }, [rentals, filters, isFiltering]);
+
+  // Hàm xử lý thay đổi bộ lọc
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters({
+      ...filters,
+      [name]: value,
+    });
+  };
+
+  // Hàm xử lý lọc phiếu thuê
+  const filterRentals = () => {
+    const { room, email, checkInDate } = filters;
+
+    let result = [...rentals];
+
+    // Lọc theo phòng
+    if (room) {
+      result = result.filter((rental) => rental.room === room);
+    }
+
+    // Lọc theo email
+    if (email) {
+      result = result.filter(
+        (rental) =>
+          rental.email &&
+          rental.email.toLowerCase().includes(email.toLowerCase())
+      );
+    }
+
+    // Lọc theo ngày nhận phòng
+    if (checkInDate) {
+      const filterDate = new Date(checkInDate);
+      // Đặt giờ, phút, giây về 0 để chỉ so sánh ngày
+      filterDate.setHours(0, 0, 0, 0);
+
+      result = result.filter((rental) => {
+        if (!rental.checkInDate) return false;
+
+        const rentalDate = new Date(rental.checkInDate);
+        rentalDate.setHours(0, 0, 0, 0);
+
+        return rentalDate.getTime() === filterDate.getTime();
+      });
+    }
+
+    setFilteredRentals(result);
+  };
+
+  // Reset bộ lọc
+  const resetFilters = () => {
+    setFilters({
+      room: "",
+      email: "",
+      checkInDate: "",
+    });
+    setIsFiltering(false);
+    setFilteredRentals(rentals);
+  };
+
+  // Apply filters
+  const applyFilters = () => {
+    setIsFiltering(true);
+    filterRentals();
+  };
 
   // Kiểm tra dữ liệu từ Feature1 khi component mount
   useEffect(() => {
@@ -173,6 +275,9 @@ function Feature2Main() {
     }
   };
 
+  // Sử dụng filteredRentals nếu đang lọc, ngược lại sử dụng rentals
+  const displayRentals = isFiltering ? filteredRentals : rentals;
+
   return (
     <div className="feature-content">
       <h3>Danh sách các phiếu thuê phòng</h3>
@@ -180,13 +285,81 @@ function Feature2Main() {
         <div className="success-message">{successMessage}</div>
       )}
       {error && <div className="error-message">{error}</div>}
+
+      {/* Phần bộ lọc */}
+      <div className="filter-section">
+        <h4>Lọc phiếu thuê</h4>
+        <div className="filter-controls">
+          <div className="filter-group">
+            <label>Phòng:</label>
+            <select
+              name="room"
+              value={filters.room}
+              onChange={handleFilterChange}
+            >
+              <option value="">Tất cả phòng</option>
+              {allRooms.map((room) => (
+                <option key={room} value={room}>
+                  {room}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label>Email:</label>
+            <input
+              type="text"
+              name="email"
+              value={filters.email}
+              onChange={handleFilterChange}
+              placeholder="Tìm theo email"
+            />
+          </div>
+
+          {/* Thêm trường ngày nhận phòng */}
+          <div className="filter-group">
+            <label>Ngày nhận phòng:</label>
+            <input
+              type="date"
+              name="checkInDate"
+              value={filters.checkInDate}
+              onChange={handleFilterChange}
+            />
+          </div>
+
+          <div className="filter-buttons">
+            <button className="filter-button apply" onClick={applyFilters}>
+              Lọc
+            </button>
+            <button className="filter-button reset" onClick={resetFilters}>
+              Xóa bộ lọc
+            </button>
+          </div>
+        </div>
+
+        {isFiltering && (
+          <div className="filter-status">
+            <p>
+              Đang hiển thị {filteredRentals.length} kết quả
+              {filters.room && ` cho phòng ${filters.room}`}
+              {filters.email && ` với email chứa "${filters.email}"`}
+              {filters.checkInDate &&
+                ` nhận phòng vào ngày ${filters.checkInDate}`}
+            </p>
+          </div>
+        )}
+      </div>
+
       {loading && <div className="loading-message">Đang tải dữ liệu...</div>}
 
       <div className="table-section">
-        {!loading && rentals.length === 0 ? (
-          <p className="empty-message">Chưa có phiếu thuê phòng nào.</p>
+        {!loading && displayRentals.length === 0 ? (
+          <p className="empty-message">
+            Không tìm thấy phiếu thuê phòng phù hợp.
+          </p>
         ) : (
-          rentals.map((rental) => (
+          displayRentals.map((rental) => (
             <div key={rental.id} className="rental-card">
               <div className="rental-header">
                 <div className="rental-checkbox">
@@ -288,7 +461,10 @@ function Feature2Main() {
           className={`action-button edit ${
             selectedRentals.length === 1 ? "clickable" : "disabled"
           }`}
-          onClick={handleEdit}
+          onClick={selectedRentals.length === 1 ? handleEdit : undefined}
+          style={{
+            cursor: selectedRentals.length === 1 ? "pointer" : "not-allowed",
+          }}
           disabled={selectedRentals.length !== 1}
         >
           Sửa
@@ -297,7 +473,10 @@ function Feature2Main() {
           className={`action-button delete ${
             selectedRentals.length > 0 ? "clickable" : "disabled"
           }`}
-          onClick={handleDelete}
+          onClick={selectedRentals.length > 0 ? handleDelete : undefined}
+          style={{
+            cursor: selectedRentals.length > 0 ? "pointer" : "not-allowed",
+          }}
           disabled={selectedRentals.length === 0}
         >
           Xóa
