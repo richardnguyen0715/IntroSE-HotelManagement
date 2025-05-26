@@ -1,26 +1,15 @@
 const express = require('express');
 const { 
-  getAllInvoices, 
+  getAllInvoices,
   getInvoice, 
   createInvoice, 
   updateInvoice, 
-  deleteInvoice
+  deleteInvoice,
+  getInvoiceByNumber,
+  confirmInvoicePayment
 } = require('../controllers/invoiceController');
 
 const router = express.Router();
-// const { protect, authorize } = require('../middleware/auth');
-
-// Base routes
-// router
-//   .route('/')
-//   .get(protect, getAllInvoices)
-//   .post(protect, createInvoice);
-
-// router
-//   .route('/:id')
-//   .get(protect, getInvoice)
-//   .put(protect, updateInvoice)
-//   .delete(protect, authorize('admin'), deleteInvoice);
 
 router
   .route('/')
@@ -32,5 +21,13 @@ router
   .get(getInvoice)
   .put(updateInvoice)
   .delete(deleteInvoice);
+
+router
+  .route('/:id/confirm-payment')
+  .post(confirmInvoicePayment);
+
+router
+  .route('/number/:invoiceNumber')
+  .get(getInvoiceByNumber);
 
 module.exports = router;

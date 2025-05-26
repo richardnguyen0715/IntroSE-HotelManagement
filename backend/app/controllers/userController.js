@@ -4,7 +4,16 @@ const { generateToken } = require('../middleware/auth');
 // Get all users
 exports.getAllUsers = async (req, res, next) => {
   try {
-    const users = await User.find().select('-password');
+    let query = User.find();
+
+    // Filter by role if provided in query params
+    if (req.query.role) {
+      query = query.find({ role: req.query.role });
+    }
+
+    // Thực hiện query và loại bỏ password
+    const users = await query.select('-password');
+
     res.status(200).json({
       success: true,
       count: users.length,
@@ -18,12 +27,21 @@ exports.getAllUsers = async (req, res, next) => {
 // Get single user
 exports.getUser = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id).select('-password');
+    const identifier = req.params.id; // có thể là ID hoặc email
+    let user;
+
+    // Kiểm tra xem identifier có phải là email không
+    if (identifier.includes('@')) {
+      user = await User.findOne({ email: identifier }).select('-password');
+    } else {
+      // Nếu không phải email thì tìm bằng ID
+      user = await User.findById(identifier).select('-password');
+    }
     
     if (!user) {
       const error = new Error('User not found');
       error.statusCode = 404;
-      throw error;
+      return next(error);
     }
     
     res.status(200).json({
@@ -31,6 +49,12 @@ exports.getUser = async (req, res, next) => {
       data: user
     });
   } catch (error) {
+    // Nếu ID không hợp lệ
+    if (error.name === 'CastError') {
+      const customError = new Error('Invalid user ID format');
+      customError.statusCode = 400;
+      return next(customError);
+    }
     next(error);
   }
 };
@@ -84,7 +108,6 @@ exports.updateUser = async (req, res, next) => {
 // Delete user
 exports.deleteUser = async (req, res, next) => {
   try {
-    console.log(req.params.id);
     const user = await User.findByIdAndDelete(req.params.id);
     
     if (!user) {
@@ -106,39 +129,3 @@ exports.deleteUser = async (req, res, next) => {
 const matchPassword = async (user, password) => {
   return await bcrypt.compare(password, user.password);
 };
-
-// login
-exports.login = async (req, res, next) => {
-  try {
-    const { email, password } = req.body;
-    
-    // Tìm người dùng
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng' });
-    }
-    
-    // Kiểm tra mật khẩu
-    const isMatch = await user.matchPassword(password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Email hoặc mật khẩu không đúng' });
-    }
-    
-    // Tạo token
-    const token = generateToken(user);
-    
-    res.status(200).json({
-      success: true,
-      token,
-      user: {
-        id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
