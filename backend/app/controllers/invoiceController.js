@@ -80,7 +80,6 @@ exports.createInvoice = async (req, res) => {
 
 // Get all invoices
 exports.getAllInvoices = async (req, res) => {
-exports.getAllInvoices = async (req, res) => {
   try {
     const { customer, roomNumber, startDate, endDate } = req.query;
     let query = {};
@@ -88,50 +87,12 @@ exports.getAllInvoices = async (req, res) => {
     // Filter by customer if provided
     if (customer) {
       query.customer = { $regex: customer, $options: 'i' };
-    const { customer, roomNumber, startDate, endDate } = req.query;
-    let query = {};
-
-    // Filter by customer if provided
-    if (customer) {
-      query.customer = { $regex: customer, $options: 'i' };
     }
 
     // Filter by room number if provided
     if (roomNumber) {
       query['rentals.roomNumber'] = roomNumber;
-
-    // Filter by room number if provided
-    if (roomNumber) {
-      query['rentals.roomNumber'] = roomNumber;
     }
-
-    // Filter by issue date range if provided
-    if (startDate || endDate) {
-      query.issueDate = {};
-      
-      if (startDate) {
-        query.issueDate.$gte = new Date(startDate);
-      }
-      
-      if (endDate) {
-        query.issueDate.$lte = new Date(endDate);
-      }
-    }
-
-    // Pagination
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
-
-    // Execute query with pagination
-    const invoices = await Invoice.find(query)
-      .sort({ issueDate: -1 })
-      .skip(skip)
-      .limit(limit);
-
-    // Get total count for pagination
-    const total = await Invoice.countDocuments(query);
-
 
     // Filter by issue date range if provided
     if (startDate || endDate) {
@@ -169,12 +130,6 @@ exports.getAllInvoices = async (req, res) => {
         totalPages: Math.ceil(total / limit),
         totalItems: total
       },
-      total,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        totalItems: total
-      },
       data: invoices
     });
   } catch (error) {
@@ -182,65 +137,13 @@ exports.getAllInvoices = async (req, res) => {
       success: false,
       message: error.message 
     });
-    res.status(500).json({ 
-      success: false,
-      message: error.message 
-    });
   }
 };
 
 // Get a single invoice by ID
 exports.getInvoice = async (req, res) => {
-// Get a single invoice by ID
-exports.getInvoice = async (req, res) => {
   try {
     const invoice = await Invoice.findById(req.params.id);
-    const invoice = await Invoice.findById(req.params.id);
-    
-    if (!invoice) {
-      return res.status(404).json({
-        success: false,
-        message: 'Invoice not found'
-      });
-      return res.status(404).json({
-        success: false,
-        message: 'Invoice not found'
-      });
-    }
-
-
-    res.status(200).json({
-      success: true,
-      data: invoice
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
-
-// Get invoice by invoice number
-exports.getInvoiceByNumber = async (req, res) => {
-// Get invoice by invoice number
-exports.getInvoiceByNumber = async (req, res) => {
-  try {
-    const invoice = await Invoice.findOne({ invoiceNumber: req.params.invoiceNumber });
-    
-    if (!invoice) {
-      return res.status(404).json({
-        success: false,
-        message: 'Invoice not found'
-      });
-    }
-
-    res.status(200).json({
-    const invoice = await Invoice.findOne({ invoiceNumber: req.params.invoiceNumber });
     
     if (!invoice) {
       return res.status(404).json({
@@ -261,31 +164,23 @@ exports.getInvoiceByNumber = async (req, res) => {
   }
 };
 
-// Update an invoice
-exports.updateInvoice = async (req, res) => {
+// Get invoice by invoice number
+exports.getInvoiceByNumber = async (req, res) => {
   try {
-    const { name, address, items } = req.body;
+    const invoice = await Invoice.findOne({ invoiceNumber: req.params.invoiceNumber });
     
-    // Process items if they are being updated
-    let processedItems;
-    if (items && Array.isArray(items)) {
-      processedItems = await Promise.all(items.map(async (item) => {
-        const room = await Room.findOne({ roomNumber: item.roomNumber });
-        if (!room) {
-          throw new Error(`Room ${item.roomNumber} not found`);
-        }
-        
-        const pricePerDay = room.price;
-        const total = pricePerDay * item.numberOfDays;
-        
-        return {
-          ...item,
-          pricePerDay,
-          total
-        };
-      }));
+    if (!invoice) {
+      return res.status(404).json({
+        success: false,
+        message: 'Invoice not found'
+      });
     }
 
+    res.status(200).json({
+      success: true,
+      data: invoice
+    });
+  } catch (error) {
     res.status(500).json({
       success: false,
       message: error.message
@@ -326,26 +221,14 @@ exports.updateInvoice = async (req, res) => {
         ...(processedItems && { items: processedItems })
       },
       { new: true, runValidators: true }
-      {
-        ...(name && { name }),
-        ...(address && { address }),
-        ...(processedItems && { items: processedItems })
-      },
-      { new: true, runValidators: true }
     );
-
 
     if (!invoice) {
       return res.status(404).json({
         success: false,
         message: 'Invoice not found'
       });
-      return res.status(404).json({
-        success: false,
-        message: 'Invoice not found'
-      });
     }
-
 
     res.status(200).json({
       success: true,
@@ -356,86 +239,15 @@ exports.updateInvoice = async (req, res) => {
       success: false,
       message: error.message
     });
-    res.status(400).json({
-      success: false,
-      message: error.message
-    });
   }
 };
 
-// Delete an invoice
-exports.deleteInvoice = async (req, res) => {
 // Delete an invoice
 exports.deleteInvoice = async (req, res) => {
   try {
     const invoice = await Invoice.findByIdAndDelete(req.params.id);
 
-
     if (!invoice) {
-      return res.status(404).json({
-        success: false,
-        message: 'Invoice not found'
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'Invoice deleted successfully'
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
-
-// Invoice payment confirmation
-exports.confirmInvoicePayment = async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    // Find invoice by ID
-    const invoice = await Invoice.findById(id);
-    if (!invoice) {
-      return res.status(404).json({
-        success: false,
-        message: 'Invoice not found'
-      });
-    }
-    
-    // Check if invoice is already paid
-    if (invoice.status === 'paid') {
-      return res.status(400).json({
-        success: false,
-        message: 'Invoice already paid'
-      });
-    }
-    
-    // Update invoice status to paid
-    const updatedInvoice = await Invoice.findByIdAndUpdate(
-      id,
-      {
-        status: 'paid',
-      },
-      { new: true }
-    );
-    
-    // Update booking status and room status
-    for (const rental of invoice.rentals) {
-      // Update booking status
-      await Booking.findOneAndUpdate(
-        { roomNumber: rental.roomNumber, status: 'active' },
-        { status: 'inactive' },
-        { new: true }
-      );
-      
-      // Set status to available
-      await Room.findOneAndUpdate(
-        { roomNumber: rental.roomNumber },
-        { status: 'available' },
-        { new: true }
-      );
       return res.status(404).json({
         success: false,
         message: 'Invoice not found'
@@ -506,14 +318,8 @@ exports.confirmInvoicePayment = async (req, res) => {
       success: true,
       message: 'Paid successfully',
       data: updatedInvoice
-      message: 'Paid successfully',
-      data: updatedInvoice
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: `Error: ${error.message}`
-    });
     res.status(500).json({
       success: false,
       message: `Error: ${error.message}`

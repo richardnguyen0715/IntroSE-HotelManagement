@@ -16,16 +16,6 @@ exports.getAllUsers = async (req, res, next) => {
     // Thực hiện query và loại bỏ password
     const users = await query.select('-password');
 
-    let query = User.find();
-
-    // Filter by role if provided in query params
-    if (req.query.role) {
-      query = query.find({ role: req.query.role });
-    }
-
-    // Thực hiện query và loại bỏ password
-    const users = await query.select('-password');
-
     res.status(200).json({
       success: true,
       count: users.length,
@@ -60,7 +50,6 @@ exports.getUser = async (req, res, next) => {
       const error = new Error('User not found');
       error.statusCode = 404;
       return next(error);
-      return next(error);
     }
     
     res.status(200).json({
@@ -68,12 +57,6 @@ exports.getUser = async (req, res, next) => {
       data: user
     });
   } catch (error) {
-    // Nếu ID không hợp lệ
-    if (error.name === 'CastError') {
-      const customError = new Error('Invalid user ID format');
-      customError.statusCode = 400;
-      return next(customError);
-    }
     // Nếu ID không hợp lệ
     if (error.name === 'CastError') {
       const customError = new Error('Invalid user ID format');
