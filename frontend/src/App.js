@@ -1,6 +1,6 @@
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 
-import HomePage from './pages/HomePage';
+import HomePage from './pages/HomePage/HomePage';
 import Login from './pages/Login/Login';
 import Register from './pages/Register/Register';
 import AboutUs from './pages/AboutUs/AboutUs';
@@ -23,11 +23,12 @@ import Feature6c from './pages/Feature6/Feature6c';
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<HomePage />} />
-
-      <Route path="/register" element={<Register />} />
+      <Route path="/" element={<Navigate to="/login" />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/forgot_password" element={<ForgotPassword />} />
+
+      <Route path="/HomePage" element={<HomePage />} />
       <Route path="/about" element={<AboutUs />} />
 
       <Route path="/feature1" element={<Feature1 />} />

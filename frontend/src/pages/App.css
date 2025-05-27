@@ -45,23 +45,6 @@ body {
   margin-right: 60px;
 }
 
-.header-right a {
-  color: #333;
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 20px;
-  padding-top: 5px;
-  width: 120px;
-  margin-left: 20px;
-  margin-right: 10px;
-}
-
-.flag {
-  width: 60px;
-  height: auto;
-  margin-right: 5px;
-}
-
 .button-reg {
   margin-bottom: 5px;
   background: #d3f8b4;

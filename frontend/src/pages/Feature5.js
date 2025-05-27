@@ -7,7 +7,7 @@ function Feature5() {
       
       <header className="app-header">
         <div className="header-left">
-          <Link to="/">
+          <Link to="/HomePage">
             <h1>HotelManager</h1>
           </Link>
         </div>
@@ -16,7 +16,7 @@ function Feature5() {
       <main className="main-content">
         <div className="header-container">
           <h2>Lập Báo cáo tháng</h2>
-          <Link to="/" className="back-button">
+          <Link to="/HomePage" className="back-button">
             <img src="/icons/Navigate.png" alt="Back"/>
           </Link>
         </div>

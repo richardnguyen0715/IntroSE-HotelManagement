@@ -8,7 +8,7 @@ function AboutUs() {
       
       <header className="app-header">
         <div className="header-left">
-          <Link to="/">
+          <Link to="/HomePage">
             <h1>HotelManager</h1>
           </Link>
         </div>
@@ -17,7 +17,7 @@ function AboutUs() {
       <main className="main-content">
         <div className="header-container">
           <h2>Giới thiệu</h2>
-          <Link to="/" className="back-button">
+          <Link to="/HomePage" className="back-button">
             <img src="/icons/Navigate.png" alt="Back"/>
           </Link>
         </div>

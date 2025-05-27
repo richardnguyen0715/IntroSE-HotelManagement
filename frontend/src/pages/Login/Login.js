@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../App.css';
@@ -12,6 +12,14 @@ function Login() {
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState({});
   const [message, setMessage] = useState('');
+
+  // Kiểm tra token khi vào trang
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      navigate('/HomePage');
+    }
+  }, [navigate]);
 
   // Hàm kiểm tra định dạng email
   const validateEmail = (email) => {
@@ -49,8 +57,19 @@ function Login() {
         
         if (response.status === 200) {
           console.log("Đăng nhập thành công");
-          localStorage.setItem("token", response.data.token);
-          navigate("/")
+          
+          // Xử lý remember me
+          if (remember) {
+            // Nếu remember -> lưu vào localStorage
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("userInfo", JSON.stringify(response.data.user));
+          } else {
+            // Nếu không remember -> lưu vào sessionStorage
+            sessionStorage.setItem("token", response.data.token);
+            sessionStorage.setItem("userInfo", JSON.stringify(response.data.user));
+          }
+          
+          navigate("/HomePage");
         }   
       } 
 
@@ -64,11 +83,11 @@ function Login() {
           console.log("Lỗi từ server");
           setMessage("Lỗi từ server");
         }
-      }
 
-      finally {
-        console.log("Lỗi không xác định");
-        setMessage("Lỗi không xác định");
+        else {
+          console.log("Lỗi không xác định");
+          setMessage("Lỗi không xác định");
+        }
       }
     }
   };
@@ -78,18 +97,13 @@ function Login() {
       
       <header className="app-header">
         <div className="header-left">
-          <Link to="/">
-            <h1>HotelManager</h1>
-          </Link>
+          <h1>HotelManager</h1>
         </div>
       </header>
 
       <main className="main-content">
         <div className="header-container">
           <h2>Đăng nhập</h2>
-          <Link to="/" className="back-button">
-            <img src="/icons/Navigate.png" alt="Back"/>
-          </Link>
         </div>
 
         <div className="login-container">

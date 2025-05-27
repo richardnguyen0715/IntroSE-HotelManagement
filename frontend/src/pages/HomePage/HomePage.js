@@ -1,27 +1,60 @@
-import { Link } from 'react-router-dom';
-import './App.css';
-
+import { useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import './HomePage.css';
+import '../App.css';
 
 function HomePage() {
+  const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+
+  useEffect(() => {
+    const savedUserInfo = localStorage.getItem("userInfo");
+    if (savedUserInfo) {
+      setUserInfo(JSON.parse(savedUserInfo));
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    navigate("/login", { replace: true });
+  };
+
   return (
     <div className="app">
-      {/* Header */}
       <header className="app-header">
-
         <div className="header-left">
           <h1>HotelManager</h1>
         </div>
-        
-        <nav className="header-right">
+
+        <div className="header-right">
           <Link to="/about">Về chúng tôi</Link>
           <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag"/>
-          <Link to="/register">
-            <button className="button-reg">Đăng ký</button>
-          </Link>
-          <Link to='/login'>
-            <button className="button-log">Đăng nhập</button>
-          </Link>
-        </nav>
+          <div className="user-menu">
+            <div 
+              className="user-avatar" 
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+              <img src="/icons/User.png" alt="User" />
+            </div>
+
+            {isDropdownOpen && (
+              <div className="user-dropdown">
+                <div className="user-info">
+                  <h3>Thông tin người dùng</h3>
+                  <p>Họ tên: {userInfo?.name}</p>
+                  <p>Email: {userInfo?.email}</p>
+                  <p>Vai trò: {userInfo?.role}</p>
+                </div>
+                <button 
+                  className="logout-button" 
+                  onClick={handleLogout}>
+                  Đăng xuất
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -34,7 +67,7 @@ function HomePage() {
   
           <Link to="/feature1" className="function-item">
             <img src="/icons/Catalogue.png" alt="Lập danh mục thuê phòng" />
-            <p>LẬP DANH MỤC THUÊ PHÒNG</p>
+            <p>LẬP DANH MỤC PHÒNG</p>
           </Link>
 
           <Link to="/feature2" className="function-item">
@@ -68,4 +101,4 @@ function HomePage() {
   );
 }
 
-export default HomePage;
+export default HomePage; 

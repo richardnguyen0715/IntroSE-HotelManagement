@@ -111,17 +111,15 @@ function ForgotPassword() {
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <Link to="/">
-            <h1>HotelManager</h1>
-          </Link>
+          <h1>HotelManager</h1>
         </div>
       </header>
 
       <main className="forgot-main-content">
         <div className="forgot-header-container">
           <h2>Khôi phục mật khẩu</h2>
-          <Link to="/login" className="forgot-back-button">
-            <img src="/icons/Navigate.png" alt="Back" />
+          <Link to="/login" className="back-button">
+            <img src="/icons/Navigate.png" alt="Back"/>
           </Link>
         </div>
 
