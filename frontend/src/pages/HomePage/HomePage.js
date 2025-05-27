@@ -9,15 +9,33 @@ function HomePage() {
   const [userInfo, setUserInfo] = useState(null);
 
   useEffect(() => {
-    const savedUserInfo = localStorage.getItem("userInfo");
+    // Kiểm tra token theo thứ tự ưu tiên
+    let token = localStorage.getItem("token");
+    let savedUserInfo = localStorage.getItem("userInfo");
+
+    // Nếu không có trong localStorage, kiểm tra sessionStorage
+    if (!token) {
+      token = sessionStorage.getItem("token");
+      savedUserInfo = sessionStorage.getItem("userInfo");
+    }
+
+    if (!token) {
+      // Nếu không có token ở cả 2 nơi -> chuyển về login
+      navigate("/login", { replace: true });
+      return;
+    }
+
     if (savedUserInfo) {
       setUserInfo(JSON.parse(savedUserInfo));
     }
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
+    // Xóa token và userInfo ở cả localStorage và sessionStorage
     localStorage.removeItem("token");
     localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userInfo");
     navigate("/login", { replace: true });
   };
 
