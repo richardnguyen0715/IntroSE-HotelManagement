@@ -9,7 +9,7 @@
 .register-card {
   padding: 30px;
   width: 800px;
-  height: 465px;
+  height: 460px;
   border-radius: 8px;
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
   border: 2px solid #e6e6e6;
@@ -106,7 +106,7 @@
   transition: background 0.3s ease;
   font-size: 20px;
   font-family: "Inter", sans-serif;
-  margin-top: 30px;
+  margin-top: 25px;
 }
 
 .register-button:hover {
@@ -116,7 +116,7 @@
 
 .login {
   text-align: center;
-  margin-top: 25px;
+  margin-top: 20px;
   font-size: 20px;
 }
 
@@ -135,12 +135,70 @@
   margin-top: 8px;
   display: block;
   margin-left: 5px;
-  min-height: 20px; 
+  min-height: 20px;
 }
 
-#recover {
-  margin-top: 20px;
+.error-message_reg.success {
+  color: #426b1f;  /* Màu xanh lá giống theme */
+  font-weight: 500;
 }
+
+.error-message_reg.error {
+  color: red;
+}
+
+/* Styles cho phần OTP */
+.register-card-otp {
+  height: 200px;
+  width: 650px;
+  animation: zoomIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Style cho OTP */
+.register-form-otp label {
+  display: block;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #333;
+}
+
+.register-warning-message {
+  color: #856404;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 15px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.register-otp-container {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.register-otp-input {
+  width: 54px;
+  height: 54px;
+  border: 2px solid #ddd;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.register-otp-input:focus {
+  border-color: #426b1f;
+  box-shadow: 0 0 5px rgba(66, 107, 31, 0.3);
+  outline: none;
+}
+
 
 
 

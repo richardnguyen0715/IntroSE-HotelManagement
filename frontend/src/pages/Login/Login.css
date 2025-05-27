@@ -9,7 +9,7 @@
 .login-card {
   padding: 30px;
   width: 500px;
-  height: 470px;
+  height: 480px;
   border-radius: 8px;
   box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
   border: 2px solid #e6e6e6;
@@ -83,7 +83,7 @@
 .forgot-password {
   text-align: center;
   margin-bottom: 20px;
-  margin-top: 25px;
+  margin-top: 15px;
 }
 
 .forgot-password a {
@@ -92,7 +92,7 @@
 
 .register {
   text-align: center;
-  margin-top: 25px;
+  margin-top: 20px;
   font-size: 20px;
 }
 
