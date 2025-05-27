@@ -4,9 +4,10 @@ const {
   getUser,
   createUser,
   updateUser,
-  deleteUser
+  deleteUser,
+  changePassword
 } = require('../controllers/userController');
-
+const { authorize } = require('../middleware/auth');
 const router = express.Router();
   
 
@@ -20,6 +21,8 @@ router
   .get(getUser)
   .put(updateUser)
   .delete(deleteUser);
+
+router.put('/:id/change-password', authorize(['admin', 'customer']), changePassword);
 
 // // Trong routes
 // const { authenticate, authorizeAdmin, authorizeUser } = require('../middleware/auth');

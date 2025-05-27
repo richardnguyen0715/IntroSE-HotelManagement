@@ -45,23 +45,25 @@ exports.getRevenueReportByRoomType = async (req, res) => {
       roomsByType[room.type].push(room.roomNumber);
     });
 
-    // Initialize report
+    // Initialize report structure
     const report = {};
     Object.keys(RoomType).forEach(type => {
       report[type] = {
         roomType: type,
         basePrice: RoomType[type],
         roomCount: roomsByType[type] ? roomsByType[type].length : 0,
-        revenue: 0,
         occupiedDays: 0,
         totalAvailableDays: roomsByType[type] ? roomsByType[type].length * daysInMonth : 0,
-        occupancyRate: 0
+        revenue: 0,
+        occupancyRate: 0,
+        revenueRatio: 0
       };
     });
 
     // Track occupied room-days to avoid counting duplicates
     const occupiedSet = new Set();
 
+    // Process bookings to count occupied days
     bookings.forEach(booking => {
       const room = rooms.find(r => r.roomNumber === booking.room);
       if (!room) return;
@@ -72,17 +74,11 @@ exports.getRevenueReportByRoomType = async (req, res) => {
       const checkIn = new Date(Math.max(new Date(booking.checkInDate), startDate));
       const checkOut = new Date(Math.min(new Date(booking.checkOutDate), endDate));
 
-      const totalBookingDays = Math.ceil((new Date(booking.checkOutDate) - new Date(booking.checkInDate)) / (1000 * 60 * 60 * 24)) + 1;
-      const revenuePerDay = booking.totalPrice / totalBookingDays;
-
+      // Count occupied days
       for (let d = new Date(checkIn); d < checkOut; d.setDate(d.getDate() + 1)) {
         const dateStr = d.toISOString().slice(0, 10);
         const key = `${room.roomNumber}-${dateStr}`;
 
-        // Đếm revenue mỗi ngày (cộng hết)
-        report[roomType].revenue += revenuePerDay;
-
-        // occupiedDays: chỉ đếm nếu chưa có key
         if (!occupiedSet.has(key)) {
           occupiedSet.add(key);
           report[roomType].occupiedDays += 1;
@@ -90,19 +86,36 @@ exports.getRevenueReportByRoomType = async (req, res) => {
       }
     });
 
-    // Format output
+    // Calculate revenue and other metrics
+    let totalRevenue = 0;
     Object.keys(report).forEach(type => {
       const data = report[type];
+      
+      // Calculate revenue = occupied days × base price
+      data.revenue = data.occupiedDays * data.basePrice;
+      
+      // Calculate occupancy rate
       if (data.totalAvailableDays > 0) {
-        data.occupancyRate = Math.round((data.occupiedDays / data.totalAvailableDays) * 1000) / 10; // round to 1 decimal
+        data.occupancyRate = Math.round((data.occupiedDays / data.totalAvailableDays) * 1000) / 10;
       }
-      data.revenue = Math.round(data.revenue); // round to nearest VND
+
+      totalRevenue += data.revenue;
     });
 
+    // Calculate revenue ratio for each room type
+    Object.keys(report).forEach(type => {
+      const data = report[type];
+      data.revenueRatio = totalRevenue > 0 
+        ? Math.round((data.revenue / totalRevenue) * 1000) / 10 
+        : 0;
+    });
+
+    // Return response
     res.status(200).json({
       year: yearNum,
       month: monthNum,
       monthName: new Date(yearNum, monthNum - 1, 1).toLocaleString('en-US', { month: 'long' }),
+      totalRevenue,
       roomTypes: Object.values(report)
     });
   } catch (error) {
