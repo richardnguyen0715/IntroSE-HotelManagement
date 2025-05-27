@@ -12,7 +12,7 @@ const router = express.Router();
 router
   .route('/:id')
   .get(getBooking)
-  // .put(updateBooking);
+  .put(updateBooking)
   .delete(deleteBooking);
 
 router
