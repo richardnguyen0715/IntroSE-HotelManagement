@@ -26,10 +26,10 @@ const invoiceSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  // totalValue: {
-  //   type: Number,
-  //   required: true
-  // },
+  totalValue: {
+    type: Number,
+    required: true
+  },
   rentals: [rentalSchema],
   issueDate: {
     type: Date,

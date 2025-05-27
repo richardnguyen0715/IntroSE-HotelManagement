@@ -53,10 +53,14 @@ exports.createInvoice = async (req, res) => {
       };
     }));
 
+    // Calculate total value of all rentals
+    const totalValue = processedRentals.reduce((sum, rental) => sum + rental.total, 0);
+
     const invoice = new Invoice({
       customer,
       address,
       rentals: processedRentals,
+      totalValue,
       issueDate: new Date()
     });
 
