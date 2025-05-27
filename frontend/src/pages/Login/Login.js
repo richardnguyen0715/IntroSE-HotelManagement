@@ -1,7 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import '../App.css';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import './App.css';
 import './Login.css'; 
 
 function Login() {
@@ -11,15 +10,6 @@ function Login() {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState('');
-
-  // Kiểm tra token khi vào trang
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      navigate('/HomePage');
-    }
-  }, [navigate]);
 
   // Hàm kiểm tra định dạng email
   const validateEmail = (email) => {
@@ -49,52 +39,16 @@ function Login() {
     e.preventDefault();
 
     if (validateForm()) {
-      try {
-        const response = await axios.post("http://localhost:5000/api/auth/login", {
-          email,
-          password
-        });
-        
-        if (response.status === 200) {
-          console.log("Đăng nhập thành công");
-          
-          // Xử lý remember me
-          if (remember) {
-            // Nếu remember -> lưu vào localStorage
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("userInfo", JSON.stringify(response.data.user));
-          } else {
-            // Nếu không remember -> lưu vào sessionStorage
-            sessionStorage.setItem("token", response.data.token);
-            sessionStorage.setItem("userInfo", JSON.stringify(response.data.user));
-          }
-          
-          navigate("/HomePage");
-        }   
-      } 
-
-      catch (error) {
-        if (error.response.status === 400) {
-          console.log("Tài khoản hoặc mật khẩu không đúng");
-          setMessage("Tài khoản hoặc mật khẩu không đúng");
-        }
-        
-        else if (error.response.status === 500) {
-          console.log("Lỗi từ server");
-          setMessage("Lỗi từ server");
-        }
-
-        else {
-          console.log("Lỗi không xác định");
-          setMessage("Lỗi không xác định");
-        }
-      }
+      // Nếu form hợp lệ, xử lý đăng nhập
+      console.log('Đăng nhập với:', { email, password, remember });
+    } else {
+      console.log('Form có lỗi');
     }
   };
 
   return (
     <div className="app">
-      
+
       <header className="app-header">
         <div className="header-left">
           <h1>HotelManager</h1>
@@ -104,6 +58,9 @@ function Login() {
       <main className="main-content">
         <div className="header-container">
           <h2>Đăng nhập</h2>
+          <Link to="/" className="back-button">
+            <img src="/icons/Navigate.png" alt="Back"/>
+          </Link>
         </div>
 
         <div className="login-container">
@@ -111,10 +68,10 @@ function Login() {
             <form onSubmit={handleSubmit}>
               <div className="form-group_email">
                 <label htmlFor="email">Email <span className="required">*</span></label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  name="email" 
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
                   placeholder="Nhập email của bạn"
                   value={email}
                   onChange={(e) => {
@@ -128,11 +85,11 @@ function Login() {
 
               <div className="form-group_pass">
                 <label htmlFor="password">Mật khẩu <span className="required">*</span></label>
-                <input 
-                  type="password" 
-                  id="password" 
-                  name="password" 
-                  placeholder="Nhập mật khẩu" 
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Nhập mật khẩu"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
@@ -149,14 +106,10 @@ function Login() {
                 id="remember" 
                 name="remember" 
                 checked={remember}
-                onChange={(e) => {
-                setRemember(e.target.checked);
-                setMessage("");
-                }}
-                />
+                onChange={(e) => setRemember(e.target.checked)}/>
                 <label htmlFor="remember">Ghi nhớ đăng nhập</label>
               </div>
-            
+
               <button type="submit" className="login-button">
                 Đăng nhập
               </button>
@@ -171,7 +124,7 @@ function Login() {
               <span>Chưa có tài khoản? </span>
               <Link to="/register">Đăng ký ngay</Link>
             </div>
-            
+
           </div>
         </div>
       </main>
