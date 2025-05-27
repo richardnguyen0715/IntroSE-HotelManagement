@@ -25,18 +25,29 @@ function Feature2Main() {
   const [allRooms, setAllRooms] = useState([]);
   const [isFiltering, setIsFiltering] = useState(false);
 
-  // Refresh rentals when component mounts
+  // Refresh rentals when component mounts (chỉ chạy một lần)
   useEffect(() => {
     fetchRentals();
     fetchAllRooms();
-  }, []);
+  }, []); // Mảng dependencies rỗng
 
   // Fetch tất cả phòng để hiển thị trong dropdown
   const fetchAllRooms = async () => {
     try {
       await fetchRooms();
-      if (rooms && rooms.length > 0) {
-        // Lấy danh sách phòng từ useRooms sau khi đã fetch
+
+      // Lấy danh sách các phòng từ rentals để dùng cho filter
+      if (rentals && rentals.length > 0) {
+        const uniqueRoomNumbers = [
+          ...new Set(rentals.map((rental) => rental.room)),
+        ]
+          .filter(Boolean)
+          .sort();
+        console.log("Extracted room numbers from rentals:", uniqueRoomNumbers);
+        setAllRooms(uniqueRoomNumbers);
+      }
+      // Nếu không có phiếu thuê, dùng danh sách phòng từ useRooms
+      else if (rooms && rooms.length > 0) {
         const uniqueRooms = [
           ...new Set(rooms.map((room) => room.roomNumber)),
         ].sort();
@@ -46,6 +57,19 @@ function Feature2Main() {
       console.error("Lỗi khi lấy danh sách phòng:", error);
     }
   };
+
+  // Cập nhật danh sách phòng khi rentals thay đổi
+  useEffect(() => {
+    if (rentals && rentals.length > 0) {
+      const uniqueRoomNumbers = [
+        ...new Set(rentals.map((rental) => rental.room)),
+      ]
+        .filter(Boolean)
+        .sort();
+      console.log("Updated room list from rentals:", uniqueRoomNumbers);
+      setAllRooms(uniqueRoomNumbers);
+    }
+  }, [rentals]);
 
   // Cập nhật filteredRentals khi rentals hoặc filters thay đổi
   useEffect(() => {
@@ -66,15 +90,22 @@ function Feature2Main() {
     });
   };
 
-  // Hàm xử lý lọc phiếu thuê
+  // Hàm xử lý lọc phiếu thuê (cải thiện)
   const filterRentals = () => {
     const { room, email, checkInDate } = filters;
 
     let result = [...rentals];
+    console.log("Filtering rentals:", rentals.length);
+    console.log("Selected room filter:", room);
 
     // Lọc theo phòng
     if (room) {
-      result = result.filter((rental) => rental.room === room);
+      console.log("Before room filter:", result.length);
+      result = result.filter((rental) => {
+        console.log(`Comparing: rental.room=${rental.room} vs filter=${room}`);
+        return rental.room === room;
+      });
+      console.log("After room filter:", result.length);
     }
 
     // Lọc theo email
@@ -95,13 +126,21 @@ function Feature2Main() {
       result = result.filter((rental) => {
         if (!rental.checkInDate) return false;
 
-        const rentalDate = new Date(rental.checkInDate);
-        rentalDate.setHours(0, 0, 0, 0);
+        // Convert DD/MM/YYYY to Date
+        let rentalDate;
+        if (rental.checkInDate.includes("/")) {
+          const [day, month, year] = rental.checkInDate.split("/");
+          rentalDate = new Date(year, month - 1, day);
+        } else {
+          rentalDate = new Date(rental.checkInDate);
+        }
 
+        rentalDate.setHours(0, 0, 0, 0);
         return rentalDate.getTime() === filterDate.getTime();
       });
     }
 
+    console.log("Final filtered results:", result.length);
     setFilteredRentals(result);
   };
 
@@ -225,8 +264,10 @@ function Feature2Main() {
       if (success) {
         setSelectedRentals([]);
         setSuccessMessage("Xóa phiếu thuê thành công!");
-        // Refresh room status after deletion
-        fetchRooms();
+        // Thêm độ trễ để tránh gọi API liên tiếp
+        setTimeout(() => {
+          fetchAllRooms();
+        }, 300);
       } else {
         setSuccessMessage("Có lỗi xảy ra khi xóa phiếu thuê!");
       }
@@ -235,9 +276,11 @@ function Feature2Main() {
 
   const handleSuccess = (message) => {
     setSuccessMessage(message);
-    // Refresh rentals & rooms after successful operation
-    fetchRentals();
-    fetchRooms();
+    // Tạo độ trễ nhỏ để tránh nhiều lệnh gọi API liên tiếp
+    setTimeout(() => {
+      fetchRentals();
+      fetchAllRooms();
+    }, 300);
   };
 
   // Function to format VND price
@@ -379,36 +422,19 @@ function Feature2Main() {
                     <strong>Phòng:</strong> {rental.room}
                   </div>
                   <div className="rental-info-item">
-                    <strong>Loại phòng:</strong>{" "}
-                    {rental.room ? rental.room.charAt(0) : ""}
-                  </div>
-                  <div className="rental-info-item">
-                    <strong>Tổng tiền:</strong> {formatPrice(rental.totalPrice)}
-                  </div>
-                </div>
-
-                <div className="rental-info-row">
-                  <div className="rental-info-item">
-                    <strong>Ngày nhận:</strong>{" "}
+                    <strong>Ngày bắt đầu thuê:</strong>{" "}
                     {formatDateForUI(rental.checkInDate)}
                   </div>
-                  <div className="rental-info-item">
-                    <strong>Ngày trả:</strong>{" "}
-                    {formatDateForUI(rental.checkOutDate)}
-                  </div>
                 </div>
 
                 <div className="rental-info-row">
+                  <div className="rental-info-item">
+                    <strong>Email:</strong> {rental.email}
+                  </div>
                   <div className="rental-info-item">
                     <strong>Trạng thái:</strong>{" "}
                     <span className={`status-${rental.status}`}>
                       {getStatusText(rental.status)}
-                    </span>
-                  </div>
-                  <div className="rental-info-item">
-                    <strong>Thanh toán:</strong>{" "}
-                    <span className={`payment-${rental.paymentStatus}`}>
-                      {getPaymentStatusText(rental.paymentStatus)}
                     </span>
                   </div>
                 </div>
@@ -428,10 +454,10 @@ function Feature2Main() {
                     <thead>
                       <tr>
                         <th>STT</th>
-                        <th>Họ tên</th>
-                        <th>Loại khách</th>
-                        <th>CMND/Passport</th>
-                        <th>Địa chỉ</th>
+                        <th>Khách Hàng</th>
+                        <th>Loại Khách</th>
+                        <th>CMND</th>
+                        <th>Địa Chỉ</th>
                       </tr>
                     </thead>
                     <tbody>

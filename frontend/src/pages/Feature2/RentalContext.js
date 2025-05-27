@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import {
-  getAllBookings,
-  getBooking,
+  getBookings,
   createBooking,
   updateBooking,
   deleteBooking,
-  formatDateForUI,
+  mapRentalToBooking,
+  formatDateForAPI,
+  convertCustomerTypeToAPI,
 } from "../../services/bookings";
 
 const RentalContext = createContext();
@@ -15,91 +16,21 @@ export function RentalProvider({ children }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Fetch all bookings when component mounts
+  // Fetch rentals when component mounts
   useEffect(() => {
     fetchRentals();
   }, []);
 
-  // Fetch all bookings from API
+  // Fetch all rentals from the API
   const fetchRentals = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
+      const data = await getBookings();
+      setRentals(data);
       setError(null);
-      const response = await getAllBookings();
-      if (response.success) {
-        // Không cần format lại dữ liệu vì đã chuẩn hóa tên trường
-        setRentals(
-          response.data.map((booking) => ({
-            id: booking._id,
-            room: booking.room,
-            email: booking.email,
-            roomType: booking.roomType,
-            checkInDate: booking.checkInDate,
-            checkOutDate: booking.checkOutDate,
-            totalPrice: booking.totalPrice,
-            status: booking.status,
-            paymentStatus: booking.paymentStatus,
-            createdAt: booking.createdAt,
-            customers: booking.customers || [],
-          }))
-        );
-      } else {
-        setError("Không thể lấy danh sách phiếu thuê phòng");
-      }
     } catch (err) {
       console.error("Error fetching rentals:", err);
-      setError("Không thể tải dữ liệu phiếu thuê phòng");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Add a new booking
-  const addRental = async (rentalData) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Đảm bảo roomType là chữ cái đầu nếu chưa có
-      const roomType =
-        rentalData.roomType ||
-        (rentalData.room ? rentalData.room.charAt(0) : "");
-
-      // Convert field names to match API if needed
-      const apiData = {
-        email: rentalData.email,
-        room: rentalData.room,
-        roomType: roomType,
-        checkInDate: rentalData.checkInDate,
-        checkOutDate: rentalData.checkOutDate,
-        totalPrice: rentalData.totalPrice,
-        status: rentalData.status || "confirmed",
-        paymentStatus: rentalData.paymentStatus || "pending",
-        customers: rentalData.customers || [],
-      };
-
-      console.log("Sending data to API:", apiData);
-
-      try {
-        const response = await createBooking(apiData);
-        console.log("API response:", response);
-
-        if (response.success) {
-          await fetchRentals(); // Refresh the list to get updated data
-          return true;
-        } else {
-          setError(response.message || "Không thể tạo phiếu thuê mới");
-          return false;
-        }
-      } catch (apiError) {
-        console.error("API Error:", apiError);
-        setError("Lỗi kết nối API: " + (apiError.message || "Unknown error"));
-        return false;
-      }
-    } catch (err) {
-      console.error("Error adding rental:", err);
-      setError(err.message || "Có lỗi xảy ra khi tạo phiếu thuê");
-      return false;
+      setError(err.message || "Có lỗi xảy ra khi tải danh sách phiếu thuê");
     } finally {
       setLoading(false);
     }
@@ -111,18 +42,8 @@ export function RentalProvider({ children }) {
       setLoading(true);
       setError(null);
 
-      // Convert field names to match API if needed
-      const apiData = {
-        email: updatedData.email,
-        room: updatedData.room,
-        roomType: updatedData.room ? updatedData.room.charAt(0) : "", // Lấy chữ cái đầu của mã phòng
-        checkInDate: updatedData.checkInDate,
-        checkOutDate: updatedData.checkOutDate,
-        totalPrice: updatedData.totalPrice,
-        status: updatedData.status,
-        paymentStatus: updatedData.paymentStatus,
-        customers: updatedData.customers,
-      };
+      // Convert field names to match API format
+      const apiData = mapRentalToBooking(updatedData);
 
       console.log("Sending data to API for update (ID:", id, "):", apiData);
       const response = await updateBooking(id, apiData);
@@ -144,22 +65,87 @@ export function RentalProvider({ children }) {
     }
   };
 
-  // Delete bookings
+  // Add a new booking
+  const addRental = async (rentalData) => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Validate data before sending
+      if (!rentalData.room) {
+        setError("Thiếu thông tin phòng");
+        setLoading(false);
+        return false;
+      }
+
+      if (!rentalData.email) {
+        setError("Thiếu thông tin email");
+        setLoading(false);
+        return false;
+      }
+
+      if (!rentalData.customers || rentalData.customers.length === 0) {
+        setError("Vui lòng nhập thông tin ít nhất một khách hàng");
+        setLoading(false);
+        return false;
+      }
+
+      // Convert field names to match API format
+      const apiData = mapRentalToBooking(rentalData);
+      console.log("Sending data to API:", apiData);
+
+      const response = await createBooking(apiData);
+      console.log("API response:", response);
+
+      if (response.success) {
+        // Thêm độ trễ nhỏ để đảm bảo API đã lưu dữ liệu
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        await fetchRentals(); // Refresh the list
+        return true;
+      } else {
+        const errorMessage = response.message || "Không thể tạo phiếu thuê mới";
+        setError(errorMessage);
+
+        // Log additional debug info
+        if (response.rawResponse) {
+          console.error("Raw API response:", response.rawResponse);
+        }
+        return false;
+      }
+    } catch (err) {
+      console.error("Error adding rental:", err);
+      setError(err.message || "Có lỗi xảy ra khi tạo phiếu thuê");
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Delete multiple bookings
   const deleteRentals = async (ids) => {
     try {
       setLoading(true);
       setError(null);
 
       // Delete each booking one by one
-      for (const id of ids) {
-        const response = await deleteBooking(id);
-        if (!response.success) {
-          throw new Error(`Không thể xóa phiếu thuê có ID: ${id}`);
-        }
-      }
+      const deletePromises = ids.map((id) => deleteBooking(id));
+      const results = await Promise.all(deletePromises);
 
-      await fetchRentals(); // Refresh the list
-      return true;
+      // Check if all deletes were successful
+      const allSuccess = results.every((result) => result.success);
+
+      if (allSuccess) {
+        await fetchRentals(); // Refresh the list
+        return true;
+      } else {
+        const errorMessages = results
+          .filter((result) => !result.success)
+          .map((result) => result.message)
+          .join(", ");
+        setError(`Không thể xóa tất cả phiếu thuê: ${errorMessages}`);
+        await fetchRentals(); // Refresh to sync with server state
+        return false;
+      }
     } catch (err) {
       console.error("Error deleting rentals:", err);
       setError(err.message || "Có lỗi xảy ra khi xóa phiếu thuê");
@@ -187,9 +173,5 @@ export function RentalProvider({ children }) {
 }
 
 export function useRentals() {
-  const context = useContext(RentalContext);
-  if (!context) {
-    throw new Error("useRentals must be used within a RentalProvider");
-  }
-  return context;
+  return useContext(RentalContext);
 }
