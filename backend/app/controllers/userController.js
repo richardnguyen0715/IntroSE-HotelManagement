@@ -2,6 +2,7 @@ const User = require('../models/User');
 const { generateToken } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
 const sendEmail = require('../utils/sendEmail');
+const mongoose = require('mongoose');
 // Get all users
 exports.getAllUsers = async (req, res, next) => {
   try {
@@ -36,6 +37,12 @@ exports.getUser = async (req, res, next) => {
       user = await User.findOne({ email: identifier }).select('-password');
     } else {
       // Nếu không phải email thì tìm bằng ID
+      // Check if identifier is a valid MongoDB ObjectId
+      if (!mongoose.Types.ObjectId.isValid(identifier)) {
+        const error = new Error('Invalid user ID format');
+        error.statusCode = 400;
+        return next(error);
+      }
       user = await User.findById(identifier).select('-password');
     }
     
@@ -190,7 +197,7 @@ exports.forgotPassword = async (req, res, next) => {
 
     // Gửi email
     const message = `Mã OTP để reset mật khẩu của bạn là: ${otp}\nMã có hiệu lực trong 10 phút.`;
-
+    console.log(`OTP for ${user.email}: ${otp}`);
     await sendEmail({
       email: user.email,
       subject: 'Mã OTP Reset Mật khẩu',
