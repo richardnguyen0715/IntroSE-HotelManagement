@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Booking = require('../models/Booking');
+const { Booking } = require('../models/Booking'); // Fixed import to use named export
 const { Room, RoomType } = require('../models/Room');
 
 // @desc    Get revenue report by room type for a specific month
@@ -25,13 +25,10 @@ exports.getRevenueReportByRoomType = async (req, res) => {
     const endDate = new Date(yearNum, monthNum, 0); // Last day of the month
     const daysInMonth = endDate.getDate();
 
-    // Find all bookings that overlap with the specified month
+    // Find all active bookings that started before or during the specified month
     const bookings = await Booking.find({
-      $and: [
-        { checkInDate: { $lte: endDate } },
-        { checkOutDate: { $gte: startDate } }
-      ],
-      status: { $ne: 'cancelled' } // Exclude cancelled bookings
+      startDate: { $lte: endDate },
+      status: 'active' // Only count active bookings
     });
 
     const rooms = await Room.find();
@@ -65,19 +62,23 @@ exports.getRevenueReportByRoomType = async (req, res) => {
 
     // Process bookings to count occupied days
     bookings.forEach(booking => {
-      const room = rooms.find(r => r.roomNumber === booking.room);
+      const roomNumber = booking.roomNumber;
+      const room = rooms.find(r => r.roomNumber === roomNumber);
       if (!room) return;
 
       const roomType = room.type;
       if (!report[roomType]) return;
 
-      const checkIn = new Date(Math.max(new Date(booking.checkInDate), startDate));
-      const checkOut = new Date(Math.min(new Date(booking.checkOutDate), endDate));
+      // Get booking start date (use the month start date if booking started earlier)
+      const bookingStart = new Date(Math.max(new Date(booking.startDate), startDate));
+      
+      // Since there's no end date in schema, assume active bookings occupy room until end of month
+      const bookingEnd = endDate;
 
       // Count occupied days
-      for (let d = new Date(checkIn); d < checkOut; d.setDate(d.getDate() + 1)) {
+      for (let d = new Date(bookingStart); d <= bookingEnd; d.setDate(d.getDate() + 1)) {
         const dateStr = d.toISOString().slice(0, 10);
-        const key = `${room.roomNumber}-${dateStr}`;
+        const key = `${roomNumber}-${dateStr}`;
 
         if (!occupiedSet.has(key)) {
           occupiedSet.add(key);
@@ -124,7 +125,6 @@ exports.getRevenueReportByRoomType = async (req, res) => {
   }
 };
 
-
 // @desc    Get occupancy report by room type for a specific month
 // @route   GET /api/reports/occupancy?year=YYYY&month=MM
 // @access  Private/Admin
@@ -148,12 +148,10 @@ exports.getOccupancyReportByRoomType = async (req, res) => {
     const endDate = new Date(yearNum, monthNum, 0); // Last day of month
     const daysInMonth = endDate.getDate();
     
+    // Find all active bookings that started before or during the specified month
     const bookings = await Booking.find({
-      $and: [
-        { checkInDate: { $lte: endDate } },
-        { checkOutDate: { $gte: startDate } }
-      ],
-      status: { $ne: 'cancelled' } // exclude cancelled bookings
+      startDate: { $lte: endDate },
+      status: 'active' // Only count active bookings
     });
     
     const rooms = await Room.find();
@@ -177,22 +175,26 @@ exports.getOccupancyReportByRoomType = async (req, res) => {
       };
     });
 
-    // ✅ Duy nhất: không đếm trùng phòng/ngày
+    // Track occupied room-days to avoid counting duplicates
     const occupiedSet = new Set();
 
     bookings.forEach(booking => {
-      const room = rooms.find(r => r.roomNumber === booking.room);
+      const roomNumber = booking.roomNumber;
+      const room = rooms.find(r => r.roomNumber === roomNumber);
       if (!room) return;
 
       const roomType = room.type;
       if (!report[roomType]) return;
 
-      const checkIn = new Date(Math.max(new Date(booking.checkInDate), startDate));
-      const checkOut = new Date(Math.min(new Date(booking.checkOutDate), endDate));
+      // Get booking start date (use the month start date if booking started earlier)
+      const bookingStart = new Date(Math.max(new Date(booking.startDate), startDate));
+      
+      // Since there's no end date in schema, assume active bookings occupy room until end of month
+      const bookingEnd = endDate;
 
-      for (let d = new Date(checkIn); d < checkOut; d.setDate(d.getDate() + 1)) {
+      for (let d = new Date(bookingStart); d <= bookingEnd; d.setDate(d.getDate() + 1)) {
         const dateStr = d.toISOString().slice(0, 10);
-        const key = `${room.roomNumber}-${dateStr}`;
+        const key = `${roomNumber}-${dateStr}`;
 
         if (!occupiedSet.has(key)) {
           occupiedSet.add(key);
@@ -201,7 +203,7 @@ exports.getOccupancyReportByRoomType = async (req, res) => {
       }
     });
 
-    // Tính occupancy rate
+    // Calculate occupancy rate
     Object.keys(report).forEach(type => {
       if (report[type].totalAvailableDays > 0) {
         report[type].occupancyRate = (report[type].occupiedDays / report[type].totalAvailableDays) * 100;
@@ -209,7 +211,7 @@ exports.getOccupancyReportByRoomType = async (req, res) => {
       }
     });
 
-    // Trả kết quả
+    // Return response
     const response = {
       year: yearNum,
       month: monthNum,
