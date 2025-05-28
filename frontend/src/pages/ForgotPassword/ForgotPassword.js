@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 import '../App.css';
 import './ForgotPassword.css';
 
@@ -93,10 +94,28 @@ function ForgotPassword() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       if (step === 1) {
+        try {
+          const response = await axios.post('http://localhost:5000/api/users/forgot-password', { email });
+          if (response.status === 200) {
+            console.log("Mã OTP đã được gửi");
+            setStep(2);
+          }
+        } catch (error) {
+          if (error.response.status === 404) {
+            console.log("Email không tồn tại trong hệ thống");
+            setErrors(prev => ({ ...prev, email: "Email không tồn tại trong hệ thống" }));
+          } else if (error.response.status === 500) {
+            console.log("Lỗi từ server");
+            setErrors(prev => ({ ...prev, email: "Lỗi từ server" }));
+          } else {
+            console.log("Lỗi không xác định");
+            setErrors(prev => ({ ...prev, email: "Lỗi không xác định" }));
+          }
+        }
         // Xử lý gửi email
         console.log('Gửi mã OTP đến email:', email);
         setStep(2);
