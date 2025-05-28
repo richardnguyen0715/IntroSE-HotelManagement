@@ -19,17 +19,12 @@ const roomSchema = new mongoose.Schema({
     required: true,
     enum: Object.keys(RoomType)
   },
-  capacity: {
-    type: Number,
-    required: true,
-    default: 3
-  },
   status: {
     type: String,
     enum: ['available', 'occupied', 'maintenance'],
     default: 'available'
   },
-  notes: {
+  images: {
     type: [String],
     default: []
   }

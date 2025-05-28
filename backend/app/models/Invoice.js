@@ -1,47 +1,81 @@
 const mongoose = require('mongoose');
 
-const rentalSchema = new mongoose.Schema({
-  roomNumber: {
+const invoiceSchema = new mongoose.Schema({
+  invoiceNumber: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true
+  },
+  booking: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Booking',
+    required: true
+  },
+  user: {
     type: String,
     required: true
   },
-  numberOfDays: {
-    type: Number,
+  issueDate: {
+    type: Date,
+    default: Date.now,
     required: true
   },
-  pricePerDay: {
+  dueDate: {
+    type: Date,
+    required: true
+  },
+  items: [{
+    description: {
+      type: String,
+      required: true
+    },
+    unitPrice: {
+      type: Number, 
+      required: true
+    },
+    amount: {
+      type: Number,
+      required: true
+    }
+  }],
+  subtotal: {
     type: Number,
+    required: true
   },
   total: {
     type: Number,
-  }
-});
-
-const invoiceSchema = new mongoose.Schema({
-  customer: {
-    type: String,
-    required: true,
-  },
-  address: {
-    type: String,
-    required: true,
-  },
-  totalValue: {
-    type: Number,
     required: true
-  },
-  rentals: [rentalSchema],
-  issueDate: {
-    type: Date,
-    default: Date.now
   },
   status: {
     type: String,
-    enum: ['pending', 'paid'],
-    default: 'pending'
+    enum: ['draft', 'sent', 'paid', 'overdue', 'cancelled'],
+    default: 'draft'
+  },
+  paymentMethod: {
+    type: String,
+    enum: ['cash', 'credit_card', 'bank_transfer', 'online_payment'],
+    required: function() { return this.status === 'paid'; }
+  },
+  paymentDate: {
+    type: Date
   }
+}, {
+  timestamps: true
 });
 
+// Generate invoice number before saving
+invoiceSchema.pre('save', async function(next) {
+  if (!this.invoiceNumber) {
+    const count = await mongoose.model('Invoice').countDocuments();
+    const prefix = 'INV';
+    const year = new Date().getFullYear().toString().substr(-2);
+    const month = (new Date().getMonth() + 1).toString().padStart(2, '0');
+    const sequence = (count + 1).toString().padStart(4, '0');
+    this.invoiceNumber = `${prefix}-${year}${month}-${sequence}`;
+  }
+  next();
+});
 
 const Invoice = mongoose.model('Invoice', invoiceSchema);
 module.exports = Invoice;

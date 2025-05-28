@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Booking } = require('../models/Booking'); // Correct import using named export
+const Booking = require('../models/Booking');
 const { Room } = require('../models/Room');
 const User = require('../models/User');
 
@@ -36,20 +36,9 @@ exports.generateSampleBookings = async () => {
     const sampleBookings = [];
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear();
+    const emailPrefix = customer.email.split('@')[0];
+    const emailSuffix = customer.email.split('@')[1];
     const timestamp = Date.now();
-
-    // Create sample customer data for bookings
-    const createCustomer = (index) => {
-      const isDomestic = Math.random() > 0.3; // 70% domestic customers
-      return {
-        name: `Test Customer ${index}`,
-        type: isDomestic ? 'domestic' : 'foreign',
-        identityCard: isDomestic ? 
-          `${Math.floor(Math.random() * 999999999) + 1000000000}` : // Vietnamese ID
-          `P${Math.floor(Math.random() * 9999999) + 1000000}`, // Passport number
-        address: `${Math.floor(Math.random() * 999) + 1} Test Street`
-      };
-    };
 
     for (let monthOffset = -3; monthOffset <= 3; monthOffset++) {
       const bookingMonth = new Date(currentYear, currentDate.getMonth() + monthOffset, 1);
@@ -69,33 +58,54 @@ exports.generateSampleBookings = async () => {
             const roomIndex = Math.floor(Math.random() * roomsByType[roomType].length);
             const room = roomsByType[roomType][roomIndex];
 
-            const startDay = Math.floor(Math.random() * monthDays) + 1;
-            const startDate = new Date(bookingMonth.getFullYear(), bookingMonth.getMonth(), startDay);
+            const stayLength = 1 + Math.floor(Math.random() * 7);
+            const maxStartDay = monthDays - stayLength + 1;
+            const startDay = Math.floor(Math.random() * maxStartDay) + 1;
+
+            const checkInDate = new Date(bookingMonth.getFullYear(), bookingMonth.getMonth(), startDay);
+            const checkOutDate = new Date(bookingMonth.getFullYear(), bookingMonth.getMonth(), startDay + stayLength);
 
             // Check for overlap with existing sample bookings
             const isConflict = sampleBookings.some(b =>
-              b.roomNumber === room.roomNumber &&
-              new Date(b.startDate).getMonth() === startDate.getMonth() &&
-              new Date(b.startDate).getDate() === startDate.getDate()
+              b.room === room.roomNumber &&
+              checkInDate < b.checkOutDate &&
+              checkOutDate > b.checkInDate
             );
 
             if (isConflict) continue;
 
-            // Create 1-3 customers for the booking
-            const customerCount = Math.floor(Math.random() * 3) + 1;
-            const customerList = [];
-            for (let c = 0; c < customerCount; c++) {
-              customerList.push(createCustomer(`${i}${c}${timestamp}`));
+            // Price per room type
+            let basePrice = 0;
+            switch (roomType) {
+              case 'A': basePrice = 150000; break;
+              case 'B': basePrice = 170000; break;
+              case 'C': basePrice = 200000; break;
+              default: basePrice = 0;
             }
 
-            // Status logic: active for future/current, inactive for past
-            const status = monthOffset < 0 ? 'inactive' : 'active';
+            const totalPrice = basePrice * stayLength;
+
+            // Status logic
+            const rand = Math.random();
+            let status;
+            if (monthOffset < 0) {
+              status = 'checked-out';
+            } else if (monthOffset === 0) {
+              if (rand < 0.6) status = 'confirmed';
+              else if (rand < 0.8) status = 'cancelled';
+              else status = 'checked-in';
+            } else {
+              status = rand < 0.8 ? 'confirmed' : 'checked-in';
+            }
 
             const booking = {
-              roomNumber: room.roomNumber,
-              startDate: startDate,
-              customerList: customerList,
-              status: status
+              email: `${emailPrefix}+${timestamp}_${room.roomNumber}_${i}_${monthOffset}@${emailSuffix}`,
+              room: room.roomNumber,
+              checkInDate,
+              checkOutDate,
+              totalPrice,
+              status,
+              paymentStatus: status === 'checked-out' ? 'paid' : 'pending'
             };
 
             sampleBookings.push(booking);
@@ -108,12 +118,12 @@ exports.generateSampleBookings = async () => {
     // Save all the bookings to DB
     if (sampleBookings.length > 0) {
       await Booking.insertMany(sampleBookings);
-      console.log(`Successfully created ${sampleBookings.length} sample bookings across 7 months`);
+      console.log(`✅ Successfully created ${sampleBookings.length} sample bookings across 7 months`);
     }
 
     return sampleBookings;
   } catch (error) {
-    console.error('Error generating sample bookings:', error);
+    console.error('❌ Error generating sample bookings:', error);
     throw error;
   }
 };

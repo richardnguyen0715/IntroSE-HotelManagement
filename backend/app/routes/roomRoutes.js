@@ -2,11 +2,9 @@ const express = require('express');
 const {
   getAllRooms,
   getRoom,
-  getRoomTypes,
   createRoom,
-  updateRoomCapacity,
-  deleteRoom,
-  updateRoomPrice
+  updateRoom,
+  deleteRoom
 } = require('../controllers/roomController');
 
 const router = express.Router();
@@ -16,22 +14,10 @@ router
   .get(getAllRooms)
   .post(createRoom);
 
-
-router
-  .route('/types')
-  .get(getRoomTypes);
-
-router
-  .route('/price')
-  .put(updateRoomPrice);
-
-// router
-//   .route('/capacity')
-//   .put(updateRoomCapacity);
-  
 router
   .route('/:id')
   .get(getRoom)
+  .put(updateRoom)
   .delete(deleteRoom);
 
 module.exports = router;

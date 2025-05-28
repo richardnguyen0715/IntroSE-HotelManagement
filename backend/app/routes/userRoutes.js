@@ -4,11 +4,9 @@ const {
   getUser,
   createUser,
   updateUser,
-  deleteUser,
-  forgotPassword,
-  resetPassword
+  deleteUser
 } = require('../controllers/userController');
-const { authorize } = require('../middleware/auth');
+
 const router = express.Router();
   
 
@@ -22,9 +20,6 @@ router
   .get(getUser)
   .put(updateUser)
   .delete(deleteUser);
-
-router.post('/forgot-password', forgotPassword);
-router.post('/reset-password', resetPassword);
 
 // // Trong routes
 // const { authenticate, authorizeAdmin, authorizeUser } = require('../middleware/auth');

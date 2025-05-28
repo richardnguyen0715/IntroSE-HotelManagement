@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
 const { Room, RoomType } = require('../models/Room');
-const { Booking } = require('../models/Booking'); // Fixed import syntax
+const Booking = require('../models/Booking');
 const Invoice = require('../models/Invoice');
 const HotelPolicy = require('../models/hotelPolicy');
 
@@ -15,7 +15,7 @@ exports.seedDatabase = async () => {
     const users = await this.seedUsers();
     const rooms = await this.seedRooms();
     const bookings = await this.seedBookings(users, rooms);
-    await this.seedInvoices(bookings); // Add this line back
+    await this.seedInvoices(bookings);
     await this.seedTestBookings();
     console.log('Database seeding completed successfully');
   } catch (error) {
@@ -154,7 +154,7 @@ exports.seedRooms = async () => {
   }
 };
 
-// Updated: Seed sample bookings using the new schema
+// Seed sample bookings
 exports.seedBookings = async (users, rooms) => {
   try {
     // Check if bookings exist
@@ -164,28 +164,15 @@ exports.seedBookings = async (users, rooms) => {
       console.log('Creating sample bookings...');
       const today = new Date();
       
-      // Create sample customer data
-      const sampleCustomers = [
-        {
-          name: 'John Doe',
-          type: 'domestic',
-          identityCard: '1234567890',
-          address: '123 Test Street'
-        },
-        {
-          name: 'Jane Smith',
-          type: 'domestic',
-          identityCard: '0987654321',
-          address: '456 Main Road'
-        }
-      ];
-      
-      // Create a sample booking with the new schema
+      // Create a sample booking
       const sampleBooking = new Booking({
-        roomNumber: rooms[0].roomNumber,
-        startDate: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-        customerList: sampleCustomers,
-        status: 'active'
+        email: users.find(u => u.role === 'customer')?.email || 'customer@example.com',
+        room: rooms[0].roomNumber,
+        checkInDate: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
+        checkOutDate: new Date(today.getTime() + 10 * 24 * 60 * 60 * 1000), // 10 days from now
+        totalPrice: rooms[0].type === 'A' ? 450000 : rooms[0].type === 'B' ? 510000 : 600000, // 3 days * price
+        status: 'confirmed',
+        paymentStatus: 'pending'
       });
       
       await sampleBooking.save();
@@ -201,7 +188,7 @@ exports.seedBookings = async (users, rooms) => {
   }
 };
 
-// Seed sample invoices - Updated for new Booking schema
+// Seed sample invoices
 exports.seedInvoices = async (bookings) => {
   try {
     // Check if invoices exist
@@ -211,48 +198,26 @@ exports.seedInvoices = async (bookings) => {
       console.log('Creating sample invoice...');
       
       const booking = bookings[0];
+      const today = new Date();
       
-      // Get the room type to determine price
-      const room = await Room.findOne({ roomNumber: booking.roomNumber });
-      if (!room) {
-        console.error('Room not found for booking');
-        return [];
-      }
+      // Generate an invoice number
+      const invoiceNumber = `INV-${today.getFullYear()}${(today.getMonth() + 1).toString().padStart(2, '0')}${today.getDate().toString().padStart(2, '0')}-${Math.floor(1000 + Math.random() * 9000)}`;
       
-      // Calculate a price based on room type
-      let basePrice = 0;
-      switch (room.type) {
-        case 'A': basePrice = 150000; break;
-        case 'B': basePrice = 170000; break;
-        case 'C': basePrice = 200000; break;
-        default: basePrice = 150000;
-      }
-      
-      // Assume 3 nights stay
-      const stayLength = 3;
-      const totalPrice = basePrice * stayLength;
-      
-      // Get customer info from booking
-      const customerName = booking.customerList && booking.customerList.length > 0 
-        ? booking.customerList[0].name 
-        : 'Guest';
-        
-      const customerAddress = booking.customerList && booking.customerList.length > 0 
-        ? (booking.customerList[0].address || 'No address provided') 
-        : 'No address provided';
-      
-      // Create a sample invoice with the correct schema
+      // Create a sample invoice
       const sampleInvoice = new Invoice({
-        customer: customerName,
-        address: customerAddress,
-        totalValue: totalPrice,
-        rentals: [{
-          roomNumber: booking.roomNumber,
-          numberOfDays: stayLength,
-          pricePerDay: basePrice,
-          total: totalPrice
+        invoiceNumber: invoiceNumber, // Add this line
+        booking: booking._id,
+        user: booking.email,
+        issueDate: today,
+        dueDate: new Date(today.getTime() + 14 * 24 * 60 * 60 * 1000), // 14 days from now
+        items: [{
+          description: `Room ${booking.room} (${booking.checkInDate.toLocaleDateString()} - ${booking.checkOutDate.toLocaleDateString()})`,
+          unitPrice: booking.totalPrice / 3, // Per night
+          amount: 3 // 3 nights
         }],
-        status: 'pending'  // Valid status according to the schema
+        subtotal: booking.totalPrice,
+        total: booking.totalPrice,
+        status: 'draft'
       });
       
       await sampleInvoice.save();
@@ -269,11 +234,6 @@ exports.seedInvoices = async (bookings) => {
 };
 
 exports.seedTestBookings = async () => {
-  try {
-    const bookingSeeder = require('./bookingSeeder');
-    return await bookingSeeder.generateSampleBookings();
-  } catch (error) {
-    console.error('Error seeding test bookings:', error);
-    return [];
-  }
+  const bookingSeeder = require('./bookingSeeder');
+  return await bookingSeeder.generateSampleBookings();
 };

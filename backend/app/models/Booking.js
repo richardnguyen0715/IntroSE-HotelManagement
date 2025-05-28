@@ -1,42 +1,42 @@
 const mongoose = require('mongoose');
+const User = require('./User');
+const Room = require('./Room');
 
-const CustomerSchema = new mongoose.Schema({
-  name: {
+const bookingSchema = new mongoose.Schema({
+  email: {
     type: String,
     required: true
   },
-  type: {
-    type: String,
-    enum: ['domestic', 'foreign'],
-    required: true
-  },
-  identityCard: {
+  room: {
     type: String,
     required: true
   },
-  address: {
-    type: String
-  }
-});
-
-const BookingSchema = new mongoose.Schema({
-  roomNumber: {
-    type: String,
-    required: true
+  checkInDate: {
+    type: Date,
+    required: true,
   },
-  startDate: {
+  checkOutDate: {
     type: Date,
     required: true
   },
-  customerList: [CustomerSchema],
+  totalPrice: {
+    type: Number
+  },
   status: {
     type: String,
-    enum: ['active', 'inactive'],
-    default: 'active'
+    enum: ['confirmed', 'checked-in', 'checked-out', 'cancelled'],
+    default: 'confirmed'
+  },
+  paymentStatus: {
+    type: String,
+    enum: ['pending', 'paid', 'refunded'],
+    default: 'pending'
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
-// Sử dụng index đơn cho trường status để thực hiện truy vấn nhanh hơn
-const Booking = mongoose.model('Booking', BookingSchema);
-
-module.exports = { Booking };
+const Booking = mongoose.model('Booking', bookingSchema);
+module.exports = Booking;
