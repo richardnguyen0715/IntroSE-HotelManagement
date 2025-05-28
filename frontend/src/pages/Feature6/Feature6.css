@@ -1,0 +1,527 @@
+.app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-header {
+    background-color: #ffffff;
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header-left h1 {
+    color: #4B6F44;
+    margin: 0;
+    font-size: 2rem;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.header-right a {
+    text-decoration: none;
+    color: #333;
+}
+
+.flag {
+    width: 24px;
+    height: 16px;
+}
+
+.button-reg {
+    background-color: #E8F5E3;
+    color: #4B6F44;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.button-log {
+    background-color: #4B6F44;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    background-color: #f5f5f5;
+}
+
+.header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.back-button img {
+    width: 24px;
+    height: 24px;
+}
+
+.regulations-container {
+    padding: 2rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.regulations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.regulation-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s ease;
+    border: 1px solid #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.regulation-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.card-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1rem;
+    background-color: #E8F5E3;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.card-icon img {
+    width: 32px;
+    height: 32px;
+}
+
+.card-content {
+    text-align: left;
+}
+
+.card-content h3 {
+    color: #333;
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.card-content p {
+    color: #666;
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Regulation2 specific styles */
+.regulation-container {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.info-section {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.info-section h3 {
+    color: #4B6F44;
+    margin-top: 0;
+    margin-bottom: 1rem;
+}
+
+.info-section ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.info-section li {
+    padding: 0.5rem 0;
+    color: #666;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.info-section li:before {
+    content: "•";
+    color: #4B6F44;
+    position: absolute;
+    left: 0;
+}
+
+.regulation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Styles for Room Types Table */
+.room-form {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    margin: 2rem auto;
+}
+.room-types-table {
+    margin: 2rem 0;
+    overflow-x: auto;
+}
+
+.room-types-table table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.room-types-table th,
+.room-types-table td {
+    padding: 1rem;
+    text-align: center;
+    border: 1px solid #ddd;
+}
+
+.room-types-table th {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    color: #333;
+}
+
+.room-types-table tr:nth-child(even) {
+    background-color: #FFFFE0;
+}
+
+.room-types-table tr:hover {
+    background-color: #f5f5f5;
+}
+
+/* Form elements styles */
+.form-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-weight: 500;
+}
+
+.form-input {
+    padding: 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+    width: 100%;
+    transition: border-color 0.3s ease;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #4B6F44;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+}
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.cancel-button {
+    padding: 0.75rem 1.5rem;
+    background: #e0e0e0;
+    color: #333;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.confirm-button {
+    padding: 0.75rem 1.5rem;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+}
+
+.cancel-button:hover {
+    background: #d5d5d5;
+}
+
+.confirm-button:hover {
+    background: #45a049;
+}
+.input-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.input-suffix {
+    position: absolute;
+    right: 10px;
+    font-weight: bold;
+}
+
+input:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #f44336;
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+}
+
+/* Button styles */
+.button-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.actions-container {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 2rem;
+    border-top: 1px solid #ddd;
+    padding-top: 2rem;
+}
+
+.cancel-button {
+    background-color: #e0e0e0;
+    color: #333;
+}
+
+.cancel-button:hover {
+    background-color: #d5d5d5;
+}
+
+.confirm-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.confirm-button:hover:not(:disabled) {
+    background-color: #45a049;
+}
+
+.action-button {
+    padding: 8px 24px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 500;
+    text-transform: uppercase;
+    min-width: 100px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    cursor: default; /* Mặc định là default */
+    opacity: 1;
+}
+
+.action-button.add {
+    background-color: #4caf50;
+    color: white;
+    cursor: pointer !important; /* Nút thêm luôn có cursor pointer */
+}
+
+.action-button.edit, .action-button.delete {
+    /* Mặc định cho nút sửa và xóa khi không có gì được chọn */
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.action-button.edit.clickable, .action-button.delete.clickable {
+    /* Khi có thể click được */
+    opacity: 1;
+    cursor: pointer !important;
+}
+
+.action-button.edit {
+    background-color: #ffc107;
+    color: black;
+}
+
+.action-button.delete {
+    background-color: #f44336;
+    color: white;
+}
+
+/* Sửa lỗi hover không có con trỏ bàn tay */
+.action-button.clickable:hover {
+    opacity: 0.9;
+    transform: translateY(-1px);
+    cursor: pointer !important;
+}
+
+/* Descriptions */
+.regulation-description {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 5px;
+}
+
+.edit-button-small {
+    padding: 4px 8px;
+    background-color: #ffc107;
+    color: black;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer !important; /* Đảm bảo luôn hiển thị bàn tay */
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-left: 10px;
+}
+
+.edit-button-small:hover {
+    background-color: #e0a800;
+    cursor: pointer !important;
+}
+
+.save-button-small {
+    padding: 4px 8px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer !important;
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    margin-left: 10px;
+}
+
+.save-button-small:hover {
+    background-color: #45a049;
+    cursor: pointer !important;
+}
+
+/* Đảm bảo không bị ghi đè bởi thuộc tính disabled */
+button:not([disabled]).edit-button-small,
+button:not([disabled]).save-button-small,
+button:not([disabled]).action-button.clickable {
+    cursor: pointer !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .regulations-container {
+        padding: 1rem;
+    }
+
+    .regulations-grid {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+
+    .regulation-card {
+        padding: 1.5rem;
+    }
+
+    .regulation-container {
+        padding: 1rem;
+    }
+
+    .info-section {
+        padding: 1rem;
+    }
+
+    .actions-container {
+        flex-direction: column;
+    }
+
+    .action-button {
+        width: 100%;
+    }
+}
+/* Thêm vào file Feature6.css nếu chưa có */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 500px;
+    max-width: 90%;
+}
