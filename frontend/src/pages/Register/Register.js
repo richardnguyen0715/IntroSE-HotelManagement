@@ -295,7 +295,7 @@ function Register() {
                 <div className="register-form-otp">
                   <label>Nhập mã OTP <span className="required">*</span></label>
                   <div className="register-warning-message">
-                  Chức năng OTP đang được cải tiến. Vui lòng nhập đủ 6 chữ số bất kỳ
+                  Chức năng OTP đang được cải tiến. Vui lòng lấy mã OTP trong console.
                   </div>
                   <div className="register-otp-container">
                     {otp.map((digit, index) => (

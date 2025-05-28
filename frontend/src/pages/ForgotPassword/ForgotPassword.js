@@ -155,7 +155,7 @@ function ForgotPassword() {
                 <div className="forgot-form-otp">
                   <label>Nhập mã OTP <span className="forgot-required">*</span></label>
                   <div className="forgot-warning-message">
-                  Chức năng OTP đang được cải tiến. Vui lòng nhập đủ 6 chữ số bất kỳ
+                  Chức năng OTP đang được cải tiến. Vui lòng lấy mã OTP trong console.
                   </div>
                   <div className="forgot-otp-container">
                     {otp.map((digit, index) => (
