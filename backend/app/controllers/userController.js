@@ -220,10 +220,10 @@ exports.forgotPassword = async (req, res, next) => {
   }
 };
 
-// Verify OTP và Reset Password
-exports.resetPassword = async (req, res, next) => {
+// Kiểm tra OTP
+exports.verifyOTP = async (req, res, next) => {
   try {
-    const { email, otp, newPassword } = req.body;
+    const { email, otp } = req.body;
 
     // Tìm user với email và OTP chưa hết hạn
     const user = await User.findOne({
@@ -244,6 +244,39 @@ exports.resetPassword = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'OTP không chính xác'
+      });
+    }
+
+    // Tạo một token tạm thời để xác nhận OTP đã được kiểm tra
+    const resetToken = generateToken(user, '15m', { isPasswordReset: true });
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP hợp lệ',
+      resetToken
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+// Reset Password sau khi OTP đã được xác thực
+exports.resetPassword = async (req, res, next) => {
+  try {
+    const { email, newPassword } = req.body;
+    
+    // Token được gửi trong header
+    // Token này được tạo từ hàm verifyOTP
+    // Kiểm tra token được thực hiện ở middleware auth
+    
+    // Tìm user với email
+    const user = await User.findOne({ email }).select('+resetPasswordOTP');
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Không tìm thấy tài khoản với email này'
       });
     }
 

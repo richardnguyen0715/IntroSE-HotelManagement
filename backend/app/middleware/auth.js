@@ -28,16 +28,17 @@ const authenticate = async (req, res, next) => {
   }
 };
 
-// Tạo token
-const generateToken = (user) => {
+// Tạo token with additional claims
+const generateToken = (user, expiresIn = '1d', additionalClaims = {}) => {
   return jwt.sign(
     { 
       id: user._id,
       email: user.email,
-      role: user.role 
+      role: user.role,
+      ...additionalClaims 
     },
     process.env.JWT_SECRET,
-    { expiresIn: '1d' } // Token hết hạn sau 1 ngày
+    { expiresIn }
   );
 };
 
@@ -68,24 +69,49 @@ const invalidateToken = async (token) => {
 const protect = authenticate;
 
 // Role-based authorization middleware that accepts an array of roles
-const authorize = (roles = []) => {
-  return (req, res, next) => {
-    // Convert string to array if needed
-    if (typeof roles === 'string') {
-      roles = [roles];
-    }
+const authorize = (requiredAuth = {}) => {
+  return async (req, res, next) => {
+    try {
+      // Get token from header
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'User not authenticated' });
+      }
 
-    if (!req.user) {
+      // Extract token
+      const token = authHeader.split(' ')[1];
+      
+      // Verify token
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      
+      // Add user to request
+      req.user = decoded;
+      
+      // Case 1: If roles are provided as string or array
+      if (Array.isArray(requiredAuth) || typeof requiredAuth === 'string') {
+        const roles = Array.isArray(requiredAuth) ? requiredAuth : [requiredAuth];
+        if (!roles.includes(req.user.role)) {
+          return res.status(403).json({ 
+            message: `Role ${req.user.role} is not authorized to access this route`
+          });
+        }
+      } 
+      // Case 2: If special rights like isPasswordReset are required
+      else if (typeof requiredAuth === 'object') {
+        for (const [key, value] of Object.entries(requiredAuth)) {
+          if (req.user[key] !== value) {
+            return res.status(403).json({ 
+              message: `Missing required authorization`
+            });
+          }
+        }
+      }
+      
+      next();
+    } catch (error) {
+      console.error('Auth error:', error.message);
       return res.status(401).json({ message: 'User not authenticated' });
     }
-    
-    if (!roles.includes(req.user.role)) {
-      return res.status(403).json({ 
-        message: `Role ${req.user.role} is not authorized to access this route`
-      });
-    }
-    
-    next();
   };
 };
 

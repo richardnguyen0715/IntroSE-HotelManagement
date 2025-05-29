@@ -6,7 +6,8 @@ const {
   updateUser,
   deleteUser,
   forgotPassword,
-  resetPassword
+  resetPassword,
+  verifyOTP
 } = require('../controllers/userController');
 const { authorize } = require('../middleware/auth');
 const router = express.Router();
@@ -24,7 +25,8 @@ router
   .delete(deleteUser);
 
 router.post('/forgot-password', forgotPassword);
-router.post('/reset-password', resetPassword);
+router.post('/verify-otp', verifyOTP);
+router.post('/reset-password', authorize({ isPasswordReset: true }), resetPassword);
 
 // // Trong routes
 // const { authenticate, authorizeAdmin, authorizeUser } = require('../middleware/auth');
