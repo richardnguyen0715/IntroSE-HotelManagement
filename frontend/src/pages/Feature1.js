@@ -15,7 +15,7 @@ function Feature1() {
 
       <main className="main-content">
         <div className="header-container">
-          <h2>Lập Danh mục thuê phòng</h2>
+          <h2>Lập Danh mục phòng</h2>
           <Link to="/HomePage" className="back-button">
             <img src="/icons/Navigate.png" alt="Back"/>
           </Link>
