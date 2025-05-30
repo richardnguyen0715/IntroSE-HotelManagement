@@ -1,9 +1,11 @@
 import { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import '../App.css';
 import './ForgotPassword.css';
 
 function ForgotPassword() {
+  const navigate = useNavigate();
   // Khai báo state cho các trường nhập liệu
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -11,6 +13,9 @@ function ForgotPassword() {
   const [renewpassword, setRenewpassword] = useState('');
   const [errors, setErrors] = useState({});
   const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: New Password
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState('');
+  const [otpAttempts, setOtpAttempts] = useState(0); // Đếm số lần nhập sai OTP
   
   // Refs cho các ô input OTP
   const otpRefs = [
@@ -33,9 +38,17 @@ function ForgotPassword() {
     return otp.every(digit => /^\d$/.test(digit));
   };
 
+  // Hàm reset form OTP
+  const resetOTPForm = () => {
+    setOtp(['', '', '', '', '', '']);
+    otpRefs[0].current.focus(); // Focus vào ô đầu tiên
+  };
+
   // Xử lý nhập OTP
   const handleOtpChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
+
+    setMessage('');
 
     const newOtp = [...otp];
     newOtp[index] = value;
@@ -50,12 +63,54 @@ function ForgotPassword() {
     // Kiểm tra nếu đã nhập đủ 6 số
     if (newOtp.every(digit => digit !== '')) {
       // Tự động submit sau 500ms
-      setTimeout(() => {
+      setTimeout(async () => {
         if (validateOTP(newOtp)) {
-          console.log('Xác thực OTP:', newOtp.join(''));
-          setStep(3);
+          try {
+            const response = await axios.post('http://localhost:5000/api/users/verify-otp', {
+              email,
+              otp: newOtp.join('')
+            });
+
+            if (response.status === 200) {
+              console.log("Xác thực OTP thành công");
+              localStorage.setItem('resetToken', response.data.resetToken);
+              setStep(3);
+              setOtpAttempts(0); // Reset số lần thử khi thành công
+            }
+          }
+
+          catch (error) {
+            setMessageType('error');
+            if (error.response.status === 400) {
+              const newAttempts = otpAttempts + 1;
+              setOtpAttempts(newAttempts);
+              
+              if (newAttempts >= 3) {
+                console.log("Đã nhập sai OTP 3 lần");
+                setMessage("Đã nhập sai OTP 3 lần.<br />Chuyển hướng về trang Khôi phục mật khẩu trong 5 giây...");
+                setTimeout(() => {
+                  window.location.href = '/forgot_password';
+                }, 5000);
+              } 
+              else {
+                console.log(`Nhập sai OTP ${newAttempts} lần. Còn ${3 - newAttempts} lần nhập.`);
+                setMessage(`Nhập sai OTP ${newAttempts} lần. Còn ${3 - newAttempts} lần nhập.`);
+              }
+            }
+
+            else if (error.response.status === 500) {
+              console.log("Lỗi từ server");
+              setMessage("Lỗi từ server");
+            }
+            else {
+              console.log("Lỗi không xác định");
+              setMessage("Lỗi không xác định");
+            }
+            
+            resetOTPForm(); 
+          }
         }
-      }, 500);
+      }, 3000);
     }
   };
 
@@ -93,16 +148,80 @@ function ForgotPassword() {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validateForm()) {
       if (step === 1) {
-        // Xử lý gửi email
-        console.log('Gửi mã OTP đến email:', email);
-        setStep(2);
+        try {
+          const response = await axios.post('http://localhost:5000/api/users/forgot-password', {
+            email
+          });
+          
+          if (response.status === 200) {
+            console.log("Mã OTP đã được gửi đến email của bạn");
+            setStep(2);
+            // Focus vào ô OTP đầu tiên và hiện message hướng dẫn
+            setTimeout(() => {
+              otpRefs[0].current.focus();
+            }, 100); // Đợi một chút để đảm bảo DOM đã được cập nhật
+          }
+        }  
+        
+        catch (error) {
+          setMessageType('error');
+          if (error.response.status === 404) {
+            console.log("Email không tồn tại");
+            setMessage("Email không tồn tại");
+          }
+          
+          else if (error.response.status === 500) {
+            console.log("Lỗi từ server");
+            setMessage("Lỗi từ server");
+          }
+    
+          else {
+            console.log("Lỗi không xác định");
+            setMessage("Lỗi không xác định");
+          }
+        }
       } else if (step === 3) {
-        // Xử lý đổi mật khẩu
-        console.log('Thay đổi mật khẩu:', { email, otp: otp.join(''), newpassword });
+        try {
+          const resetToken = localStorage.getItem('resetToken');
+          const response = await axios.post('http://localhost:5000/api/users/reset-password', {
+            email,
+            newPassword: newpassword
+          }, {
+            headers: {
+              'Authorization': `Bearer ${resetToken}`
+            }
+          });
+
+          if (response.status === 200) {
+            setMessageType('success');
+            setMessage('Đổi mật khẩu thành công!<br />Chuyển hướng đến trang Đăng nhập trong 5 giây...');
+            localStorage.removeItem('resetToken');
+            setTimeout(() => {
+              navigate('/login');
+            }, 5000);
+          }
+        } 
+        
+        catch (error) {
+          setMessageType('error');
+          if (error.response.status === 404) {
+            console.log("Không tìm thấy tài khoản với email này");
+            setMessage("Không tìm thấy tài khoản với email này");
+          }
+          
+          else if (error.response.status === 500) {
+            console.log("Lỗi từ server");
+            setMessage("Lỗi từ server");
+          } 
+          
+          else {
+            setMessage('Lỗi kết nối server');
+          }
+        }
       }
     }
   };
@@ -138,6 +257,7 @@ function ForgotPassword() {
                     onChange={(e) => {
                       setEmail(e.target.value);
                       setErrors((prev) => ({ ...prev, email: '' }));
+                      setMessage('');
                     }}
                   />
                   <span className="forgot-error-message">{errors.email || "\u00A0"}</span>
@@ -145,6 +265,7 @@ function ForgotPassword() {
                 <button type="submit" className="forgot-button" id='email'>
                   Gửi mã OTP
                 </button>
+                <span className={`forgot-message ${messageType}`} dangerouslySetInnerHTML={{ __html: message || "\u00A0" }}></span>
               </form>
             </div>
           )}
@@ -155,7 +276,7 @@ function ForgotPassword() {
                 <div className="forgot-form-otp">
                   <label>Nhập mã OTP <span className="forgot-required">*</span></label>
                   <div className="forgot-warning-message">
-                  Chức năng OTP đang được cải tiến. Vui lòng lấy mã OTP trong console.
+                    Chức năng OTP đang được cải tiến. Vui lòng lấy mã OTP trong console.
                   </div>
                   <div className="forgot-otp-container">
                     {otp.map((digit, index) => (
@@ -171,7 +292,7 @@ function ForgotPassword() {
                       />
                     ))}
                   </div>
-                  <span className="forgot-error-message">{errors.otp || "\u00A0"}</span>
+                  <span className={`forgot-message ${messageType}`} dangerouslySetInnerHTML={{ __html: message || "\u00A0" }}></span>
                 </div>
               </form>
             </div>
@@ -215,6 +336,7 @@ function ForgotPassword() {
                 <button type="submit" className="forgot-button" id='password'>
                   Khôi phục mật khẩu
                 </button>
+                <span className={`forgot-message ${messageType}`} dangerouslySetInnerHTML={{ __html: message || "\u00A0" }}></span>
               </form>
             </div>
           )}

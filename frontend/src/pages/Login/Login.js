@@ -75,7 +75,7 @@ function Login() {
 
       catch (error) {
         if (error.response.status === 400) {
-          console.log("Tài khoản hoặc mật khẩu không đúng");
+          console.log("");
           setMessage("Tài khoản hoặc mật khẩu không đúng");
         }
         
