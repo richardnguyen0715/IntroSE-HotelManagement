@@ -17,6 +17,7 @@ function Register() {
   const [messageType, setMessageType] = useState(''); 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [step, setStep] = useState(1); 
+  const [otpAttempts, setOtpAttempts] = useState(0); // Đếm số lần nhập sai OTP
 
   // Refs cho các ô input OTP
   const otpRefs = [
@@ -39,9 +40,17 @@ function Register() {
     return otp.every(digit => /^\d$/.test(digit));
   };
 
+  // Hàm reset form OTP
+  const resetOTPForm = () => {
+    setOtp(['', '', '', '', '', '']);
+    otpRefs[0].current.focus(); // Focus vào ô đầu tiên
+  };
+
   // Xử lý nhập OTP
   const handleOtpChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
+
+    setMessage('');
 
     const newOtp = [...otp];
     newOtp[index] = value;
@@ -58,8 +67,49 @@ function Register() {
       // Tự động submit sau 500ms
       setTimeout(async () => {
         if (validateOTP(newOtp)) {
-          console.log('Xác thực OTP:', newOtp.join(''));
-          await handleStep2(); // Gọi API đăng ký khi OTP hợp lệ
+          try {
+            const response = await axios.post('http://localhost:5000/api/users/verify-otp', {
+              email,
+              otp: newOtp.join('')
+            });
+
+            if (response.status === 200) {
+              console.log("Xác thực OTP thành công");
+              await handleStep2(); // Gọi API đăng ký khi OTP hợp lệ
+              setOtpAttempts(0); 
+            }
+          }
+
+          catch (error) {
+            setMessageType('error');
+            if (error.response.status === 400) {
+              const newAttempts = otpAttempts + 1;
+              setOtpAttempts(newAttempts);
+              
+              if (newAttempts >= 3) {
+                console.log("Đã nhập sai OTP 3 lần");
+                setMessage("Đã nhập sai OTP 3 lần.<br />Chuyển hướng về trang Đăng ký trong 5 giây...");
+                setTimeout(() => {
+                  window.location.href = '/register';
+                }, 5000);
+              } 
+              else {
+                console.log(`Nhập sai OTP ${newAttempts} lần. Còn ${3 - newAttempts} lần nhập.`);
+                setMessage(`Nhập sai OTP ${newAttempts} lần. Còn ${3 - newAttempts} lần nhập.`);
+              }
+            }
+
+            else if (error.response.status === 500) {
+              console.log("Lỗi từ server");
+              setMessage("Lỗi từ server");
+            }
+            else {
+              console.log("Lỗi không xác định");
+              setMessage("Lỗi không xác định");
+            }
+            
+            resetOTPForm(); 
+          }
         }
       }, 500);
     }
@@ -106,10 +156,51 @@ function Register() {
     e.preventDefault();
     if (validateForm()) {
       if (step === 1) {
-        // Xử lý gửi email
-        console.log('Gửi mã OTP đến email:', email);
-        setStep(2);
-      } 
+        try {
+          // Kiểm tra email đã tồn tại chưa
+          const checkEmailResponse = await axios.post('http://localhost:5000/api/users/forgot-password', {
+            email
+          });
+          
+          if (checkEmailResponse.status === 200) {
+            // Email đã tồn tại
+            setMessageType('error');
+            setMessage("Email đã tồn tại. Vui lòng sử dụng email khác.");
+            return;
+          }
+        } catch (error) {
+          if (error.response && error.response.status === 404) {
+            // Email chưa tồn tại - tiếp tục gửi OTP
+            try {
+              const response = await axios.post('http://localhost:5000/api/users/forgot-password', {
+                email
+              });
+              
+              if (response.status === 200) {
+                console.log("Mã OTP đã được gửi đến email của bạn");
+                setStep(2);
+                // Focus vào ô OTP đầu tiên và hiện message hướng dẫn
+                setTimeout(() => {
+                  otpRefs[0].current.focus();
+                }, 100); // Đợi một chút để đảm bảo DOM đã được cập nhật
+              }
+            } catch (otpError) {
+              setMessageType('error');
+              if (otpError.response.status === 500) {
+                console.log("Lỗi từ server");
+                setMessage("Lỗi từ server");
+              } else {
+                console.log("Lỗi không xác định");
+                setMessage("Lỗi không xác định");
+              }
+            }
+          } else {
+            setMessageType('error');
+            console.log("Lỗi kiểm tra email");
+            setMessage("Lỗi kiểm tra email. Vui lòng thử lại sau.");
+          }
+        }
+      }
     }
   };
 
