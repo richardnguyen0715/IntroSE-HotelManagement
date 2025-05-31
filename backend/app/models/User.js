@@ -16,7 +16,8 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true
+    required: true,
+    select: false // Do not return password in queries
   },
   role: {
     type: String,
@@ -27,6 +28,7 @@ const userSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  // OTP for password reset
   resetPasswordOTP: {
   type: String,
   select: false
@@ -34,12 +36,22 @@ const userSchema = new mongoose.Schema({
   resetPasswordOTPExpire: {
     type: Date,
     select: false
+  },
+  // Registration OTP for new users
+  isEmailVerified: {
+    type: Boolean,
+    default: false
   }
 });
 
-// Hash password before saving
+// Trong User model - thêm điều kiện để tránh hash lại
 userSchema.pre('save', async function(next) {
-  if (!this.isModified('password')) return next();
+  // Bỏ qua hash nếu password đã được hash (có độ dài 60 và bắt đầu bằng $2b$)
+  if (!this.isModified('password') || 
+      (this.password && this.password.startsWith('$2b$') && this.password.length === 60)) {
+    return next();
+  }
+  
   this.password = await bcrypt.hash(this.password, 10);
   next();
 });
