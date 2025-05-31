@@ -110,7 +110,7 @@ function ForgotPassword() {
             resetOTPForm(); 
           }
         }
-      }, 3000);
+      }, 500);
     }
   };
 

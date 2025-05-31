@@ -1,0 +1,149 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: #fff; 
+}
+
+/* Định dạng cơ bản cho toàn bộ App */
+.app {
+  font-family: 'Newsreader', sans-serif;
+  color: #333;
+  font-weight: 400;
+}
+
+/* Phần Header */
+.app-header {
+  background-color: #fafaf5;
+  border: 2px solid #e6e6e6;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 90px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.header-left a {
+  text-decoration: none;
+}
+
+.header-left h1 {
+  margin: 0;
+  color: #426b1f;
+  font-weight: 500;
+  padding-top: 10px;
+  padding-left: 50px;
+  font-size: 40px;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  margin-right: 60px;
+}
+
+/* Phần nội dung chính */
+.main-content {
+  margin-top: 50px;
+  font-weight: 400;
+  font-size: 40px;
+  padding-top: 10px;
+  padding-left: 70px;
+}
+
+.header-container h2 {
+  position: relative;
+  font-weight: 400;
+  padding-bottom: 20px;
+  transform: scaleY(1.05);
+}
+
+.header-container h2::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;               
+  width: 1770px;             
+  height: 2px;             
+  background-color: #e6e6e6;  
+}
+
+/* Grid chức năng: sắp xếp 6 mục theo dạng lưới */
+.function-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px; 
+  justify-items: center;
+  justify-content: center;
+  max-width: 1100px; 
+  margin-left: 330px;
+  margin-top: 35px;
+}
+
+.function-grid_2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px; 
+  justify-items: center;
+  justify-content: center;
+  max-width: 750px; 
+  margin-left: 510px;
+  margin-top: 35px;
+}
+
+/* Định dạng từng mục chức năng */
+.function-item {
+  display: block;
+  border: 2px solid #e6e6e6;
+  background-color: #fafaf5;
+  color: #333;
+  text-align: center;
+  width: 300px;         
+  height: 230px;        
+  border-radius: 10px;  
+  padding: 20px;        
+  text-decoration: none;
+  line-height: 1.3;
+  
+  /* Căn chỉnh nội dung (icon và text) vào giữa khung */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.function-item:hover img {
+  transform: scale(1.1);
+}
+
+.function-item img {
+  width: 150px;
+  height: 150px;
+  object-fit: contain;
+  transition: transform 0.2s;
+  margin-top: 10px;
+}
+
+.function-item p {
+  margin-top: 30px;
+  margin-bottom: 10px;
+  font-family: "Inter", sans-serif;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; 
+}
+
+.back-button img {
+  width: 70px;
+  height: 45px;
+  margin-right: 90px;
+  padding-bottom: 5px;
+}

@@ -67,18 +67,22 @@ function Register() {
       // Tự động submit sau 500ms
       setTimeout(async () => {
         if (validateOTP(newOtp)) {
+          // Complete registration
           try {
-            const response = await axios.post('http://localhost:5000/api/users/verify-otp', {
+            const registerResponse = await axios.post('http://localhost:5000/api/auth/verify-registration-otp', {
               email,
               otp: newOtp.join('')
             });
 
-            if (response.status === 200) {
-              console.log("Xác thực OTP thành công");
-              await handleStep2(); // Gọi API đăng ký khi OTP hợp lệ
-              setOtpAttempts(0); 
+            if (registerResponse.status === 201) {
+              console.log("Tài khoản đã được tạo thành công!");
+              setMessageType('success');
+              setMessage("Đăng ký thành công! <br />Chuyển hướng đến trang Đăng nhập trong vòng 5 giây...");
+              setTimeout(() => {
+                navigate("/login");
+              }, 5000);
             }
-          }
+          } 
 
           catch (error) {
             setMessageType('error');
@@ -93,22 +97,24 @@ function Register() {
                   window.location.href = '/register';
                 }, 5000);
               } 
+
               else {
                 console.log(`Nhập sai OTP ${newAttempts} lần. Còn ${3 - newAttempts} lần nhập.`);
                 setMessage(`Nhập sai OTP ${newAttempts} lần. Còn ${3 - newAttempts} lần nhập.`);
               }
-            }
-
+            } 
+            
             else if (error.response.status === 500) {
               console.log("Lỗi từ server");
               setMessage("Lỗi từ server");
-            }
+            } 
+            
             else {
               console.log("Lỗi không xác định");
               setMessage("Lỗi không xác định");
             }
-            
-            resetOTPForm(); 
+
+            resetOTPForm();
           }
         }
       }, 500);
@@ -157,95 +163,40 @@ function Register() {
     if (validateForm()) {
       if (step === 1) {
         try {
-          // Kiểm tra email đã tồn tại chưa
-          const checkEmailResponse = await axios.post('http://localhost:5000/api/users/forgot-password', {
-            email
+          const response = await axios.post("http://localhost:5000/api/auth/register", {
+            name,
+            email,
+            password,
+            role: "admin"
           });
           
-          if (checkEmailResponse.status === 200) {
-            // Email đã tồn tại
-            setMessageType('error');
-            setMessage("Email đã tồn tại. Vui lòng sử dụng email khác.");
-            return;
+          if (response.status === 200) {
+            console.log("Mã OTP đã được gửi đến email của bạn");
+            setStep(2);
+            setTimeout(() => {
+              otpRefs[0].current.focus();
+            }, 100); // Đợi một chút để đảm bảo DOM đã được cập nhật
+          }   
+        } 
+        catch (error) {
+          setMessageType('error');
+
+          if (error.response.status === 400) {
+            console.log("Email không hợp lệ hoặc đã tồn tại. Vui lòng chọn email khác.");
+            setMessage("Email không hợp lệ hoặc đã tồn tại. Vui lòng chọn email khác.")
           }
-        } catch (error) {
-          if (error.response && error.response.status === 404) {
-            // Email chưa tồn tại - tiếp tục gửi OTP
-            try {
-              const response = await axios.post('http://localhost:5000/api/users/forgot-password', {
-                email
-              });
-              
-              if (response.status === 200) {
-                console.log("Mã OTP đã được gửi đến email của bạn");
-                setStep(2);
-                // Focus vào ô OTP đầu tiên và hiện message hướng dẫn
-                setTimeout(() => {
-                  otpRefs[0].current.focus();
-                }, 100); // Đợi một chút để đảm bảo DOM đã được cập nhật
-              }
-            } catch (otpError) {
-              setMessageType('error');
-              if (otpError.response.status === 500) {
-                console.log("Lỗi từ server");
-                setMessage("Lỗi từ server");
-              } else {
-                console.log("Lỗi không xác định");
-                setMessage("Lỗi không xác định");
-              }
-            }
-          } else {
-            setMessageType('error');
-            console.log("Lỗi kiểm tra email");
-            setMessage("Lỗi kiểm tra email. Vui lòng thử lại sau.");
+    
+          else if (error.response.status === 500) {
+            console.log("Lỗi từ server");
+            setMessage("Lỗi từ server")
+          }
+    
+          else {
+            console.log("Lỗi không xác định");
+            setMessage("Lỗi không xác định")
           }
         }
       }
-    }
-  };
-
-  const handleStep2 = async () => {
-    try {
-      const response = await axios.post("http://localhost:5000/api/users", {
-        name,
-        email,
-        password,
-        role: "admin"
-      });
-      
-      if (response.status === 201) {
-        console.log("Tạo người dùng mới thành công");
-        setMessageType('success');
-        setMessage("Đăng ký thành công! <br />Chuyển hướng đến trang Đăng nhập trong vòng 5 giây...");
-        setTimeout(() => {
-          navigate("/login");
-        }, 5000);
-      }   
-    } 
-    catch (error) {
-      if (error.response.status === 400) {
-        console.log("Email đã tồn tại");
-        setMessageType('error');
-        setMessage("Email đã tồn tại. Vui lòng chọn email khác. <br />Chuyển hướng về trang Đăng ký trong vòng 5 giây...");
-      }
-
-      else if (error.response.status === 500) {
-        console.log("Lỗi từ server");
-        setMessageType('error');
-        setMessage("Lỗi từ server. <br />Chuyển hướng về trang Đăng ký trong vòng 5 giây...");
-      }
-
-      else {
-        console.log("Lỗi không xác định");
-        setMessageType('error');
-        setMessage("Lỗi không xác định. <br />Chuyển hướng về trang Đăng ký trong vòng 5 giây...");
-      }
-
-      setTimeout(() => {
-        setStep(1);
-        setMessage("");
-        setOtp(['', '', '', '', '', '']); // Reset OTP về mảng rỗng
-      }, 5000);
     }
   };
 
@@ -371,6 +322,7 @@ function Register() {
                 <button type="submit" className="register-button">
                   Đăng ký
                 </button>
+                <span className={`error-message-register ${messageType}`} dangerouslySetInnerHTML={{ __html: message || "\u00A0" }}></span>
               </form>
 
               <div className="login">
@@ -402,7 +354,7 @@ function Register() {
                       />
                     ))}
                   </div>
-                  <span className={`error-message_reg ${messageType}`} dangerouslySetInnerHTML={{ __html: message || "\u00A0" }}></span>
+                  <span className={`error-message-register ${messageType}`} dangerouslySetInnerHTML={{ __html: message || "\u00A0" }}></span>
                 </div>
               </form>
             </div>
