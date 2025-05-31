@@ -1,23 +1,24 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import '../App.css';
-import './Login.css'; 
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import "../App.css";
+import "./Login.css";
 
 function Login() {
   const navigate = useNavigate();
   // Khai báo state cho các trường nhập liệu
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState({});
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
 
   // Kiểm tra token khi vào trang
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem("token");
     if (token) {
-      navigate('/HomePage');
+      //navigate("/HomePage");
+      navigate("/");
     }
   }, [navigate]);
 
@@ -32,13 +33,13 @@ function Login() {
     const newErrors = {};
 
     if (!email.trim()) {
-      newErrors.email = 'Vui lòng nhập email';
+      newErrors.email = "Vui lòng nhập email";
     } else if (!validateEmail(email)) {
-      newErrors.email = 'Email không hợp lệ';
+      newErrors.email = "Email không hợp lệ";
     }
 
     if (!password.trim()) {
-      newErrors.password = 'Vui lòng nhập mật khẩu';
+      newErrors.password = "Vui lòng nhập mật khẩu";
     }
 
     setErrors(newErrors);
@@ -50,41 +51,45 @@ function Login() {
 
     if (validateForm()) {
       try {
-        const response = await axios.post("http://localhost:5000/api/auth/login", {
-          email,
-          password
-        });
-        
+        const response = await axios.post(
+          "http://localhost:5000/api/auth/login",
+          {
+            email,
+            password,
+          }
+        );
+
         if (response.status === 200) {
           console.log("Đăng nhập thành công");
-          
+
           // Xử lý remember me
           if (remember) {
             // Nếu remember -> lưu vào localStorage
             localStorage.setItem("token", response.data.token);
-            localStorage.setItem("userInfo", JSON.stringify(response.data.user));
+            localStorage.setItem(
+              "userInfo",
+              JSON.stringify(response.data.user)
+            );
           } else {
             // Nếu không remember -> lưu vào sessionStorage
             sessionStorage.setItem("token", response.data.token);
-            sessionStorage.setItem("userInfo", JSON.stringify(response.data.user));
+            sessionStorage.setItem(
+              "userInfo",
+              JSON.stringify(response.data.user)
+            );
           }
-          
-          navigate("/HomePage");
-        }   
-      } 
 
-      catch (error) {
+          //navigate("/HomePage");
+          navigate("/");
+        }
+      } catch (error) {
         if (error.response.status === 400) {
           console.log("Tài khoản hoặc mật khẩu không đúng");
           setMessage("Tài khoản hoặc mật khẩu không đúng");
-        }
-        
-        else if (error.response.status === 500) {
+        } else if (error.response.status === 500) {
           console.log("Lỗi từ server");
           setMessage("Lỗi từ server");
-        }
-
-        else {
+        } else {
           console.log("Lỗi không xác định");
           setMessage("Lỗi không xác định");
         }
@@ -94,7 +99,6 @@ function Login() {
 
   return (
     <div className="app">
-      
       <header className="app-header">
         <div className="header-left">
           <h1>HotelManager</h1>
@@ -110,53 +114,61 @@ function Login() {
           <div className="login-card">
             <form onSubmit={handleSubmit}>
               <div className="form-group_email">
-                <label htmlFor="email">Email <span className="required">*</span></label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  name="email" 
+                <label htmlFor="email">
+                  Email <span className="required">*</span>
+                </label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
                   placeholder="Nhập email của bạn"
                   value={email}
                   onChange={(e) => {
                     setEmail(e.target.value);
-                    setErrors((prev) => ({ ...prev, email: '' }));
-                    setMessage("")
+                    setErrors((prev) => ({ ...prev, email: "" }));
+                    setMessage("");
                   }}
                 />
-                <span className="error-message">{errors.email || "\u00A0"}</span>
+                <span className="error-message">
+                  {errors.email || "\u00A0"}
+                </span>
               </div>
 
               <div className="form-group_pass">
-                <label htmlFor="password">Mật khẩu <span className="required">*</span></label>
-                <input 
-                  type="password" 
-                  id="password" 
-                  name="password" 
-                  placeholder="Nhập mật khẩu" 
+                <label htmlFor="password">
+                  Mật khẩu <span className="required">*</span>
+                </label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Nhập mật khẩu"
                   value={password}
                   onChange={(e) => {
                     setPassword(e.target.value);
-                    setErrors((prev) => ({ ...prev, password: '' }));
-                    setMessage("")
+                    setErrors((prev) => ({ ...prev, password: "" }));
+                    setMessage("");
                   }}
                 />
-                <span className="error-message">{errors.password || "\u00A0"}</span>
+                <span className="error-message">
+                  {errors.password || "\u00A0"}
+                </span>
               </div>
 
               <div className="checkbox-group">
-                <input 
-                type="checkbox" 
-                id="remember" 
-                name="remember" 
-                checked={remember}
-                onChange={(e) => {
-                setRemember(e.target.checked);
-                setMessage("");
-                }}
+                <input
+                  type="checkbox"
+                  id="remember"
+                  name="remember"
+                  checked={remember}
+                  onChange={(e) => {
+                    setRemember(e.target.checked);
+                    setMessage("");
+                  }}
                 />
                 <label htmlFor="remember">Ghi nhớ đăng nhập</label>
               </div>
-            
+
               <button type="submit" className="login-button">
                 Đăng nhập
               </button>
@@ -171,7 +183,6 @@ function Login() {
               <span>Chưa có tài khoản? </span>
               <Link to="/register">Đăng ký ngay</Link>
             </div>
-            
           </div>
         </div>
       </main>

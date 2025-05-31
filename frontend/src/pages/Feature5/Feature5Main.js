@@ -1,10 +1,23 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import "./Feature5.css";
 
 function Feature5Main() {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userInfo =
+      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
 
+    if (token && userInfo) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
   const handleGoBack = () => {
     // Thay vì navigate(-1), dùng đường dẫn rõ ràng đến trang chủ
     navigate("/");
@@ -25,12 +38,28 @@ function Feature5Main() {
             alt="Vietnam Flag"
             className="flag"
           />
-          <Link to="/register">
-            <button className="button-reg">Đăng ký</button>
-          </Link>
-          <Link to="/login">
-            <button className="button-log">Đăng nhập</button>
-          </Link>
+          {!isLoggedIn ? (
+            <>
+              <Link to="/register">
+                <button className="button-reg">Đăng ký</button>
+              </Link>
+              <Link to="/login">
+                <button className="button-log">Đăng nhập</button>
+              </Link>
+            </>
+          ) : (
+            <button
+              className="button-log"
+              onClick={() => {
+                localStorage.removeItem("token");
+                localStorage.removeItem("userInfo");
+                setIsLoggedIn(false);
+                navigate("/login");
+              }}
+            >
+              Đăng xuất
+            </button>
+          )}
         </nav>
       </header>
 

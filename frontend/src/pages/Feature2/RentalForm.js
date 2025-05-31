@@ -6,9 +6,13 @@ import { formatDateForUI } from "../../services/bookings";
 
 function RentalForm({ rental, onClose, onSuccess }) {
   const { addRental, updateRental } = useRentals();
-  const { rooms } = useRooms();
+  const { rooms, syncRoomStatusWithBookings } = useRooms();
   const { maxCustomers } = useRegulation();
   const [formData, setFormData] = useState(getInitialFormData());
+  const [availableRooms, setAvailableRooms] = useState([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [error, setError] = useState(null); // Thêm state để xử lý lỗi
+  const isEditMode = rental && !rental.isNew; // Biến để kiểm tra có phải đang edit không
 
   function getInitialFormData() {
     // Nếu là edit với phòng được chọn từ Feature1
@@ -18,11 +22,11 @@ function RentalForm({ rental, onClose, onSuccess }) {
         roomType: rental.initialRoom.type || "",
         email: "",
         checkInDate: formatDate(new Date()),
-        checkOutDate: "",
+        checkOutDate: formatDate(new Date(Date.now() + 86400000)), // Default to next day
         totalPrice: 0,
         status: "confirmed",
         paymentStatus: "pending",
-        customers: Array(maxCustomers || 3)
+        customers: Array(1) // Bắt đầu với 1 khách
           .fill()
           .map((_, index) => ({
             id: Date.now() + index,
@@ -34,9 +38,10 @@ function RentalForm({ rental, onClose, onSuccess }) {
       };
     }
 
-    // Nếu là edit một phiếu thuê đã tồn tại - RESET CUSTOMERS
+    // Nếu là edit một phiếu thuê đã tồn tại
     if (rental && !rental.isNew) {
       return {
+        id: rental.id,
         room: rental.room || "",
         roomType: rental.roomType || "",
         email: rental.email || "",
@@ -49,16 +54,19 @@ function RentalForm({ rental, onClose, onSuccess }) {
         totalPrice: rental.totalPrice || 0,
         status: rental.status || "confirmed",
         paymentStatus: rental.paymentStatus || "pending",
-        // QUAN TRỌNG: Tạo customers mới hoàn toàn, xóa customers cũ
-        customers: Array(maxCustomers || 3)
-          .fill()
-          .map((_, index) => ({
-            id: Date.now() + index,
-            name: "",
-            type: "Nội địa",
-            idNumber: "",
-            address: "",
-          })),
+        // Sử dụng khách hàng hiện tại hoặc tạo mới nếu không có
+        customers:
+          rental.customers && rental.customers.length > 0
+            ? [...rental.customers]
+            : Array(1)
+                .fill()
+                .map((_, index) => ({
+                  id: Date.now() + index,
+                  name: "",
+                  type: "Nội địa",
+                  idNumber: "",
+                  address: "",
+                })),
       };
     }
 
@@ -72,7 +80,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
       totalPrice: 0,
       status: "confirmed",
       paymentStatus: "pending",
-      customers: Array(maxCustomers || 3)
+      customers: Array(1) // Bắt đầu với 1 khách
         .fill()
         .map((_, index) => ({
           id: Date.now() + index,
@@ -84,24 +92,39 @@ function RentalForm({ rental, onClose, onSuccess }) {
     };
   }
 
-  // Lấy danh sách phòng trống hoặc phòng đang được chỉnh sửa
-  const [availableRooms, setAvailableRooms] = useState([]);
-
+  // Đồng bộ trạng thái phòng khi component mount
   useEffect(() => {
-    // Lọc phòng trống (status === 'available')
-    let roomList = [];
+    const initializeRooms = async () => {
+      try {
+        // Đồng bộ trạng thái phòng một lần
+        await syncRoomStatusWithBookings();
 
-    // Nếu đang chỉnh sửa, cho phép chọn phòng hiện tại
-    if (rental && !rental.isNew && rental.room) {
-      roomList = rooms.filter(
-        (room) => room.status === "available" || room.roomNumber === rental.room
-      );
-    } else {
-      roomList = rooms.filter((room) => room.status === "available");
-    }
+        console.log("Filtering rooms. Total rooms:", rooms.length);
+        let filteredRooms = [];
 
-    setAvailableRooms(roomList);
-  }, [rooms, rental]);
+        if (rental && !rental.isNew && rental.room) {
+          // Khi sửa phiếu thuê hiện có: hiển thị phòng hiện tại + phòng trống
+          filteredRooms = rooms.filter(
+            (room) =>
+              room.status === "available" || room.roomNumber === rental.room
+          );
+        } else {
+          // Khi tạo phiếu thuê mới: chỉ hiển thị phòng trống
+          filteredRooms = rooms.filter((room) => room.status === "available");
+        }
+
+        console.log("Available rooms:", filteredRooms.length);
+        setAvailableRooms(filteredRooms);
+        setIsLoaded(true);
+      } catch (error) {
+        console.error("Error initializing rooms:", error);
+        setError("Không thể tải danh sách phòng. Vui lòng thử lại sau.");
+        setIsLoaded(true);
+      }
+    };
+
+    initializeRooms();
+  }, []);
 
   // Flag để biết nếu rental được tạo với nhiều phòng từ Feature1
   const hasMultipleRoomsOption =
@@ -119,24 +142,6 @@ function RentalForm({ rental, onClose, onSuccess }) {
     return `${day}/${month}/${year}`;
   }
 
-  // Parse date string DD/MM/YYYY to Date object
-  function parseDateString(dateString) {
-    const [day, month, year] = dateString.split("/");
-    return new Date(year, month - 1, day);
-  }
-
-  useEffect(() => {
-    if (formData.room && !formData.roomType) {
-      setFormData({
-        ...formData,
-        roomType: formData.room.charAt(0),
-      });
-    }
-  }, [formData.room]);
-
-  // XÓA useEffect gây duplicate customers
-  // useEffect cũ đã được xóa để tránh tích lũy customers
-
   const handleCustomerChange = (index, field, value) => {
     const newCustomers = [...formData.customers];
     newCustomers[index] = {
@@ -150,6 +155,11 @@ function RentalForm({ rental, onClose, onSuccess }) {
   };
 
   const handleRemoveCustomer = (index) => {
+    if (formData.customers.length <= 1) {
+      setError("Phải có ít nhất một khách hàng.");
+      return;
+    }
+
     const newCustomers = formData.customers.filter((_, i) => i !== index);
     setFormData({
       ...formData,
@@ -158,8 +168,8 @@ function RentalForm({ rental, onClose, onSuccess }) {
   };
 
   const handleAddCustomer = () => {
-    if (formData.customers.length >= maxCustomers) {
-      alert(`Số lượng khách không được vượt quá ${maxCustomers} người`);
+    if (formData.customers.length >= (maxCustomers || 4)) {
+      setError(`Số lượng khách không được vượt quá ${maxCustomers || 4} người`);
       return;
     }
 
@@ -181,7 +191,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
   // Thêm hàm reset customers
   const handleResetCustomers = () => {
-    const newCustomers = Array(maxCustomers || 3)
+    const newCustomers = Array(1) // Bắt đầu với 1 khách
       .fill()
       .map((_, index) => ({
         id: Date.now() + index,
@@ -195,69 +205,70 @@ function RentalForm({ rental, onClose, onSuccess }) {
       ...formData,
       customers: newCustomers,
     });
+
+    setError(null); // Xóa thông báo lỗi hiện tại nếu có
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError(null); // Xóa thông báo lỗi cũ
+
+    // Kiểm tra phòng đã được chọn chưa
+    if (!formData.room) {
+      setError("Vui lòng chọn phòng trước khi lưu");
+      return;
+    }
+
+    // Kiểm tra số lượng khách
+    const validCustomers = formData.customers.filter(
+      (customer) => customer.name && customer.idNumber
+    );
+
+    if (validCustomers.length === 0) {
+      setError("Vui lòng nhập thông tin ít nhất một khách hàng");
+      return;
+    }
 
     try {
-      // Debug log trước khi gửi
-      console.log("=== DEBUG BEFORE SUBMIT ===");
-      console.log("formData.customers:", formData.customers);
-      console.log("formData.customers.length:", formData.customers.length);
-
-      // Filter out empty customer entries
-      const validCustomers = formData.customers.filter(
-        (c) => c.name && c.idNumber && c.address
-      );
-
-      console.log("validCustomers:", validCustomers);
-      console.log("validCustomers.length:", validCustomers.length);
-
-      if (validCustomers.length === 0) {
-        alert("Vui lòng nhập thông tin ít nhất một khách hàng");
-        return;
-      }
-
-      if (validCustomers.length > maxCustomers) {
-        alert(`Số lượng khách không được vượt quá ${maxCustomers} người`);
-        return;
-      }
-
-      // Email validation
-      if (!formData.email || !formData.email.includes("@")) {
-        alert("Vui lòng nhập email hợp lệ");
-        return;
-      }
-
-      // Chuẩn bị dữ liệu gửi lên API
-      const rentalData = {
+      // Đảm bảo chỉ gửi khách hàng có thông tin hợp lệ và giữ lại room
+      const finalData = {
         ...formData,
+        room: formData.room.trim(), // Đảm bảo không có khoảng trắng
         customers: validCustomers,
       };
 
-      console.log("Final rentalData being sent:", rentalData);
+      // Kiểm tra lại một lần nữa
+      if (!finalData.room) {
+        setError("Không thể lưu khi thiếu thông tin phòng");
+        return;
+      }
 
-      // Gọi API tạo hoặc cập nhật
-      let success = false;
-      if (rental && !rental.isNew) {
-        console.log("Updating rental with ID:", rental.id);
-        success = await updateRental(rental.id, rentalData);
-        if (success) {
-          if (onSuccess) onSuccess("Cập nhật phiếu thuê phòng thành công!");
-          onClose(); // Đảm bảo form được đóng
-        }
+      // Logging để debug
+      console.log("Số lượng khách gửi đi:", validCustomers.length);
+      console.log("Dữ liệu gửi đi:", finalData);
+
+      let result;
+      if (isEditMode) {
+        result = await updateRental(finalData.id, finalData);
       } else {
-        console.log("Creating new rental");
-        success = await addRental(rentalData);
-        if (success) {
-          if (onSuccess) onSuccess("Đặt phòng thành công!");
-          onClose(); // Đảm bảo form được đóng
-        }
+        result = await addRental(finalData);
+      }
+
+      if (result && result.success) {
+        onSuccess(
+          isEditMode
+            ? "Cập nhật phiếu thuê thành công!"
+            : "Thêm phiếu thuê mới thành công!"
+        );
+        onClose();
+      } else {
+        setError(
+          result?.message || "Không thể lưu phiếu thuê. Vui lòng thử lại."
+        );
       }
     } catch (error) {
-      console.error("Lỗi khi xử lý form:", error);
-      alert("Có lỗi xảy ra: " + error.message);
+      console.error("Error submitting rental:", error);
+      setError(`Lỗi: ${error.message || "Không thể lưu phiếu thuê"}`);
     }
   };
 
@@ -265,10 +276,12 @@ function RentalForm({ rental, onClose, onSuccess }) {
     <div className="modal">
       <div className="modal-content">
         <h3>
-          {rental && !rental.isNew
-            ? "Chỉnh sửa phiếu thuê phòng"
-            : "Tạo phiếu thuê phòng"}
+          {isEditMode ? "Chỉnh sửa phiếu thuê phòng" : "Tạo phiếu thuê phòng"}
         </h3>
+
+        {/* Hiển thị lỗi nếu có */}
+        {error && <div className="error-message">{error}</div>}
+
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Email liên hệ:</label>
@@ -320,28 +333,36 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
               {/* Nếu tạo mới không có phòng được chọn sẵn */}
               {showAvailableRoomsDropdown && (
-                <select
-                  value={formData.room}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      room: e.target.value,
-                      roomType: e.target.value ? e.target.value.charAt(0) : "",
-                    })
-                  }
-                  required
-                >
-                  <option value="">Chọn phòng</option>
-                  {availableRooms.map((room) => (
-                    <option key={room.roomNumber} value={room.roomNumber}>
-                      {room.roomNumber} - Loại {room.type}
-                    </option>
-                  ))}
-                </select>
+                <>
+                  {availableRooms.length === 0 ? (
+                    <div className="no-rooms-message">Không có phòng trống</div>
+                  ) : (
+                    <select
+                      value={formData.room}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          room: e.target.value,
+                          roomType: e.target.value
+                            ? e.target.value.charAt(0)
+                            : "",
+                        })
+                      }
+                      required
+                    >
+                      <option value="">Chọn phòng</option>
+                      {availableRooms.map((room) => (
+                        <option key={room.roomNumber} value={room.roomNumber}>
+                          {room.roomNumber} - Loại {room.type}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </>
               )}
 
               {/* Nếu đang edit một phiếu thuê đã tồn tại */}
-              {rental && !rental.isNew && (
+              {isEditMode && (
                 <select
                   value={formData.room}
                   onChange={(e) =>
@@ -356,7 +377,8 @@ function RentalForm({ rental, onClose, onSuccess }) {
                   <option value="">Chọn phòng</option>
                   {availableRooms.map((room) => (
                     <option key={room.roomNumber} value={room.roomNumber}>
-                      {room.roomNumber} - Loại {room.type}
+                      {room.roomNumber} - Loại {room.type} -{" "}
+                      {room.status === "available" ? "Trống" : "Đã đặt"}
                     </option>
                   ))}
                 </select>
@@ -385,8 +407,8 @@ function RentalForm({ rental, onClose, onSuccess }) {
                 alignItems: "center",
               }}
             >
-              <h4>Danh sách khách hàng (Tối đa {maxCustomers} khách)</h4>
-              {rental && !rental.isNew && (
+              <h4>Danh sách khách hàng (Tối đa {maxCustomers || 4} khách)</h4>
+              {isEditMode && (
                 <button
                   type="button"
                   onClick={handleResetCustomers}
@@ -482,7 +504,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
               type="button"
               onClick={handleAddCustomer}
               className="add-customer-button"
-              disabled={formData.customers.length >= maxCustomers}
+              disabled={formData.customers.length >= (maxCustomers || 4)}
             >
               Thêm khách hàng
             </button>
@@ -490,7 +512,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
           <div className="form-buttons">
             <button type="submit" className="save-button">
-              {rental && !rental.isNew ? "Cập nhật" : "Tạo phiếu thuê"}
+              {isEditMode ? "Cập nhật" : "Tạo phiếu thuê"}
             </button>
             <button type="button" onClick={onClose} className="cancel-button">
               Hủy

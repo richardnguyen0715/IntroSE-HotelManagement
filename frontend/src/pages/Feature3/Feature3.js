@@ -2,28 +2,36 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import "./Feature3.css";
 import "../App.css";
-import { getRoomPrice, getRooms } from "../../services/rooms";
+import { getRoomPrice, getRoomTypes } from "../../services/rooms";
+import { RoomProvider, useRooms } from "../Feature1/RoomContext";
 
-function Feature3() {
+// Separate inner component to use context
+function Feature3Content() {
   const navigate = useNavigate();
   const [searchRoom, setSearchRoom] = useState("");
+  const { rooms, loading, error, syncRoomStatusWithBookings } = useRooms();
+  const [searchResults, setSearchResults] = useState(null);
+  const [roomTypes, setRoomTypes] = useState([]); // Thêm state để lưu roomTypes
 
-  const [rooms, setRooms] = useState([]);
-
+  // Tải danh sách loại phòng KHI COMPONENT MOUNT (chỉ một lần)
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const resp = await getRooms();
-        setRooms(resp.data);
-        console.log("Fetched rooms:", resp);
+        // Gọi API để lấy danh sách loại phòng
+        const response = await getRoomTypes();
+        if (response && response.data) {
+          setRoomTypes(response.data);
+        }
       } catch (error) {
-        console.error("Error fetching rooms:", error);
+        console.error("Error fetching room types:", error);
       }
-    };
-    fetchData();
-  }, []);
 
-  const [searchResults, setSearchResults] = useState(null);
+      // Gọi API để đồng bộ trạng thái phòng
+      await syncRoomStatusWithBookings();
+    };
+
+    fetchData();
+  }, []); // Empty dependency array to run only once
 
   const handleSearch = () => {
     if (!searchRoom) {
@@ -42,7 +50,12 @@ function Feature3() {
 
   const displayRooms = searchResults || rooms;
 
-  const formatPrice = (price) => {
+  // Format giá phòng giống như trong Feature1Main.js
+  const formatPrice = (price, type) => {
+    if (!price) {
+      const calculatedPrice = getRoomPrice(type, roomTypes);
+      return calculatedPrice.toLocaleString("vi-VN");
+    }
     return price.toLocaleString("vi-VN");
   };
 
@@ -95,6 +108,9 @@ function Feature3() {
             </button>
           </div>
 
+          {loading && <div>Đang tải dữ liệu phòng...</div>}
+          {error && <div className="error-message">{error}</div>}
+
           <h3 className="section-title">
             {searchResults ? "Kết quả tra cứu" : "Danh sách các phòng"}
           </h3>
@@ -114,7 +130,7 @@ function Feature3() {
                   <td>{index + 1}</td>
                   <td>{room.roomNumber}</td>
                   <td>{room.type}</td>
-                  <td>{formatPrice(room.price || getRoomPrice(room.type))}</td>
+                  <td>{formatPrice(room.price, room.type)}</td>
                   <td>{room.status}</td>
                 </tr>
               ))}
@@ -123,6 +139,15 @@ function Feature3() {
         </div>
       </main>
     </div>
+  );
+}
+
+// Wrapper component that provides the RoomContext
+function Feature3() {
+  return (
+    <RoomProvider>
+      <Feature3Content />
+    </RoomProvider>
   );
 }
 
