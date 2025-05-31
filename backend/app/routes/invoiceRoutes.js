@@ -26,8 +26,5 @@ router
   .route('/:id/confirm-payment')
   .post(confirmInvoicePayment);
 
-router
-  .route('/number/:invoiceNumber')
-  .get(getInvoiceByNumber);
 
 module.exports = router;

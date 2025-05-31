@@ -1,7 +1,8 @@
 const Invoice = require('../models/Invoice');
-const { Room } = require('../models/Room');
+const Room = require('../models/Room');
 const { Booking } = require('../models/Booking');
 const HotelPolicy = require('../models/hotelPolicy');
+const RoomType = require('../models/RoomType');
 // Create a new invoice
 exports.createInvoice = async (req, res) => {
   try {
@@ -27,8 +28,15 @@ exports.createInvoice = async (req, res) => {
         throw new Error(`Room ${rental.roomNumber} does not have an active booking`);
       }
 
+      // Update booking status to inPayment
+      await Booking.findByIdAndUpdate(booking._id, { status: 'inPayment' });
+
       // Get base price per day
-      let pricePerDay = room.price;
+      let pricePerDay;
+
+      const roomType = await RoomType.findOne({ type: room.type });
+
+      pricePerDay = roomType.price;
       
       // Check for third guest surcharge
       if (booking.customerList.length > 2) {
@@ -40,7 +48,7 @@ exports.createInvoice = async (req, res) => {
         // Check for foreign guests and apply surcharge
         const hasForeignGuest = booking.customerList.some(customer => customer.type === 'foreign');
         if (hasForeignGuest) {
-          pricePerDay *= hotelPolicy.foreignPolicy; // Multiply by 1.5 for foreign guests
+          pricePerDay *= hotelPolicy.foreignPolicy;
         }
         
       const total = pricePerDay * rental.numberOfDays;
@@ -124,12 +132,12 @@ exports.getAllInvoices = async (req, res) => {
     res.status(200).json({
       success: true,
       count: invoices.length,
-      total,
-      pagination: {
-        currentPage: page,
-        totalPages: Math.ceil(total / limit),
-        totalItems: total
-      },
+      // total,
+      // pagination: {
+      //   currentPage: page,
+      //   totalPages: Math.ceil(total / limit),
+      //   totalItems: total
+      // },
       data: invoices
     });
   } catch (error) {
@@ -164,31 +172,8 @@ exports.getInvoice = async (req, res) => {
   }
 };
 
-// Get invoice by invoice number
-exports.getInvoiceByNumber = async (req, res) => {
-  try {
-    const invoice = await Invoice.findOne({ invoiceNumber: req.params.invoiceNumber });
-    
-    if (!invoice) {
-      return res.status(404).json({
-        success: false,
-        message: 'Invoice not found'
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      data: invoice
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-};
-
 // Update an invoice
+// Tạm thời không sử dụng update, có thể sử dụng nếu có mục đích rõ ràng.
 exports.updateInvoice = async (req, res) => {
   try {
     const { name, address, items } = req.body;
@@ -245,7 +230,8 @@ exports.updateInvoice = async (req, res) => {
 // Delete an invoice
 exports.deleteInvoice = async (req, res) => {
   try {
-    const invoice = await Invoice.findByIdAndDelete(req.params.id);
+    // Find the invoice first to check its status
+    const invoice = await Invoice.findById(req.params.id);
 
     if (!invoice) {
       return res.status(404).json({
@@ -253,6 +239,25 @@ exports.deleteInvoice = async (req, res) => {
         message: 'Invoice not found'
       });
     }
+
+    // Check if invoice has 'pending' status
+    if (invoice.status !== 'pending') {
+      return res.status(400).json({
+        success: false,
+        message: 'Only pending invoices can be deleted'
+      });
+    }
+
+    // Update booking status from inPayment to active for all rentals in the invoice
+    for (const rental of invoice.rentals) {
+      await Booking.findOneAndUpdate(
+        { roomNumber: rental.roomNumber, status: 'inPayment' },
+        { status: 'active' }
+      );
+    }
+
+    // Delete the invoice
+    await Invoice.findByIdAndDelete(req.params.id);
 
     res.status(200).json({
       success: true,
@@ -301,7 +306,7 @@ exports.confirmInvoicePayment = async (req, res) => {
     for (const rental of invoice.rentals) {
       // Update booking status
       await Booking.findOneAndUpdate(
-        { roomNumber: rental.roomNumber, status: 'active' },
+        { roomNumber: rental.roomNumber, status: 'inPayment' },
         { status: 'inactive' },
         { new: true }
       );

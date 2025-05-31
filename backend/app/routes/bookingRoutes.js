@@ -1,7 +1,6 @@
 const express = require('express');
 const {
   getAllBookings,
-  getBooking,
   updateBooking,
   deleteBooking,
   createBooking
@@ -11,7 +10,6 @@ const router = express.Router();
 
 router
   .route('/:id')
-  .get(getBooking)
   .put(updateBooking)
   .delete(deleteBooking);
 
