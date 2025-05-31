@@ -1,18 +1,40 @@
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { RoomProvider, useRooms } from "../Feature1/RoomContext";
 import "./Feature3.css";
 import "../App.css";
 import { getRoomPrice, getRoomTypes } from "../../services/rooms";
-import { RoomProvider, useRooms } from "../Feature1/RoomContext";
 
 // Separate inner component to use context
 function Feature3Content() {
   const navigate = useNavigate();
   const [searchRoom, setSearchRoom] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { rooms, loading, error, syncRoomStatusWithBookings } = useRooms();
   const [searchResults, setSearchResults] = useState(null);
   const [roomTypes, setRoomTypes] = useState([]); // Thêm state để lưu roomTypes
 
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userInfo =
+      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+
+    if (token && userInfo) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userInfo");
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
   // Tải danh sách loại phòng KHI COMPONENT MOUNT (chỉ một lần)
   useEffect(() => {
     const fetchData = async () => {
@@ -29,7 +51,6 @@ function Feature3Content() {
       // Gọi API để đồng bộ trạng thái phòng
       await syncRoomStatusWithBookings();
     };
-
     fetchData();
   }, []); // Empty dependency array to run only once
 
@@ -76,12 +97,20 @@ function Feature3Content() {
             alt="Vietnam Flag"
             className="flag"
           />
-          <Link to="/register">
-            <button className="button-reg">Đăng ký</button>
-          </Link>
-          <Link to="/login">
-            <button className="button-log">Đăng nhập</button>
-          </Link>
+          {!isLoggedIn ? (
+            <>
+              <Link to="/register">
+                <button className="button-reg">Đăng ký</button>
+              </Link>
+              <Link to="/login">
+                <button className="button-log">Đăng nhập</button>
+              </Link>
+            </>
+          ) : (
+            <button className="button-log" onClick={handleLogout}>
+              Đăng xuất
+            </button>
+          )}
         </nav>
       </header>
 

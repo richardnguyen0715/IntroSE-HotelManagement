@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRegulation } from "./RegulationContext";
 import "./Feature6.css";
 
@@ -10,7 +10,31 @@ const Regulation4 = () => {
   const [formData, setFormData] = useState({
     extraGuestSurcharge: 28,
   });
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userInfo =
+      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
 
+    if (token && userInfo) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+      // Redirect to login if not logged in
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userInfo");
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
   // Lấy hệ số khách nước ngoài từ customerTypes
   const foreignGuestCoefficient =
     customerTypes.find((ct) => ct.type === "Nước ngoài")?.coefficient || 1.5;
@@ -89,12 +113,20 @@ const Regulation4 = () => {
             alt="Vietnam Flag"
             className="flag"
           />
-          <Link to="/register">
-            <button className="button-reg">Đăng ký</button>
-          </Link>
-          <Link to="/login">
-            <button className="button-log">Đăng nhập</button>
-          </Link>
+          {!isLoggedIn ? (
+            <>
+              <Link to="/register">
+                <button className="button-reg">Đăng ký</button>
+              </Link>
+              <Link to="/login">
+                <button className="button-log">Đăng nhập</button>
+              </Link>
+            </>
+          ) : (
+            <button className="button-log" onClick={handleLogout}>
+              Đăng xuất
+            </button>
+          )}
         </nav>
       </header>
 

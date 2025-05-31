@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useRegulation } from "../Feature6/RegulationContext";
 import "../Feature6/Feature6.css";
 
@@ -12,11 +12,33 @@ const Regulation2 = () => {
     loading,
     error,
   } = useRegulation();
-  const [selectedCustomerTypes, setSelectedCustomerTypes] = useState([]);
+  //const [selectedCustomerTypes, setSelectedCustomerTypes] = useState([]);
   const [editMode, setEditMode] = useState(false);
   const [maxCustomersValue, setMaxCustomersValue] = useState(3);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [editingCustomerTypes, setEditingCustomerTypes] = useState([]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userInfo =
+      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
 
+    if (token && userInfo) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userInfo");
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
   // Khởi tạo dữ liệu khi component mount
   useEffect(() => {
     setMaxCustomersValue(maxCustomers);
@@ -98,12 +120,20 @@ const Regulation2 = () => {
             alt="Vietnam Flag"
             className="flag"
           />
-          <Link to="/register">
-            <button className="button-reg">Đăng ký</button>
-          </Link>
-          <Link to="/login">
-            <button className="button-log">Đăng nhập</button>
-          </Link>
+          {!isLoggedIn ? (
+            <>
+              <Link to="/register">
+                <button className="button-reg">Đăng ký</button>
+              </Link>
+              <Link to="/login">
+                <button className="button-log">Đăng nhập</button>
+              </Link>
+            </>
+          ) : (
+            <button className="button-log" onClick={handleLogout}>
+              Đăng xuất
+            </button>
+          )}
         </nav>
       </header>
 
