@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useRooms } from "../Feature1/RoomContext";
 import { useRentals } from "./RentalContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import RentalForm from "./RentalForm";
 import { formatDateForUI } from "../../services/bookings";
 import "./Feature2.css";
@@ -14,6 +14,22 @@ function Feature2Main() {
   const [successMessage, setSuccessMessage] = useState("");
   const { fetchRooms, rooms, syncRoomStatusWithBookings } = useRooms();
   const location = useLocation();
+  const navigate = useNavigate();
+
+  const handleCreateInvoice = () => {
+    // Lấy mảng số phòng từ selectedRentals
+    const selectedRooms = selectedRentals.map(id => {
+      const rental = rentals.find(r => r.id === id);
+      return rental ? rental.room : null;
+    }).filter(Boolean); // loại bỏ null
+
+    // Chuyển sang trang Feature4 với dữ liệu phòng
+    navigate('/feature4', {
+      state: {
+        selectedRooms,
+      }
+    });
+  };
 
   // Thêm trường checkInDate vào filters
   const [filters, setFilters] = useState({
@@ -547,6 +563,10 @@ function Feature2Main() {
           disabled={loading}
         >
           Làm mới
+        </button>
+
+        <button className="action-button add clickable" onClick={handleCreateInvoice}>
+        Lập Hóa đơn
         </button>
       </div>
 
