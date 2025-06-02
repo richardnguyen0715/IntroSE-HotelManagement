@@ -21,7 +21,7 @@ const hotelPolicySchema = new mongoose.Schema({
         required: true,
         default: 0.25
     },
-});
+},{strict: false});
 
 const HotelPolicy = mongoose.model('HotelPolicy', hotelPolicySchema);
 module.exports = HotelPolicy;

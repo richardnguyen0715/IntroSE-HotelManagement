@@ -3,11 +3,12 @@ const {
     createHotelPolicy,
     getHotelPolicy,
     getHotelPolicyById,
-    updateHotelPolicy,
-    updateHotelPolicyById,
-    partialUpdatePolicy,
     resetHotelPolicyToDefault,
     deleteHotelPolicy,
+    addCustomField,
+    updatePolicyField,
+    updateMultipleFields,
+    deletePolicyField
 } = require('../controllers/policyController');
 const router = express.Router();
 
@@ -16,7 +17,6 @@ router
     .route('/')
     .get(getHotelPolicy)
     .post(createHotelPolicy)
-    .put(updateHotelPolicy)
     .delete(deleteHotelPolicy);
 
 // Route for getting hotel policy by ID: GET /api/system/policy/:id
@@ -27,12 +27,23 @@ router
 router
     .route('/:id')
     .get(getHotelPolicyById)
-    .put(updateHotelPolicyById)
-    .patch(partialUpdatePolicy)
     .delete(deleteHotelPolicy);
 
 router
     .route('/reset')
     .post(resetHotelPolicyToDefault);
+
+router
+    .route('/add-field')
+    .post(addCustomField);
+
+router
+    .route('/field/:fieldName')
+    .put(updatePolicyField)
+    .delete(deletePolicyField);
+
+router
+    .route('/update-fields')
+    .put(updateMultipleFields);
 
 module.exports = router;

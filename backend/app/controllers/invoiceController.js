@@ -3,6 +3,7 @@ const Room = require('../models/Room');
 const { Booking } = require('../models/Booking');
 const HotelPolicy = require('../models/hotelPolicy');
 const RoomType = require('../models/RoomType');
+
 // Create a new invoice
 exports.createInvoice = async (req, res) => {
   try {
@@ -38,6 +39,29 @@ exports.createInvoice = async (req, res) => {
 
       pricePerDay = roomType.price;
       
+      // Apply pricing policy based on customer types
+      let policyMultiplier = 0;
+      
+      // Count occurrences of each customer type
+      const basePrice = pricePerDay;
+      const customerTypes = booking.customerList.reduce((types, customer) => {
+        types[customer.type] = (types[customer.type] || 0) + 1;
+        return types;
+      }, {});
+      // Apply policy multiplier for each customer type dynamically
+      for (const [type, count] of Object.entries(customerTypes)) {
+        const policyKey = `${type}Policy`;
+        if (hotelPolicy[policyKey] !== undefined) {
+          policyMultiplier += (count / booking.customerList.length) * hotelPolicy[policyKey];
+        } else {
+          // Default to 1.0 multiplier if policy not found for this type
+          policyMultiplier += (count / booking.customerList.length) * 1.0;
+        }
+      }
+      
+      // Apply the weighted policy multiplier
+      pricePerDay = basePrice * policyMultiplier;
+      
       // Check for third guest surcharge
       if (booking.customerList.length > 2) {
           // Apply surcharge for each guest beyond 2
@@ -45,11 +69,11 @@ exports.createInvoice = async (req, res) => {
           pricePerDay += (pricePerDay * hotelPolicy.surchargePolicy * extraGuests);
         }
         
-        // Check for foreign guests and apply surcharge
-        const hasForeignGuest = booking.customerList.some(customer => customer.type === 'foreign');
-        if (hasForeignGuest) {
-          pricePerDay *= hotelPolicy.foreignPolicy;
-        }
+      // Check for foreign guests and apply surcharge
+      const hasForeignGuest = booking.customerList.some(customer => customer.type === 'foreign');
+      if (hasForeignGuest) {
+        pricePerDay *= hotelPolicy.foreignPolicy;
+      }
         
       const total = pricePerDay * rental.numberOfDays;
       

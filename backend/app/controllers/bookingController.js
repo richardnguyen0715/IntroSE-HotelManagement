@@ -2,31 +2,22 @@ const {Booking} = require('../models/Booking');
 const Room = require('../models/Room');
 const Invoice = require('../models/Invoice');
 
-// Hàm helper để kiểm tra phòng có available không
+// Helper function to check if the room is available
 const isRoomAvailable = async (roomNumber, customerList) => {
-  // Kiểm tra trạng thái của phòng từ collection Room
+  // Check the status of the room from the Room collection
   const room = await Room.findOne({ roomNumber });
   if (!room) {
     throw new Error("Room not found");
   }
-
-  // Lấy policy về max user
-  const policy = await HotelPolicy.findOne();
-  const maxCapacity = policy ? policy.maxUser : 4; // Default to 4 if no policy
-
-  // Kiểm tra nếu secondParam là mảng khách hàng
-  if (secondParam && Array.isArray(secondParam)) {
-    if (secondParam.length > maxCapacity) {
-      throw new Error(
-        `Room capacity (${maxCapacity}) exceeded. Cannot accommodate ${secondParam.length} customers.`
-      );
-    }
+  
+  // Check if the number of customers exceeds the room capacity
+  if (customerList && customerList.length > room.capacity) {
+      throw new Error(`Room capacity (${room.capacity}) exceeded. Cannot accommodate ${customerList.length} customers.`);
   }
-  // Nếu không phải là mảng, giả định là startDate và bỏ qua kiểm tra capacity
-
-  return room.status === "available";
+  
+  return room.status === 'available';
 };
-// Hàm helper để cập nhật trạng thái phòng
+// Helper function to update room status
 const updateRoomStatus = async (roomNumber, status) => {
   const room = await Room.findOneAndUpdate(
     { roomNumber },
@@ -129,23 +120,21 @@ exports.getAllBookings = async (req, res) => {
         }
       }
 
-    // Lọc theo status nếu có
-    if (status) {
-      query.status = status;
-    }
+      // Filter by status
+      if (status) {
+          query.status = status;
+      }
 
-    // Lọc theo số phòng nếu có
-    if (roomNumber) {
-      query.roomNumber = roomNumber;
-    }
+      // Filter by room number
+      if (roomNumber) {
+          query.roomNumber = roomNumber;
+      }
 
-    // Lọc theo số lượng khách nếu có
-    if (customerCount) {
-      query["customerList.0"] = { $exists: true }; // Đảm bảo customerList không rỗng
-      query.$expr = {
-        $eq: [{ $size: "$customerList" }, parseInt(customerCount)],
-      };
-    }
+      // Filter by customer count
+      if (customerCount) {
+          query['customerList.0'] = { $exists: true };  // Ensure customerList is not empty
+          query.$expr = { $eq: [{ $size: "$customerList" }, parseInt(customerCount)] };
+      }
 
       const bookings = await Booking.find(query);
       res.status(200).json({
