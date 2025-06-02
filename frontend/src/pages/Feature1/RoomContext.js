@@ -2,7 +2,7 @@ import { createContext, useState, useContext, useEffect } from "react";
 import {
   getRooms,
   addRoom as addRoomAPI,
-  updateRoom,
+  //updateRoom,
   deleteRoom,
   deleteMultipleRooms,
   getRoomPrice,
@@ -35,8 +35,16 @@ export function RoomProvider({ children }) {
     }
   };
   useEffect(() => {
+    let lastFocusTime = 0;
+    const focusInterval = 5000; // 5 giây
+
     const handleFocus = () => {
-      fetchRooms();
+      const now = Date.now();
+      // Chỉ gọi fetchRooms nếu đã qua khoảng thời gian tối thiểu
+      if (now - lastFocusTime > focusInterval) {
+        fetchRooms();
+        lastFocusTime = now;
+      }
     };
 
     window.addEventListener("focus", handleFocus);
@@ -67,7 +75,57 @@ export function RoomProvider({ children }) {
       }
     }
   };
+  const syncRoomStatusWithBookings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
 
+      // Get all rooms
+      const roomsResponse = await getRooms();
+      let updatedRooms = roomsResponse.data || [];
+
+      // Get bookings (both active and upcoming)
+      const bookingsResponse = await fetch(
+        `${
+          process.env.REACT_APP_API_URL || "http://localhost:5000/api"
+        }/bookings`
+      );
+      const bookings = await bookingsResponse.json();
+
+      // Create a map of room numbers to booking status
+      const bookedRoomMap = {};
+      if (bookings && bookings.data) {
+        const today = new Date();
+
+        bookings.data.forEach((booking) => {
+          // Mark room as booked if booking is active or the start date is in the future
+          const startDate = new Date(booking.startDate);
+          if (booking.status === "active" || startDate >= today) {
+            if (booking.roomNumber) {
+              bookedRoomMap[booking.roomNumber] = "occupied";
+            }
+          }
+        });
+      }
+
+      // Update status of rooms based on bookings
+      updatedRooms = updatedRooms.map((room) => {
+        if (bookedRoomMap[room.roomNumber]) {
+          return { ...room, status: "occupied" };
+        }
+        return { ...room, status: "available" };
+      });
+
+      setRooms(updatedRooms);
+      return updatedRooms;
+    } catch (error) {
+      console.error("Error syncing room status:", error);
+      setError("Không thể đồng bộ trạng thái phòng.");
+      return rooms;
+    } finally {
+      setLoading(false);
+    }
+  };
   // Thêm phòng mới
   const addRoom = async (newRoom) => {
     try {
@@ -101,49 +159,50 @@ export function RoomProvider({ children }) {
     }
   };
 
-  // Cập nhật thông tin phòng
-  const editRoom = async (id, updatedRoom) => {
-    try {
-      setLoading(true);
-      setError(null);
+  // // Cập nhật thông tin phòng
+  // const editRoom = async (id, updatedRoom) => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
 
-      validateRoom(updatedRoom);
+  //     validateRoom(updatedRoom);
 
-      // Kiểm tra số phòng đã tồn tại ở phòng khác
-      const hasConflict = rooms.some(
-        (room) => room._id !== id && room.roomNumber === updatedRoom.roomNumber
-      );
+  //     // Kiểm tra số phòng đã tồn tại ở phòng khác
+  //     const hasConflict = rooms.some(
+  //       (room) => room._id !== id && room.roomNumber === updatedRoom.roomNumber
+  //     );
 
-      if (hasConflict) {
-        throw new Error("Số phòng này đã tồn tại");
-      }
+  //     if (hasConflict) {
+  //       throw new Error("Số phòng này đã tồn tại");
+  //     }
 
-      // Nếu không nhập giá, tự động lấy giá theo loại phòng
-      if (!updatedRoom.price) {
-        updatedRoom.price = getRoomPrice(updatedRoom._type);
-      }
+  //     // Nếu không nhập giá, tự động lấy giá theo loại phòng
+  //     if (!updatedRoom.price) {
+  //       updatedRoom.price = getRoomPrice(updatedRoom._type);
+  //     }
 
-      // Gọi API cập nhật phòng
-      const response = await updateRoom(id, updatedRoom);
+  //     // Gọi API cập nhật phòng
+  //     const response = await updateRoom(id, updatedRoom);
 
-      // Cập nhật state khi API thành công
-      const updatedRooms = rooms.map((room) =>
-        room._id === id ? response.data : room
-      );
+  //     // Cập nhật state khi API thành công
+  //     const updatedRooms = rooms.map((room) =>
+  //       room._id === id ? response.data : room
+  //     );
 
-      setRooms(updatedRooms);
-      return true;
-    } catch (error) {
-      console.error("Error updating room:", error);
-      setError(
-        error.message || "Không thể cập nhật phòng. Vui lòng thử lại sau."
-      );
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setRooms(updatedRooms);
+  //     return true;
+  //   } catch (error) {
+  //     console.error("Error updating room:", error);
+  //     setError(
+  //       error.message || "Không thể cập nhật phòng. Vui lòng thử lại sau."
+  //     );
+  //     return false;
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
+  // Xóa phòng
   // Xóa phòng
   const deleteRooms = async (selectedRooms) => {
     try {
@@ -154,16 +213,45 @@ export function RoomProvider({ children }) {
         return true;
       }
 
-      // Xóa một phòng hoặc nhiều phòng
-      if (selectedRooms.length === 1) {
-        await deleteRoom(selectedRooms[0]);
+      // Kiểm tra trạng thái phòng trước khi xóa
+      const roomsToDelete = rooms.filter((room) =>
+        selectedRooms.includes(room._id)
+      );
+      const occupiedRooms = roomsToDelete.filter(
+        (room) => room.status === "occupied"
+      );
+
+      // Nếu có phòng đang bận, hiện thông báo lỗi và dừng quá trình
+      if (occupiedRooms.length > 0) {
+        const occupiedRoomNumbers = occupiedRooms
+          .map((room) => room.roomNumber)
+          .join(", ");
+        setError(
+          `Không thể xóa phòng đang được sử dụng: ${occupiedRoomNumbers}`
+        );
+        return false;
+      }
+
+      // Chỉ xóa phòng available
+      const availableRoomIds = roomsToDelete
+        .filter((room) => room.status === "available")
+        .map((room) => room._id);
+
+      if (availableRoomIds.length === 0) {
+        setError("Không có phòng nào có thể xóa");
+        return false;
+      }
+
+      // Tiến hành xóa
+      if (availableRoomIds.length === 1) {
+        await deleteRoom(availableRoomIds[0]);
       } else {
-        await deleteMultipleRooms(selectedRooms);
+        await deleteMultipleRooms(availableRoomIds);
       }
 
       // Cập nhật state sau khi xóa thành công
       const updatedRooms = rooms.filter(
-        (room) => !selectedRooms.includes(room._id)
+        (room) => !availableRoomIds.includes(room._id)
       );
 
       setRooms(updatedRooms);
@@ -185,8 +273,9 @@ export function RoomProvider({ children }) {
         error,
         fetchRooms,
         addRoom,
-        editRoom,
+        //editRoom,
         deleteRooms,
+        syncRoomStatusWithBookings,
       }}
     >
       {children}

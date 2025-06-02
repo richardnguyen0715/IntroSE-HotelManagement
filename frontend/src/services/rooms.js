@@ -81,28 +81,28 @@ export const addRoom = async (roomData) => {
  * @param {Object} roomData Dữ liệu phòng cần cập nhật
  * @returns {Promise} Promise với dữ liệu phòng đã cập nhật
  */
-export const updateRoom = async (_id, roomData) => {
-  try {
-    const response = await fetch(`${API_URL}/rooms/${_id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(roomData),
-    });
+// export const updateRoom = async (_id, roomData) => {
+//   try {
+//     const response = await fetch(`${API_URL}/rooms/${_id}`, {
+//       method: "PUT",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(roomData),
+//     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error: ${response.status}`);
-    }
+//     if (!response.ok) {
+//       const errorData = await response.json();
+//       throw new Error(errorData.message || `Error: ${response.status}`);
+//     }
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error(`Error updating room ${_id}:`, error);
-    throw error;
-  }
-};
+//     const data = await response.json();
+//     return data;
+//   } catch (error) {
+//     console.error(`Error updating room ${_id}:`, error);
+//     throw error;
+//   }
+// };
 
 /**
  * Xóa phòng
@@ -144,20 +144,38 @@ export const deleteMultipleRooms = async (ids) => {
     throw error;
   }
 };
-export const getRoomPrice = (roomType) => {
-  switch (roomType) {
-    case "A":
-      return 150000;
-    case "B":
-      return 170000;
-    case "C":
-      return 200000;
-    default:
-      return 0;
-  }
-};
+
 /**
  * Xóa nhiều phòng
  * @param {Array} ids Mảng ID các phòng cần xóa
  * @returns {Promise} Promise với kết quả xóa
  */
+export const getRoomTypes = async () => {
+  try {
+    const response = await fetch(`${API_URL}/rooms/types`);
+
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data; // Returns the list of room types
+  } catch (error) {
+    console.error("Error getting room types:", error);
+    throw error;
+  }
+};
+export const getRoomPrice = (roomType, roomTypes) => {
+  if (!roomTypes || !Array.isArray(roomTypes) || roomTypes.length === 0) {
+    console.warn("Room types data is not available or invalid:", roomTypes);
+    return 0;
+  }
+
+  const roomTypeData = roomTypes.find((type) => type.type === roomType);
+  if (!roomTypeData) {
+    console.warn(`Room type "${roomType}" not found in roomTypes:`, roomTypes);
+    return 0;
+  }
+
+  return roomTypeData.price;
+};

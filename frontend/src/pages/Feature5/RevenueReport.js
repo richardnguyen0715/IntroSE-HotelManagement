@@ -6,16 +6,33 @@ import { formatCurrency } from "../../services/reports";
 
 function RevenueReport() {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { revenueReport, loading, error, fetchRevenueReport } = useReports();
   const [yearMonth, setYearMonth] = useState({
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1,
   });
 
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userInfo =
+      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+
+    if (token && userInfo) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+      // Redirect to login if not logged in
+      navigate("/login");
+    }
+  }, [navigate]);
   // Fetch report when component mounts or year/month changes
   useEffect(() => {
-    fetchRevenueReport(yearMonth.year, yearMonth.month);
-  }, [yearMonth]);
+    if (isLoggedIn) {
+      fetchRevenueReport(yearMonth.year, yearMonth.month);
+    }
+  }, [yearMonth, isLoggedIn]);
 
   const handleGoBack = () => {
     navigate("/feature5");
@@ -27,6 +44,14 @@ function RevenueReport() {
 
   const handleYearChange = (e) => {
     setYearMonth((prev) => ({ ...prev, year: parseInt(e.target.value) }));
+  };
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userInfo");
+    setIsLoggedIn(false);
+    navigate("/login");
   };
 
   // Generate month options
@@ -65,9 +90,22 @@ function RevenueReport() {
             alt="Vietnam Flag"
             className="flag"
           />
+          {!isLoggedIn ? (
+            <>
+              <Link to="/register">
+                <button className="button-reg">Đăng ký</button>
+              </Link>
+              <Link to="/login">
+                <button className="button-log">Đăng nhập</button>
+              </Link>
+            </>
+          ) : (
+            <button className="button-log" onClick={handleLogout}>
+              Đăng xuất
+            </button>
+          )}
         </nav>
       </header>
-
       {/* Main Content */}
       <main className="main-content">
         <div className="header-container">
@@ -116,7 +154,7 @@ function RevenueReport() {
                     <th>Số phòng</th>
                     <th>Doanh thu</th>
                     <th>Số ngày thuê</th>
-                    <th>Tỷ lệ lấp đầy</th>
+                    <th>Tỷ lệ doanh thu</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -127,7 +165,7 @@ function RevenueReport() {
                       <td>{item.roomCount}</td>
                       <td>{formatCurrency(item.revenue)}</td>
                       <td>{item.occupiedDays}</td>
-                      <td>{item.occupancyRate}%</td>
+                      <td>{item.revenueRatio}%</td>
                     </tr>
                   ))}
                 </tbody>

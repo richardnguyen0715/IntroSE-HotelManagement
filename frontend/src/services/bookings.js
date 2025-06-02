@@ -64,12 +64,16 @@ export const getBookingById = async (id) => {
 
 /**
  * Tạo đặt phòng mới
- * @param {Object} bookingData Dữ liệu đặt phòng mới
+ * @param {Object} rentalData Dữ liệu phiếu thuê mới
  * @returns {Promise} Promise với dữ liệu đặt phòng đã tạo
  */
-export const createBooking = async (bookingData) => {
+export const createBooking = async (rentalData) => {
   try {
     const token = localStorage.getItem("token");
+
+    // Chuyển từ dạng rental sang booking trước khi gửi lên API
+    const bookingData = rentalData;
+
     console.log("Booking data being sent:", JSON.stringify(bookingData));
 
     const response = await fetch(`${API_URL}/bookings`, {
@@ -133,15 +137,52 @@ export const createBooking = async (bookingData) => {
     return { success: false, message: error.message };
   }
 };
+
 /**
  * Cập nhật thông tin đặt phòng
  * @param {string} id ID của đặt phòng
- * @param {Object} bookingData Dữ liệu đặt phòng cần cập nhật
+ * @param {Object} rentalData Dữ liệu phiếu thuê cần cập nhật
  * @returns {Promise} Promise với dữ liệu đặt phòng đã cập nhật
  */
-export const updateBooking = async (id, bookingData) => {
+export const updateBooking = async (id, rentalData) => {
   try {
     const token = localStorage.getItem("token");
+
+    if (!rentalData.room) {
+      console.error(
+        "CRITICAL: Room is empty when updating booking",
+        rentalData
+      );
+      return {
+        success: false,
+        message:
+          "Không thể cập nhật khi thiếu thông tin phòng. Vui lòng chọn phòng.",
+      };
+    }
+
+    // Kiểm tra dữ liệu trước khi map
+    console.log("PRE-MAP: Updating booking", id, "with data:", rentalData);
+
+    // Chuyển từ dạng rental sang booking trước khi gửi lên API
+    const bookingData = mapRentalToBooking(rentalData);
+
+    // Kiểm tra lại sau khi map để đảm bảo dữ liệu đầy đủ
+    if (!bookingData.roomNumber) {
+      console.error(
+        "CRITICAL ERROR: roomNumber is empty after mapping!",
+        bookingData
+      );
+      return {
+        success: false,
+        message:
+          "Không thể cập nhật khi thiếu thông tin phòng. Dữ liệu không hợp lệ.",
+      };
+    }
+
+    console.log(
+      `Updating booking ${id} with data:`,
+      JSON.stringify(bookingData)
+    );
 
     const response = await fetch(`${API_URL}/bookings/${id}`, {
       method: "PUT",
@@ -152,20 +193,29 @@ export const updateBooking = async (id, bookingData) => {
       body: JSON.stringify(bookingData),
     });
 
+    // Lấy response để debug
+    const responseText = await response.text();
+    console.log("Update API response text:", responseText);
+
     let data;
     try {
-      data = await response.json();
+      data = JSON.parse(responseText);
     } catch (jsonError) {
-      const text = await response.text();
-      console.error("Non-JSON response:", text);
+      console.error("Non-JSON response:", responseText);
       return {
         success: false,
-        message: `API không trả về JSON hợp lệ: ${text.substring(0, 100)}...`,
+        message: `API không trả về JSON hợp lệ: ${responseText.substring(
+          0,
+          100
+        )}...`,
       };
     }
 
     if (!response.ok) {
-      throw new Error(data.message || `Error: ${response.status}`);
+      return {
+        success: false,
+        message: data.message || `Error: ${response.status}`,
+      };
     }
 
     return {
@@ -243,7 +293,7 @@ export const formatDateForAPI = (dateString) => {
       console.error("Invalid date format:", dateString);
       // Sử dụng ngày hiện tại nếu định dạng không đúng
       const now = new Date();
-      now.setHours(14, 30, 0, 0);
+      now.setHours(14, 0, 0, 0); // Đặt giờ check-in mặc định là 14:00
       return now.toISOString();
     }
 
@@ -255,30 +305,33 @@ export const formatDateForAPI = (dateString) => {
     if (isNaN(numYear) || isNaN(numMonth) || isNaN(numDay)) {
       console.error("Invalid date components:", { day, month, year });
       const now = new Date();
-      now.setHours(14, 30, 0, 0);
+      now.setHours(14, 0, 0, 0);
       return now.toISOString();
     }
 
-    const date = new Date(numYear, numMonth, numDay, 14, 30, 0);
+    const date = new Date(numYear, numMonth, numDay, 14, 0, 0); // Check-in vào 14:00
 
     if (isNaN(date.getTime())) {
       console.error("Created invalid date:", date);
       const now = new Date();
-      now.setHours(14, 30, 0, 0);
+      now.setHours(14, 0, 0, 0);
       return now.toISOString();
     }
 
-    // Không cần thay đổi timezone trong chuỗi ISO
     return date.toISOString();
   } catch (error) {
     console.error("Error formatting date:", error, "Input:", dateString);
     const now = new Date();
-    now.setHours(14, 30, 0, 0);
+    now.setHours(14, 0, 0, 0);
     return now.toISOString();
   }
 };
 
-// Chuyển đổi loại khách từ UI sang API
+/**
+ * Chuyển đổi loại khách từ UI sang API
+ * @param {string} type Loại khách (Nội địa/Nước ngoài)
+ * @returns {string} Loại khách theo định dạng API
+ */
 export const convertCustomerTypeToAPI = (type) => {
   switch (type) {
     case "Nội địa":
@@ -290,7 +343,11 @@ export const convertCustomerTypeToAPI = (type) => {
   }
 };
 
-// Chuyển đổi loại khách từ API sang UI
+/**
+ * Chuyển đổi loại khách từ API sang UI
+ * @param {string} type Loại khách theo API
+ * @returns {string} Loại khách hiển thị trên UI
+ */
 export const mapCustomerTypeToUI = (type) => {
   if (!type) return "Nội địa";
 
@@ -304,7 +361,11 @@ export const mapCustomerTypeToUI = (type) => {
   }
 };
 
-// Hàm đổi định dạng từ API sang UI
+/**
+ * Hàm đổi định dạng từ API sang UI
+ * @param {Object} booking Dữ liệu booking từ API
+ * @returns {Object} Dữ liệu rental cho UI
+ */
 export const mapBookingToRental = (booking) => {
   if (!booking) {
     console.error("Booking data is undefined or null");
@@ -326,8 +387,9 @@ export const mapBookingToRental = (booking) => {
     status: booking.status || "confirmed",
     paymentStatus: booking.paymentStatus || "pending",
     createdAt: booking.createdAt || new Date().toISOString(),
-    customers: (booking.customerList || booking.customers || []).map(
-      (customer) => ({
+    customers: (booking.customerList || booking.customers || [])
+      .filter((customer) => customer) // loại bỏ phần tử null/undefined
+      .map((customer) => ({
         id:
           customer._id ||
           customer.id ||
@@ -336,36 +398,79 @@ export const mapBookingToRental = (booking) => {
         type: mapCustomerTypeToUI(customer.type),
         idNumber: customer.identityCard || customer.idNumber || "",
         address: customer.address || "",
-      })
-    ),
+      })),
   };
 };
 
-// Hàm đổi định dạng từ UI sang API
+/**
+ * Hàm đổi định dạng từ UI sang API
+ * @param {Object} rental Dữ liệu rental từ UI
+ * @returns {Object} Dữ liệu booking cho API
+ */
 export const mapRentalToBooking = (rental) => {
   if (!rental) return {};
 
-  // Đảm bảo định dạng ngày đúng
-  let startDate = null;
-  if (rental.checkInDate) {
-    startDate = formatDateForAPI(rental.checkInDate);
-    console.log("Formatted start date:", startDate);
+  console.log("Input rental data for mapping:", rental);
+
+  // Xử lý roomNumber từ object hoặc string
+  let roomNumber = "";
+  if (typeof rental.room === "object" && rental.room.number) {
+    console.log("Room is an object with number property:", rental.room);
+    roomNumber = rental.room.number;
+  } else if (typeof rental.room === "string") {
+    roomNumber = rental.room;
+    console.log("Room is a string:", roomNumber);
   }
 
-  return {
-    roomNumber: rental.room || "",
+  if (!roomNumber) {
+    console.error("CRITICAL ERROR: roomNumber is empty!", rental);
+  }
+
+  // Format ngày check-in
+  let startDate = null;
+  try {
+    if (rental.checkInDate) {
+      startDate = formatDateForAPI(rental.checkInDate);
+      console.log("Formatted start date:", startDate);
+    } else {
+      const now = new Date();
+      now.setHours(14, 0, 0, 0);
+      startDate = now.toISOString();
+      console.log("Using default startDate:", startDate);
+    }
+  } catch (err) {
+    console.error("Error formatting date:", err);
+    startDate = new Date().toISOString();
+  }
+
+  // Lọc hợp lệ thông tin khách hàng - loại bỏ khách trống
+  const validCustomers = (rental.customers || [])
+    .filter((c) => c && c.name && c.idNumber)
+    .map((customer) => ({
+      name: customer.name || "",
+      type: convertCustomerTypeToAPI(customer.type || "Nội địa"),
+      identityCard: customer.idNumber || "",
+      address: customer.address || "",
+    }));
+
+  console.log(
+    `Valid customers to send: ${validCustomers.length}`,
+    validCustomers
+  );
+
+  // Tạo object booking đầy đủ
+  const bookingData = {
+    //room: { number: roomNumber }, // Đảm bảo là string, ví dụ "101"
+    roomNumber: roomNumber,
     startDate: startDate,
     email: rental.email || "",
-    status: rental.status || "confirmed",
+    status: rental.status === "confirmed" ? "active" : "inactive",
     paymentStatus: rental.paymentStatus || "pending",
     totalPrice: rental.totalPrice || 0,
-    customerList: (rental.customers || [])
-      .filter((c) => c && c.name && c.idNumber)
-      .map((customer) => ({
-        name: customer.name || "",
-        type: convertCustomerTypeToAPI(customer.type || "Nội địa"),
-        identityCard: customer.idNumber || "",
-        address: customer.address || "",
-      })),
+    customerList: validCustomers,
   };
+
+  console.log("Final booking data to be sent:", bookingData);
+
+  return bookingData;
 };

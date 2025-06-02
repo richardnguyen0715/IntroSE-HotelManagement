@@ -12,66 +12,76 @@ function Feature2Main() {
   const [showForm, setShowForm] = useState(false);
   const [editingRental, setEditingRental] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
-  const { fetchRooms, rooms } = useRooms();
+  const { fetchRooms, rooms, syncRoomStatusWithBookings } = useRooms();
   const location = useLocation();
 
   // Thêm trường checkInDate vào filters
   const [filters, setFilters] = useState({
     room: "",
-    email: "",
     checkInDate: "",
   });
   const [filteredRentals, setFilteredRentals] = useState([]);
   const [allRooms, setAllRooms] = useState([]);
   const [isFiltering, setIsFiltering] = useState(false);
+  const [lastFetchTime, setLastFetchTime] = useState(Date.now());
 
   // Refresh rentals when component mounts (chỉ chạy một lần)
   useEffect(() => {
-    fetchRentals();
-    fetchAllRooms();
-  }, []); // Mảng dependencies rỗng
+    const loadInitialData = async () => {
+      await fetchRentals();
+      await fetchAllRooms();
+    };
+
+    loadInitialData();
+
+    // Thiết lập một interval để cập nhật theo lịch trình
+    const intervalId = setInterval(() => {
+      const now = Date.now();
+      if (now - lastFetchTime > 10000) {
+        // 10 giây
+        console.log("Scheduled refresh - updating rentals...");
+        fetchRentals();
+        setLastFetchTime(now);
+      }
+    }, 10000); // Kiểm tra mỗi 10 giây
+
+    // Cleanup khi component unmount
+    return () => {
+      clearInterval(intervalId);
+      console.log("Feature2Main unmounted, interval cleared");
+    };
+  }, []); // Mảng dependencies rỗng - chỉ chạy một lần khi mount
 
   // Fetch tất cả phòng để hiển thị trong dropdown
   const fetchAllRooms = async () => {
     try {
-      await fetchRooms();
+      // Hạn chế gọi API fetchRooms - chỉ gọi khi cần thiết
+      if (rooms.length === 0) {
+        await fetchRooms();
+      }
 
-      // Lấy danh sách các phòng từ rentals để dùng cho filter
-      if (rentals && rentals.length > 0) {
-        const uniqueRoomNumbers = [
-          ...new Set(rentals.map((rental) => rental.room)),
-        ]
-          .filter(Boolean)
-          .sort();
-        console.log("Extracted room numbers from rentals:", uniqueRoomNumbers);
-        setAllRooms(uniqueRoomNumbers);
-      }
-      // Nếu không có phiếu thuê, dùng danh sách phòng từ useRooms
-      else if (rooms && rooms.length > 0) {
-        const uniqueRooms = [
-          ...new Set(rooms.map((room) => room.roomNumber)),
-        ].sort();
-        setAllRooms(uniqueRooms);
-      }
+      // Tạo danh sách các phòng từ cả hai nguồn mà không gây re-render liên tục
+      const roomsFromRentals = rentals
+        .map((rental) => rental.room)
+        .filter(Boolean);
+
+      const roomsFromRooms = rooms
+        .map((room) => room.roomNumber)
+        .filter(Boolean);
+
+      // Kết hợp hai danh sách và loại bỏ trùng lặp
+      const uniqueRoomNumbers = Array.from(
+        new Set([...roomsFromRentals, ...roomsFromRooms])
+      ).sort();
+
+      console.log("Combined room list:", uniqueRoomNumbers.length);
+      setAllRooms(uniqueRoomNumbers);
     } catch (error) {
       console.error("Lỗi khi lấy danh sách phòng:", error);
     }
   };
 
-  // Cập nhật danh sách phòng khi rentals thay đổi
-  useEffect(() => {
-    if (rentals && rentals.length > 0) {
-      const uniqueRoomNumbers = [
-        ...new Set(rentals.map((rental) => rental.room)),
-      ]
-        .filter(Boolean)
-        .sort();
-      console.log("Updated room list from rentals:", uniqueRoomNumbers);
-      setAllRooms(uniqueRoomNumbers);
-    }
-  }, [rentals]);
-
-  // Cập nhật filteredRentals khi rentals hoặc filters thay đổi
+  // Cập nhật filteredRentals khi trạng thái lọc thay đổi
   useEffect(() => {
     if (!isFiltering) {
       setFilteredRentals(rentals);
@@ -79,7 +89,31 @@ function Feature2Main() {
     }
 
     filterRentals();
-  }, [rentals, filters, isFiltering]);
+  }, [filters, isFiltering, rentals]);
+
+  // Cập nhật allRooms khi rentals thay đổi - với debounce để tránh quá nhiều request
+  useEffect(() => {
+    const updateRoomsDebounced = setTimeout(() => {
+      if (rentals && rentals.length > 0) {
+        // Chỉ cập nhật allRooms nếu danh sách phòng thay đổi
+        const roomsFromRentals = rentals
+          .map((rental) => rental.room)
+          .filter(Boolean);
+
+        const roomsFromRooms = rooms
+          .map((room) => room.roomNumber)
+          .filter(Boolean);
+
+        const uniqueRoomNumbers = Array.from(
+          new Set([...roomsFromRentals, ...roomsFromRooms])
+        ).sort();
+
+        setAllRooms(uniqueRoomNumbers);
+      }
+    }, 1000); // Debounce 1 giây
+
+    return () => clearTimeout(updateRoomsDebounced);
+  }, [rentals, rooms]);
 
   // Hàm xử lý thay đổi bộ lọc
   const handleFilterChange = (e) => {
@@ -92,31 +126,15 @@ function Feature2Main() {
 
   // Hàm xử lý lọc phiếu thuê (cải thiện)
   const filterRentals = () => {
-    const { room, email, checkInDate } = filters;
+    const { room, checkInDate } = filters;
 
     let result = [...rentals];
     console.log("Filtering rentals:", rentals.length);
-    console.log("Selected room filter:", room);
 
     // Lọc theo phòng
     if (room) {
-      console.log("Before room filter:", result.length);
-      result = result.filter((rental) => {
-        console.log(`Comparing: rental.room=${rental.room} vs filter=${room}`);
-        return rental.room === room;
-      });
-      console.log("After room filter:", result.length);
+      result = result.filter((rental) => rental.room === room);
     }
-
-    // Lọc theo email
-    if (email) {
-      result = result.filter(
-        (rental) =>
-          rental.email &&
-          rental.email.toLowerCase().includes(email.toLowerCase())
-      );
-    }
-
     // Lọc theo ngày nhận phòng
     if (checkInDate) {
       const filterDate = new Date(checkInDate);
@@ -140,7 +158,6 @@ function Feature2Main() {
       });
     }
 
-    console.log("Final filtered results:", result.length);
     setFilteredRentals(result);
   };
 
@@ -148,7 +165,6 @@ function Feature2Main() {
   const resetFilters = () => {
     setFilters({
       room: "",
-      email: "",
       checkInDate: "",
     });
     setIsFiltering(false);
@@ -198,13 +214,6 @@ function Feature2Main() {
     }
   }, [successMessage]);
 
-  // Khi component unmount, refresh lại room status
-  useEffect(() => {
-    return () => {
-      fetchRooms();
-    };
-  }, [fetchRooms]);
-
   // Xử lý khi chỉ có 1 phòng được chuyển từ Feature1
   const handleAddWithRoom = (roomData) => {
     setEditingRental({
@@ -234,10 +243,11 @@ function Feature2Main() {
   };
 
   const handleAdd = () => {
-    setEditingRental({
-      isNew: true,
+    // Refresh room status before showing form - với promise để đảm bảo hoàn tất
+    syncRoomStatusWithBookings().then(() => {
+      setEditingRental({ isNew: true });
+      setShowForm(true);
     });
-    setShowForm(true);
   };
 
   const handleEdit = () => {
@@ -267,7 +277,7 @@ function Feature2Main() {
         // Thêm độ trễ để tránh gọi API liên tiếp
         setTimeout(() => {
           fetchAllRooms();
-        }, 300);
+        }, 1000);
       } else {
         setSuccessMessage("Có lỗi xảy ra khi xóa phiếu thuê!");
       }
@@ -276,20 +286,13 @@ function Feature2Main() {
 
   const handleSuccess = (message) => {
     setSuccessMessage(message);
-    // Tạo độ trễ nhỏ để tránh nhiều lệnh gọi API liên tiếp
+    // Tạo độ trễ lớn hơn để tránh nhiều lệnh gọi API liên tiếp
     setTimeout(() => {
       fetchRentals();
-      fetchAllRooms();
-    }, 300);
-  };
-
-  // Function to format VND price
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(price);
+      setTimeout(() => {
+        fetchAllRooms();
+      }, 1000);
+    }, 1000);
   };
 
   // Function to get status text in Vietnamese
@@ -301,18 +304,6 @@ function Feature2Main() {
         return "Đang chờ";
       case "cancelled":
         return "Đã hủy";
-      default:
-        return status;
-    }
-  };
-
-  // Function to get payment status text in Vietnamese
-  const getPaymentStatusText = (status) => {
-    switch (status) {
-      case "paid":
-        return "Đã thanh toán";
-      case "pending":
-        return "Chưa thanh toán";
       default:
         return status;
     }
@@ -349,17 +340,6 @@ function Feature2Main() {
             </select>
           </div>
 
-          <div className="filter-group">
-            <label>Email:</label>
-            <input
-              type="text"
-              name="email"
-              value={filters.email}
-              onChange={handleFilterChange}
-              placeholder="Tìm theo email"
-            />
-          </div>
-
           {/* Thêm trường ngày nhận phòng */}
           <div className="filter-group">
             <label>Ngày nhận phòng:</label>
@@ -386,9 +366,10 @@ function Feature2Main() {
             <p>
               Đang hiển thị {filteredRentals.length} kết quả
               {filters.room && ` cho phòng ${filters.room}`}
-              {filters.email && ` với email chứa "${filters.email}"`}
+              {/* {filters.email && ` với email chứa "${filters.email}"`} */}
               {filters.checkInDate &&
-                ` nhận phòng vào ngày ${filters.checkInDate}`}
+                ` nhận phòng vào ngày ${filters.checkInDate}`}{" "}
+              (năm/tháng/ngày)
             </p>
           </div>
         )}
@@ -510,7 +491,16 @@ function Feature2Main() {
 
         <button
           className="action-button refresh clickable"
-          onClick={fetchRentals}
+          onClick={() => {
+            const now = Date.now();
+            // Chỉ refresh nếu đã qua 3 giây kể từ lần cuối
+            if (now - lastFetchTime > 3000) {
+              fetchRentals();
+              setLastFetchTime(now);
+            } else {
+              console.log("Refresh throttled - please wait");
+            }
+          }}
           disabled={loading}
         >
           Làm mới

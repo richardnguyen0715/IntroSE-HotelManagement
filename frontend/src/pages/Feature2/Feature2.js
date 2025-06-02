@@ -1,12 +1,38 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { RoomProvider } from "../Feature1/RoomContext";
-import { Link } from "react-router-dom";
 import { RentalProvider } from "./RentalContext";
 import Feature2Main from "./Feature2Main";
 import "../App.css";
 import "./Feature2.css";
 
 function Feature2() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  // Kiểm tra đăng nhập khi component mount
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userInfo =
+      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+
+    if (token && userInfo) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userInfo");
+    setIsLoggedIn(false);
+    navigate("/login");
+  };
+
   return (
     <div className="app">
       <header className="app-header">
@@ -23,6 +49,20 @@ function Feature2() {
             alt="Vietnam Flag"
             className="flag"
           />
+          {!isLoggedIn ? (
+            <>
+              <Link to="/register">
+                <button className="button-reg">Đăng ký</button>
+              </Link>
+              <Link to="/login">
+                <button className="button-log">Đăng nhập</button>
+              </Link>
+            </>
+          ) : (
+            <button className="button-log" onClick={handleLogout}>
+              Đăng xuất
+            </button>
+          )}
         </nav>
       </header>
 
