@@ -22,16 +22,16 @@ exports.getHotelPolicy = async (req, res) => {
 // @access  Private
 exports.updateHotelPolicy = async (req, res) => {
     try {
-        const { maxUser, domesticPolicy, foreignPolicy, surchargePolicy } = req.body;
+        const { maxCapacity, domesticPolicy, foreignPolicy, surchargePolicy } = req.body;
 
         // Validate input
-        if (!maxUser || !domesticPolicy || !foreignPolicy || !surchargePolicy) {
+        if (!maxCapacity || !domesticPolicy || !foreignPolicy || !surchargePolicy) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
         const policy = await HotelPolicy.findOneAndUpdate(
             {},
-            { maxUser, domesticPolicy, foreignPolicy, surchargePolicy },
+            { maxCapacity, domesticPolicy, foreignPolicy, surchargePolicy },
             { new: true }
         );
 
@@ -52,15 +52,15 @@ exports.updateHotelPolicy = async (req, res) => {
 // @access  Private
 exports.createHotelPolicy = async (req, res) => {
     try {
-        const { maxUser, domesticPolicy, foreignPolicy, surchargePolicy } = req.body;
+        const { maxCapacity, domesticPolicy, foreignPolicy, surchargePolicy } = req.body;
 
         // Validate input
-        if (!maxUser || !domesticPolicy || !foreignPolicy || !surchargePolicy) {
+        if (!maxCapacity || !domesticPolicy || !foreignPolicy || !surchargePolicy) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
         const policy = new HotelPolicy({
-            maxUser,
+            maxCapacity,
             domesticPolicy,
             foreignPolicy,
             surchargePolicy
@@ -111,16 +111,16 @@ exports.getHotelPolicyById = async (req, res) => {
 // @access  Private
 exports.updateHotelPolicyById = async (req, res) => {
     try {
-        const { maxUser, domesticPolicy, foreignPolicy, surchargePolicy } = req.body;
+        const { maxCapacity, domesticPolicy, foreignPolicy, surchargePolicy } = req.body;
 
         // Validate input
-        if (!maxUser || !domesticPolicy || !foreignPolicy || !surchargePolicy) {
+        if (!maxCapacity || !domesticPolicy || !foreignPolicy || !surchargePolicy) {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
         const policy = await HotelPolicy.findByIdAndUpdate(
             req.params.id,
-            { maxUser, domesticPolicy, foreignPolicy, surchargePolicy },
+            { maxCapacity, domesticPolicy, foreignPolicy, surchargePolicy },
             { new: true }
         );
 
@@ -148,7 +148,7 @@ exports.partialUpdatePolicy = async (req, res) => {
         }
         
         // Validate that only valid fields are being updated
-        const validFields = ['maxUser', 'domesticPolicy', 'foreignPolicy', 'surchargePolicy'];
+        const validFields = ['maxCapacity', 'domesticPolicy', 'foreignPolicy', 'surchargePolicy'];
         const invalidFields = Object.keys(updates).filter(field => !validFields.includes(field));
         
         if (invalidFields.length > 0) {
@@ -181,7 +181,7 @@ exports.partialUpdatePolicy = async (req, res) => {
 exports.resetHotelPolicyToDefault = async (req, res) => {
     try {
         const defaultValues = {
-            maxUser: 3,
+            maxCapacity: 3,
             domesticPolicy: 1,
             foreignPolicy: 1.5,
             surchargePolicy: 0.25

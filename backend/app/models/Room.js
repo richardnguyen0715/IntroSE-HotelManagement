@@ -1,10 +1,5 @@
 const mongoose = require('mongoose');
-
-const RoomType = {
-  A: 150000,
-  B: 170000,
-  C: 200000
-};
+const RoomType = require('./RoomType');
 
 // Sử dụng
 const roomSchema = new mongoose.Schema({
@@ -16,8 +11,7 @@ const roomSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    required: true,
-    enum: Object.keys(RoomType)
+    required: true
   },
   capacity: {
     type: Number,
@@ -36,10 +30,18 @@ const roomSchema = new mongoose.Schema({
 });
 
 // Add a virtual property to get the price based on room type
-roomSchema.virtual('price').get(function() {
-  return RoomType[this.type];
-});
+// roomSchema.virtual('price').get(function() {
+//   if (this.type && typeof this.type === 'object' && this.type.price) {
+//     return this.type.price;
+//   }
+//   return 0; // Default value if type is not populated
+// });
 
+// Always populate the type field when fetching rooms
+// roomSchema.pre(/^find/, function(next) {
+//   this.populate('type');
+//   next();
+// });
 
 const Room = mongoose.model('Room', roomSchema);
-module.exports = {Room, RoomType}; 
+module.exports = Room; 

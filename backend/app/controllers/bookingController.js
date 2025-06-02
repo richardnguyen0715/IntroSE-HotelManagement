@@ -1,36 +1,9 @@
-const { Booking } = require("../models/Booking");
-const { Room } = require("../models/Room");
-const Invoice = require("../models/Invoice");
-const HotelPolicy = require("../models/hotelPolicy"); // <-- Thêm dòng này
+const {Booking} = require('../models/Booking');
+const Room = require('../models/Room');
+const Invoice = require('../models/Invoice');
 
-// // Hàm helper để kiểm tra phòng có available không
-// const isRoomAvailable = async (roomNumber, customerList) => {
-//   // Kiểm tra trạng thái của phòng từ collection Room
-//   const room = await Room.findOne({ roomNumber });
-//   if (!room) {
-//       throw new Error('Room not found');
-//   }
-
-//   // Kiểm tra số lượng khách có vượt quá capacity của phòng không
-//   if (customerList && customerList.length > room.capacity) {
-//       throw new Error(`Room capacity (${room.capacity}) exceeded. Cannot accommodate ${customerList.length} customers.`);
-//   }
-
-//   return room.status === 'available';
-// };
-// // Hàm helper để cập nhật trạng thái phòng
-// const updateRoomStatus = async (roomNumber, status) => {
-//   const room = await Room.findOneAndUpdate(
-//       { roomNumber },
-//       { status },
-//       { new: true }
-//   );
-//   if (!room) {
-//       throw new Error('Room not found');
-//   }
-//   return room;
-// };
-const isRoomAvailable = async (roomNumber, secondParam) => {
+// Hàm helper để kiểm tra phòng có available không
+const isRoomAvailable = async (roomNumber, customerList) => {
   // Kiểm tra trạng thái của phòng từ collection Room
   const room = await Room.findOne({ roomNumber });
   if (!room) {
@@ -136,15 +109,25 @@ exports.getAllBookings = async (req, res) => {
     const { startDate, roomNumber, customerCount, status } = req.query;
     let query = {};
 
-    // Lọc theo ngày nếu có
-    if (startDate) {
-      query.$expr = {
-        $regexMatch: {
-          input: { $toString: "$startDate" },
-          regex: startDate,
-        },
-      };
-    }
+      // Filter by date
+      if (startDate) {
+        // Convert the input date string to a Date object
+        const filterDate = new Date(startDate);
+        
+        // Check if the date is valid
+        if (!isNaN(filterDate.getTime())) {
+          // Filter bookings with startDate greater than or equal to the input date
+          query.startDate = { $gte: filterDate };
+        } else {
+          // Keep the original regex search if date format is invalid
+          query.$expr = {
+              $regexMatch: {
+                  input: { $toString: "$startDate" },
+                  regex: startDate
+              }
+          };
+        }
+      }
 
     // Lọc theo status nếu có
     if (status) {
@@ -164,39 +147,14 @@ exports.getAllBookings = async (req, res) => {
       };
     }
 
-    const bookings = await Booking.find(query);
-    res.status(200).json({
-      success: true,
-      count: bookings.length,
-      data: bookings,
-    });
+      const bookings = await Booking.find(query);
+      res.status(200).json({
+        success: true,
+        count: bookings.length,
+        data: bookings
+      });
   } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-};
-
-// Get booking by ID or room number
-exports.getBooking = async (req, res) => {
-  try {
-    let booking;
-    if (req.params.id) {
-      // If ID is provided, search by ID
-      booking = await Booking.findById(req.params.id);
-      if (!booking) {
-        return res.status(404).json({ message: "Booking not found" });
-      }
-      return res.status(200).json(booking);
-    } else if (req.params.roomNumber) {
-      // If room number is provided, search by room number
-      booking = await Booking.find({ roomNumber: req.params.roomNumber });
-      return res.status(200).json(booking);
-    } else {
-      return res
-        .status(400)
-        .json({ message: "Please provide either booking ID or room number" });
-    }
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+      res.status(500).json({ message: error.message });
   }
 };
 
@@ -281,72 +239,41 @@ exports.updateBooking = async (req, res) => {
         .json({ message: "Booking not found", status: "error" });
     }
 
-    // Nếu thay đổi phòng hoặc ngày, kiểm tra availability
-    if (
-      roomNumber !== currentBooking.roomNumber ||
-      new Date(startDate).getTime() !==
-        new Date(currentBooking.startDate).getTime()
-    ) {
-      // Kiểm tra cả availability và capacity trong một cuộc gọi
-      // Gọi với tham số thứ hai là customerList để kiểm tra capacity
-      try {
-        await isRoomAvailable(roomNumber, customerList);
-      } catch (error) {
-        return res
-          .status(400)
-          .json({ message: error.message, status: "error" });
-      }
-    } else {
-      // Nếu không đổi phòng thì chỉ cần kiểm tra capacity
-      try {
-        await isRoomAvailable(roomNumber, customerList);
-      } catch (error) {
-        // Nếu lỗi là "Room not found" thì trả về 404, còn các lỗi khác như capacity thì trả về 400
-        if (error.message.includes("Room not found")) {
-          return res
-            .status(404)
-            .json({ message: error.message, status: "error" });
+        // If change room or date, check availability
+        if (roomNumber !== currentBooking.roomNumber || 
+            new Date(startDate).getTime() !== new Date(currentBooking.startDate).getTime()) {
+            
+            const available = await isRoomAvailable(roomNumber, startDate);
+            if (!available) {
+                return res.status(400).json({ 
+                    message: 'Room is not available for the selected date',
+                    status: 'unavailable'
+                });
+            }
         }
-        return res
-          .status(400)
-          .json({ message: error.message, status: "error" });
-      }
+
+        // Nếu phòng available hoặc không thay đổi phòng/ngày, cập nhật booking
+        const updatedBooking = await Booking.findByIdAndUpdate(
+            bookingId,
+            {
+                roomNumber,
+                startDate,
+                customerList
+            },
+            { new: true }
+        );
+
+        res.status(200).json({
+            message: 'Booking updated successfully',
+            status: 'success',
+            booking: updatedBooking
+        });
+    } catch (error) {
+        res.status(400).json({ 
+            message: error.message,
+            status: 'error'
+        });
     }
-
-    // Update the booking
-    const updatedBooking = await Booking.findByIdAndUpdate(
-      id,
-      {
-        roomNumber,
-        startDate,
-        email,
-        status,
-        paymentStatus,
-        totalPrice,
-        customerList,
-      },
-      { new: true, runValidators: true }
-    );
-
-    if (!updatedBooking) {
-      return res
-        .status(404)
-        .json({ message: "Booking not found", status: "error" });
-    }
-
-    // Respond with the updated booking
-    return res.status(200).json({
-      message: "Booking updated successfully",
-      status: "success",
-      booking: updatedBooking,
-    });
-  } catch (error) {
-    console.error("Error updating booking:", error);
-    return res.status(500).json({
-      message: `Error updating booking: ${error.message}`,
-      status: "error",
-    });
-  }
 };
 // Delete booking
 exports.deleteBooking = async (req, res) => {
@@ -356,24 +283,19 @@ exports.deleteBooking = async (req, res) => {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    // Kiểm tra xem có invoice pending cho phòng này không
-    const pendingInvoice = await Invoice.findOne({
-      "rentals.roomNumber": booking.roomNumber,
-      status: "pending",
-    });
+        // Check if booking status is active
+        if (booking.status !== 'active') {
+            return res.status(400).json({ 
+                message: 'Only active bookings can be deleted',
+                status: 'error'
+            });
+        }
 
-    if (pendingInvoice) {
-      return res.status(400).json({
-        message: "Cannot delete booking with pending invoice",
-        status: "error",
-      });
-    }
-
-    // Nếu không có invoice pending, xóa booking
-    await Booking.findByIdAndDelete(req.params.id);
-
-    // Cập nhật trạng thái phòng về available
-    await updateRoomStatus(booking.roomNumber, "available");
+        // Delete the booking if it's active
+        await Booking.findByIdAndDelete(req.params.id);
+        
+        // Update room status to available
+        await updateRoomStatus(booking.roomNumber, 'available');
 
     res.status(200).json({
       message: "Booking deleted successfully",

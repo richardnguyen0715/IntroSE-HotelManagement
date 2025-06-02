@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const hotelPolicySchema = new mongoose.Schema({
-    maxUser: {
+    maxCapacity: {
         type: Number,
         required: true,
         default: 3
