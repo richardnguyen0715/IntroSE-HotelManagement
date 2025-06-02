@@ -21,7 +21,6 @@ import OccupancyReport from './pages/Feature5/OccupancyReport';
 import OccupancyReportForm from './pages/Feature5/OccupancyReportForm';
 import { ReportProvider } from './pages/Feature5/ReportContext';
 
-import Feature6 from './pages/Feature6/Feature6';
 import Regulation1 from './pages/Feature6/Regulation1';
 import Regulation2 from './pages/Feature6/Regulation2';
 import Regulation4 from './pages/Feature6/Regulation4';
@@ -35,11 +34,13 @@ function App() {
     <RegulationProvider>
       <ReportProvider>
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<Navigate to="/login" />} />
+          
           <Route path="/register" element={<Register />} />
           <Route path="/login" element={<Login />} />
           <Route path="/forgot_password" element={<ForgotPassword />} />
           <Route path="/about" element={<AboutUs />} />
+          <Route path="/HomePage" element={<HomePage />} />
 
           <Route path="/feature1" element={<Feature1 />} />
           <Route path="/feature2" element={<Feature2 />} />

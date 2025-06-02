@@ -17,6 +17,7 @@ function Register() {
   const [messageType, setMessageType] = useState(''); 
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [step, setStep] = useState(1); 
+  const [otpAttempts, setOtpAttempts] = useState(0); // Đếm số lần nhập sai OTP
 
   // Refs cho các ô input OTP
   const otpRefs = [
@@ -39,9 +40,17 @@ function Register() {
     return otp.every(digit => /^\d$/.test(digit));
   };
 
+  // Hàm reset form OTP
+  const resetOTPForm = () => {
+    setOtp(['', '', '', '', '', '']);
+    otpRefs[0].current.focus(); // Focus vào ô đầu tiên
+  };
+
   // Xử lý nhập OTP
   const handleOtpChange = (index, value) => {
     if (!/^\d*$/.test(value)) return;
+
+    setMessage('');
 
     const newOtp = [...otp];
     newOtp[index] = value;
@@ -58,8 +67,55 @@ function Register() {
       // Tự động submit sau 500ms
       setTimeout(async () => {
         if (validateOTP(newOtp)) {
-          console.log('Xác thực OTP:', newOtp.join(''));
-          await handleStep2(); // Gọi API đăng ký khi OTP hợp lệ
+          // Complete registration
+          try {
+            const registerResponse = await axios.post('http://localhost:5000/api/auth/verify-registration-otp', {
+              email,
+              otp: newOtp.join('')
+            });
+
+            if (registerResponse.status === 201) {
+              console.log("Tài khoản đã được tạo thành công!");
+              setMessageType('success');
+              setMessage("Đăng ký thành công! <br />Chuyển hướng đến trang Đăng nhập trong vòng 5 giây...");
+              setTimeout(() => {
+                navigate("/login");
+              }, 5000);
+            }
+          } 
+
+          catch (error) {
+            setMessageType('error');
+            if (error.response.status === 400) {
+              const newAttempts = otpAttempts + 1;
+              setOtpAttempts(newAttempts);
+              
+              if (newAttempts >= 3) {
+                console.log("Đã nhập sai OTP 3 lần");
+                setMessage("Đã nhập sai OTP 3 lần.<br />Chuyển hướng về trang Đăng ký trong 5 giây...");
+                setTimeout(() => {
+                  window.location.href = '/register';
+                }, 5000);
+              } 
+
+              else {
+                console.log(`Nhập sai OTP ${newAttempts} lần. Còn ${3 - newAttempts} lần nhập.`);
+                setMessage(`Nhập sai OTP ${newAttempts} lần. Còn ${3 - newAttempts} lần nhập.`);
+              }
+            } 
+            
+            else if (error.response.status === 500) {
+              console.log("Lỗi từ server");
+              setMessage("Lỗi từ server");
+            } 
+            
+            else {
+              console.log("Lỗi không xác định");
+              setMessage("Lỗi không xác định");
+            }
+
+            resetOTPForm();
+          }
         }
       }, 500);
     }
@@ -106,55 +162,41 @@ function Register() {
     e.preventDefault();
     if (validateForm()) {
       if (step === 1) {
-        // Xử lý gửi email
-        console.log('Gửi mã OTP đến email:', email);
-        setStep(2);
-      } 
-    }
-  };
+        try {
+          const response = await axios.post("http://localhost:5000/api/auth/register", {
+            name,
+            email,
+            password,
+            role: "admin"
+          });
+          
+          if (response.status === 200) {
+            console.log("Mã OTP đã được gửi đến email của bạn");
+            setStep(2);
+            setTimeout(() => {
+              otpRefs[0].current.focus();
+            }, 100); // Đợi một chút để đảm bảo DOM đã được cập nhật
+          }   
+        } 
+        catch (error) {
+          setMessageType('error');
 
-  const handleStep2 = async () => {
-    try {
-      const response = await axios.post("http://localhost:5000/api/users", {
-        name,
-        email,
-        password,
-        role: "admin"
-      });
-      
-      if (response.status === 201) {
-        console.log("Tạo người dùng mới thành công");
-        setMessageType('success');
-        setMessage("Đăng ký thành công! <br />Chuyển hướng đến trang Đăng nhập trong vòng 5 giây...");
-        setTimeout(() => {
-          navigate("/login");
-        }, 5000);
-      }   
-    } 
-    catch (error) {
-      if (error.response.status === 400) {
-        console.log("Email đã tồn tại");
-        setMessageType('error');
-        setMessage("Email đã tồn tại. Vui lòng chọn email khác. <br />Chuyển hướng về trang Đăng ký trong vòng 5 giây...");
+          if (error.response.status === 400) {
+            console.log("Email không hợp lệ hoặc đã tồn tại. Vui lòng chọn email khác.");
+            setMessage("Email không hợp lệ hoặc đã tồn tại. Vui lòng chọn email khác.")
+          }
+    
+          else if (error.response.status === 500) {
+            console.log("Lỗi từ server");
+            setMessage("Lỗi từ server")
+          }
+    
+          else {
+            console.log("Lỗi không xác định");
+            setMessage("Lỗi không xác định")
+          }
+        }
       }
-
-      else if (error.response.status === 500) {
-        console.log("Lỗi từ server");
-        setMessageType('error');
-        setMessage("Lỗi từ server. <br />Chuyển hướng về trang Đăng ký trong vòng 5 giây...");
-      }
-
-      else {
-        console.log("Lỗi không xác định");
-        setMessageType('error');
-        setMessage("Lỗi không xác định. <br />Chuyển hướng về trang Đăng ký trong vòng 5 giây...");
-      }
-
-      setTimeout(() => {
-        setStep(1);
-        setMessage("");
-        setOtp(['', '', '', '', '', '']); // Reset OTP về mảng rỗng
-      }, 5000);
     }
   };
 
@@ -280,6 +322,7 @@ function Register() {
                 <button type="submit" className="register-button">
                   Đăng ký
                 </button>
+                <span className={`error-message-register ${messageType}`} dangerouslySetInnerHTML={{ __html: message || "\u00A0" }}></span>
               </form>
 
               <div className="login">
@@ -295,7 +338,7 @@ function Register() {
                 <div className="register-form-otp">
                   <label>Nhập mã OTP <span className="required">*</span></label>
                   <div className="register-warning-message">
-                  Chức năng OTP đang được cải tiến. Vui lòng nhập đủ 6 chữ số bất kỳ
+                  Chức năng OTP đang được cải tiến. Vui lòng lấy mã OTP trong console.
                   </div>
                   <div className="register-otp-container">
                     {otp.map((digit, index) => (
@@ -311,7 +354,7 @@ function Register() {
                       />
                     ))}
                   </div>
-                  <span className={`error-message_reg ${messageType}`} dangerouslySetInnerHTML={{ __html: message || "\u00A0" }}></span>
+                  <span className={`error-message-register ${messageType}`} dangerouslySetInnerHTML={{ __html: message || "\u00A0" }}></span>
                 </div>
               </form>
             </div>
