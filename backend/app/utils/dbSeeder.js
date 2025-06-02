@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
 const User = require('../models/User');
-const { Room, RoomType } = require('../models/Room');
+const Room = require('../models/Room');
+const RoomType = require('../models/RoomType');
 const { Booking } = require('../models/Booking'); // Fixed import syntax
 const Invoice = require('../models/Invoice');
 const HotelPolicy = require('../models/hotelPolicy');
+const Mapper = require('../models/Mapper');
 
 // Main seeder function to call all seeders
 exports.seedDatabase = async () => {
@@ -12,14 +14,53 @@ exports.seedDatabase = async () => {
   try {
     // Seed in order of dependencies
     await this.seedHotelPolicy();
+    await this.seedMapper();
+    await this.seedRoomTypes();
     const users = await this.seedUsers();
     const rooms = await this.seedRooms();
     const bookings = await this.seedBookings(users, rooms);
-    await this.seedInvoices(bookings); // Add this line back
-    await this.seedTestBookings();
+    await this.seedInvoices(bookings);
+    // await this.seedTestBookings();
     console.log('Database seeding completed successfully');
   } catch (error) {
     console.error('Database seeding failed:', error);
+  }
+};
+
+// Seed room types
+exports.seedRoomTypes = async () => {
+  try {
+    // Check if room types exist
+    const count = await RoomType.countDocuments();
+
+    if (count === 0) {
+      console.log('Creating default room types...');
+      
+      const defaultTypes = [
+        {
+          type: 'A',
+          price: 150000,
+        },
+        {
+          type: 'B',
+          price: 170000,
+        },
+        {
+          type: 'C',
+          price: 200000,
+        }
+      ];
+      
+      await RoomType.insertMany(defaultTypes);
+      console.log('Default room types initialized');
+    } else {
+      console.log(`Room types already exist (${count} types found)`);
+    }
+    
+    return await RoomType.find();
+  } catch (error) {
+    console.error('Error seeding room types:', error);
+    throw error;
   }
 };
 
@@ -118,27 +159,26 @@ exports.seedRooms = async () => {
     
     if (roomCount === 0) {
       console.log('Creating default rooms...');
+      
+      // Get all room types
+      const roomTypes = await RoomType.find();
+      if (roomTypes.length === 0) {
+        console.error('No room types found. Please run seedRoomTypes first.');
+        return [];
+      }
+      
       const roomsToCreate = [];
       
       // Create 5 rooms of each type
       for (let i = 1; i <= 5; i++) {
-        roomsToCreate.push({
-          roomNumber: `A${i.toString().padStart(2, '0')}`,
-          type: 'A',
-          status: 'available'
-        });
-        
-        roomsToCreate.push({
-          roomNumber: `B${i.toString().padStart(2, '0')}`,
-          type: 'B',
-          status: 'available'
-        });
-        
-        roomsToCreate.push({
-          roomNumber: `C${i.toString().padStart(2, '0')}`,
-          type: 'C',
-          status: 'available'
-        });
+        for (const roomType of roomTypes) {
+          roomsToCreate.push({
+            roomNumber: `${roomType.type}${i.toString().padStart(2, '0')}`,
+            type: roomType.type,
+            capacity: 3,
+            status: 'available'
+          });
+        }
       }
       
       const rooms = await Room.insertMany(roomsToCreate);
@@ -180,20 +220,35 @@ exports.seedBookings = async (users, rooms) => {
         }
       ];
       
-      // Create a sample booking with the new schema
-      const sampleBooking = new Booking({
-        roomNumber: rooms[0].roomNumber,
-        startDate: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
-        customerList: sampleCustomers,
-        status: 'active'
-      });
+      const bookings = [];
       
-      await sampleBooking.save();
-      console.log('Sample booking created successfully');
-      return [sampleBooking];
+      // Create 10 bookings from the first 10 rooms
+      for (let i = 0; i < 10; i++) {
+        if (i < rooms.length) {
+          const sampleBooking = new Booking({
+            roomNumber: rooms[i].roomNumber,
+            startDate: new Date(today.getTime() + (7 + i) * 24 * 60 * 60 * 1000), // Staggered start dates
+            customerList: sampleCustomers,
+            status: 'active'
+          });
+          
+          await sampleBooking.save();
+          bookings.push(sampleBooking);
+          
+          // Update room status to 'occupied'
+          await Room.findOneAndUpdate(
+            { roomNumber: rooms[i].roomNumber },
+            { status: 'occupied' },
+            { new: true }
+          );
+        }
+      }
+      
+      console.log(`Created ${bookings.length} sample bookings successfully`);
+      return bookings;
     } else {
       console.log(`Bookings already exist (${bookingCount} bookings found)`);
-      return await Booking.find().limit(1);
+      return await Booking.find().limit(10);
     }
   } catch (error) {
     console.error('Error seeding bookings:', error);
@@ -208,56 +263,88 @@ exports.seedInvoices = async (bookings) => {
     const invoiceCount = await Invoice.countDocuments();
     
     if (invoiceCount === 0 && bookings.length > 0) {
-      console.log('Creating sample invoice...');
+      console.log('Creating sample invoices...');
       
-      const booking = bookings[0];
-      
-      // Get the room type to determine price
-      const room = await Room.findOne({ roomNumber: booking.roomNumber });
-      if (!room) {
-        console.error('Room not found for booking');
+      // Only proceed if we have at least 6 bookings
+      if (bookings.length < 6) {
+        console.log('Not enough bookings to create sample invoices (need at least 6)');
         return [];
       }
       
-      // Calculate a price based on room type
-      let basePrice = 0;
-      switch (room.type) {
-        case 'A': basePrice = 150000; break;
-        case 'B': basePrice = 170000; break;
-        case 'C': basePrice = 200000; break;
-        default: basePrice = 150000;
+      const invoices = [];
+      
+      // Create 3 invoices, each for 2 bookings
+      for (let i = 0; i < 3; i++) {
+        const bookingPair = [bookings[i*2], bookings[i*2+1]];
+        const rentals = [];
+        let totalInvoiceValue = 0;
+        
+        // Process each booking in the pair
+        for (const booking of bookingPair) {
+          // Get the room type to determine price
+          const room = await Room.findOne({ roomNumber: booking.roomNumber });
+          if (!room) {
+            console.error(`Room not found for booking with roomNumber: ${booking.roomNumber}`);
+            continue;
+          }
+          
+          // Calculate a price based on room type
+          let basePrice = 0;
+          switch (room.type) {
+            case 'A': basePrice = 150000; break;
+            case 'B': basePrice = 170000; break;
+            case 'C': basePrice = 200000; break;
+            default: basePrice = 150000;
+          }
+          
+          // Assume 3 nights stay
+          const stayLength = 3;
+          const rentalTotal = basePrice * stayLength;
+          
+          // Add to the total invoice value
+          totalInvoiceValue += rentalTotal;
+          
+          // Add rental entry for this booking
+          rentals.push({
+            roomNumber: booking.roomNumber,
+            numberOfDays: stayLength,
+            pricePerDay: basePrice,
+            total: rentalTotal
+          });
+          
+          // Update booking status to 'inPayment'
+          await Booking.findByIdAndUpdate(
+            booking._id,
+            { status: 'inPayment' },
+            { new: true }
+          );
+        }
+        
+        // Get customer info from the first booking in the pair
+        const firstBooking = bookingPair[0];
+        const customerName = firstBooking.customerList && firstBooking.customerList.length > 0 
+          ? firstBooking.customerList[0].name 
+          : 'Guest';
+          
+        const customerAddress = firstBooking.customerList && firstBooking.customerList.length > 0 
+          ? (firstBooking.customerList[0].address || 'No address provided') 
+          : 'No address provided';
+        
+        // Create invoice for this booking pair
+        const invoice = new Invoice({
+          customer: customerName,
+          address: customerAddress,
+          totalValue: totalInvoiceValue,
+          rentals: rentals,
+          status: 'pending'
+        });
+        
+        await invoice.save();
+        invoices.push(invoice);
       }
       
-      // Assume 3 nights stay
-      const stayLength = 3;
-      const totalPrice = basePrice * stayLength;
-      
-      // Get customer info from booking
-      const customerName = booking.customerList && booking.customerList.length > 0 
-        ? booking.customerList[0].name 
-        : 'Guest';
-        
-      const customerAddress = booking.customerList && booking.customerList.length > 0 
-        ? (booking.customerList[0].address || 'No address provided') 
-        : 'No address provided';
-      
-      // Create a sample invoice with the correct schema
-      const sampleInvoice = new Invoice({
-        customer: customerName,
-        address: customerAddress,
-        totalValue: totalPrice,
-        rentals: [{
-          roomNumber: booking.roomNumber,
-          numberOfDays: stayLength,
-          pricePerDay: basePrice,
-          total: totalPrice
-        }],
-        status: 'pending'  // Valid status according to the schema
-      });
-      
-      await sampleInvoice.save();
-      console.log('Sample invoice created successfully');
-      return [sampleInvoice];
+      console.log(`Created ${invoices.length} sample invoices successfully`);
+      return invoices;
     } else {
       console.log(`Invoices already exist (${invoiceCount} invoices found)`);
       return [];
@@ -277,3 +364,45 @@ exports.seedTestBookings = async () => {
     return [];
   }
 };
+
+// Seed Vietnamese to English mappings
+exports.seedMapper = async () => {
+  try {
+    // Check if mappings exist
+    const count = await Mapper.countDocuments();
+
+    if (count === 0) {
+      console.log('Creating default Vietnamese-English mappings...');
+      
+      const defaultMappings = [
+        {
+          vnkey: "Số khách tối đa",
+          engkey: "maxCapacity"
+        },
+        {
+          vnkey: "Nội địa",
+          engkey: "domesticPolicy"
+        },
+        {
+          vnkey: "Nước ngoài",
+          engkey: "foreignPolicy"
+        },
+        {
+          vnkey: "Phụ thu",
+          engkey: "surchargePolicy"
+        }
+      ];
+      
+      await Mapper.insertMany(defaultMappings);
+      console.log('Default Vietnamese-English mappings initialized');
+    } else {
+      console.log(`Mappings already exist (${count} mappings found)`);
+    }
+    
+    return await Mapper.find();
+  } catch (error) {
+    console.error('Error seeding mappings:', error);
+    throw error;
+  }
+};
+

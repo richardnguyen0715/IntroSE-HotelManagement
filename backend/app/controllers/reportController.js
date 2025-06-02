@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
 const { Booking } = require('../models/Booking'); // Fixed import to use named export
-const { Room, RoomType } = require('../models/Room');
+const Room = require('../models/Room');
+const RoomType = require('../models/RoomType');
+const Invoice = require('../models/Invoice');
 
 // @desc    Get revenue report by room type for a specific month
 // @route   GET /api/reports/revenue?year=YYYY&month=MM
@@ -8,127 +10,103 @@ const { Room, RoomType } = require('../models/Room');
 exports.getRevenueReportByRoomType = async (req, res) => {
   try {
     const { year, month } = req.query;
-
+    
     // Validate input
     if (!year || !month) {
       return res.status(400).json({ message: 'Year and month parameters are required' });
     }
-
+    
     const yearNum = parseInt(year, 10);
     const monthNum = parseInt(month, 10);
-
+    
     if (isNaN(yearNum) || isNaN(monthNum) || monthNum < 1 || monthNum > 12) {
       return res.status(400).json({ message: 'Invalid year or month format' });
     }
-
+    
     const startDate = new Date(yearNum, monthNum - 1, 1);
-    const endDate = new Date(yearNum, monthNum, 0); // Last day of the month
-    const daysInMonth = endDate.getDate();
-
-    // Find all active bookings that started before or during the specified month
-    const bookings = await Booking.find({
-      startDate: { $lte: endDate },
-      status: 'active' // Only count active bookings
+    const endDate = new Date(yearNum, monthNum, 1); // Last day of month
+    // Get all room types
+    const roomTypes = await RoomType.find();
+    
+    // Find all invoices in the specified month
+    const invoices = await Invoice.find({
+      issueDate: {
+        $gte: startDate,
+        $lte: endDate
+      },
+      status: 'paid' // Only use paid since invoice can be deleted
     });
-
+    
+    // Get all rooms for type lookup
     const rooms = await Room.find();
-
-    // Group rooms by type
-    const roomsByType = {};
+    
+    // Create a mapping of room numbers to room types
+    const roomTypeMap = {};
     rooms.forEach(room => {
-      if (!roomsByType[room.type]) {
-        roomsByType[room.type] = [];
-      }
-      roomsByType[room.type].push(room.roomNumber);
+      roomTypeMap[room.roomNumber] = room.type;
     });
-
-    // Initialize report structure
-    const report = {};
-    Object.keys(RoomType).forEach(type => {
-      report[type] = {
-        roomType: type,
-        basePrice: RoomType[type],
-        roomCount: roomsByType[type] ? roomsByType[type].length : 0,
-        occupiedDays: 0,
-        totalAvailableDays: roomsByType[type] ? roomsByType[type].length * daysInMonth : 0,
+    
+    // Calculate revenue by room type
+    const revenueByType = {};
+    let totalRevenue = 0;
+    
+    // Initialize revenue for each room type
+    roomTypes.forEach(type => {
+      revenueByType[type.type] = {
+        roomType: type.type,
         revenue: 0,
-        occupancyRate: 0,
-        revenueRatio: 0
+        percentage: 0
       };
     });
-
-    // Track occupied room-days to avoid counting duplicates
-    const occupiedSet = new Set();
-
-    // Process bookings to count occupied days
-    bookings.forEach(booking => {
-      const roomNumber = booking.roomNumber;
-      const room = rooms.find(r => r.roomNumber === roomNumber);
-      if (!room) return;
-
-      const roomType = room.type;
-      if (!report[roomType]) return;
-
-      // Get booking start date (use the month start date if booking started earlier)
-      const bookingStart = new Date(Math.max(new Date(booking.startDate), startDate));
-      
-      // Since there's no end date in schema, assume active bookings occupy room until end of month
-      const bookingEnd = endDate;
-
-      // Count occupied days
-      for (let d = new Date(bookingStart); d <= bookingEnd; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().slice(0, 10);
-        const key = `${roomNumber}-${dateStr}`;
-
-        if (!occupiedSet.has(key)) {
-          occupiedSet.add(key);
-          report[roomType].occupiedDays += 1;
+    
+    // Calculate revenue from invoices
+    invoices.forEach(invoice => {
+      invoice.rentals.forEach(rental => {
+        const roomNumber = rental.roomNumber;
+        const roomType = roomTypeMap[roomNumber];
+        
+        if (roomType && revenueByType[roomType]) {
+          revenueByType[roomType].revenue += rental.total;
+          totalRevenue += rental.total;
         }
-      }
+      });
     });
-
-    // Calculate revenue and other metrics
-    let totalRevenue = 0;
-    Object.keys(report).forEach(type => {
-      const data = report[type];
-      
-      // Calculate revenue = occupied days × base price
-      data.revenue = data.occupiedDays * data.basePrice;
-      
-      // Calculate occupancy rate
-      if (data.totalAvailableDays > 0) {
-        data.occupancyRate = Math.round((data.occupiedDays / data.totalAvailableDays) * 1000) / 10;
-      }
-
-      totalRevenue += data.revenue;
-    });
-
-    // Calculate revenue ratio for each room type
-    Object.keys(report).forEach(type => {
-      const data = report[type];
-      data.revenueRatio = totalRevenue > 0 
-        ? Math.round((data.revenue / totalRevenue) * 1000) / 10 
-        : 0;
-    });
-
-    // Return response
-    res.status(200).json({
-      year: yearNum,
+    
+    // Calculate percentages
+    if (totalRevenue > 0) {
+      Object.keys(revenueByType).forEach(type => {
+        revenueByType[type].percentage = Math.round((revenueByType[type].revenue / totalRevenue) * 100 * 10) / 10;
+      });
+    }
+    
+    // Format report for response
+    const reportData = Object.values(revenueByType).map(item => ({
+      roomType: item.roomType,
+      revenue: item.revenue,
+      percentage: item.percentage
+    }));
+    
+    // Return a formatted report matching the BM5.1 template
+    const formattedReport = {
+      reportCode: 'BM5.1',
+      title: 'Báo Cáo Doanh Thu Theo Loại Phòng',
       month: monthNum,
-      monthName: new Date(yearNum, monthNum - 1, 1).toLocaleString('en-US', { month: 'long' }),
-      totalRevenue,
-      roomTypes: Object.values(report)
-    });
+      year: yearNum,
+      data: reportData,
+      totalRevenue: totalRevenue
+    };
+    
+    res.status(200).json(formattedReport);
   } catch (error) {
     console.error('Error generating revenue report:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
-// @desc    Get occupancy report by room type for a specific month
+// @desc    Get occupancy report by room for a specific month
 // @route   GET /api/reports/occupancy?year=YYYY&month=MM
 // @access  Private/Admin
-exports.getOccupancyReportByRoomType = async (req, res) => {
+exports.getOccupancyReportByRoom = async (req, res) => {
   try {
     const { year, month } = req.query;
     
@@ -145,82 +123,65 @@ exports.getOccupancyReportByRoomType = async (req, res) => {
     }
     
     const startDate = new Date(yearNum, monthNum - 1, 1);
-    const endDate = new Date(yearNum, monthNum, 0); // Last day of month
-    const daysInMonth = endDate.getDate();
+    const endDate = new Date(yearNum, monthNum, 1); // Last day of the month
     
-    // Find all active bookings that started before or during the specified month
-    const bookings = await Booking.find({
-      startDate: { $lte: endDate },
-      status: 'active' // Only count active bookings
+    // Get all rooms
+    const rooms = await Room.find().sort({ roomNumber: 1 });
+    
+    // Get all invoices for the month
+    const invoices = await Invoice.find({
+      issueDate: {
+        $gte: startDate,
+        $lt: endDate
+      },
+      status: 'paid'
     });
     
-    const rooms = await Room.find();
+    // Create occupancy data by room and track total days rented
+    const occupancyData = [];
+    let totalDaysRented = 0;
     
-    const roomsByType = {};
-    rooms.forEach(room => {
-      if (!roomsByType[room.type]) {
-        roomsByType[room.type] = [];
-      }
-      roomsByType[room.type].push(room.roomNumber);
-    });
-    
-    const report = {};
-    Object.keys(RoomType).forEach(type => {
-      report[type] = {
-        roomType: type,
-        roomCount: roomsByType[type] ? roomsByType[type].length : 0,
-        totalAvailableDays: roomsByType[type] ? roomsByType[type].length * daysInMonth : 0,
-        occupiedDays: 0,
-        occupancyRate: 0
-      };
-    });
-
-    // Track occupied room-days to avoid counting duplicates
-    const occupiedSet = new Set();
-
-    bookings.forEach(booking => {
-      const roomNumber = booking.roomNumber;
-      const room = rooms.find(r => r.roomNumber === roomNumber);
-      if (!room) return;
-
-      const roomType = room.type;
-      if (!report[roomType]) return;
-
-      // Get booking start date (use the month start date if booking started earlier)
-      const bookingStart = new Date(Math.max(new Date(booking.startDate), startDate));
+    // First pass: calculate days rented for each room and total
+    for (const room of rooms) {
+      // Count the number of days this room was rented in the invoices
+      let daysRented = 0;
       
-      // Since there's no end date in schema, assume active bookings occupy room until end of month
-      const bookingEnd = endDate;
-
-      for (let d = new Date(bookingStart); d <= bookingEnd; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().slice(0, 10);
-        const key = `${roomNumber}-${dateStr}`;
-
-        if (!occupiedSet.has(key)) {
-          occupiedSet.add(key);
-          report[roomType].occupiedDays += 1;
+      invoices.forEach(invoice => {
+        const roomRental = invoice.rentals.find(rental => 
+          rental.roomNumber === room.roomNumber
+        );
+        
+        if (roomRental) {
+          daysRented += roomRental.numberOfDays;
         }
-      }
-    });
-
-    // Calculate occupancy rate
-    Object.keys(report).forEach(type => {
-      if (report[type].totalAvailableDays > 0) {
-        report[type].occupancyRate = (report[type].occupiedDays / report[type].totalAvailableDays) * 100;
-        report[type].occupancyRate = Math.round(report[type].occupancyRate * 10) / 10;
-      }
-    });
-
-    // Return response
-    const response = {
-      year: yearNum,
+      });
+      
+      totalDaysRented += daysRented;
+      
+      occupancyData.push({
+        roomNumber: room.roomNumber,
+        daysRented: daysRented,
+        occupancyRate: 0 // Will calculate in second pass
+      });
+    }
+    
+    // Second pass: calculate occupancy rates based on total days rented
+    if (totalDaysRented > 0) {
+      occupancyData.forEach(item => {
+        item.occupancyRate = Math.round((item.daysRented / totalDaysRented) * 100 * 10) / 10;
+      });
+    }
+    
+    // Return a formatted report matching the BM5.2 template
+    const formattedReport = {
+      reportCode: 'BM5.2',
+      title: 'Báo Cáo Mật Độ Sử Dụng Phòng',
       month: monthNum,
-      monthName: new Date(yearNum, monthNum - 1, 1).toLocaleString('en-US', { month: 'long' }),
-      daysInMonth: daysInMonth,
-      roomTypes: Object.values(report)
+      year: yearNum,
+      data: occupancyData
     };
-
-    res.status(200).json(response);
+    
+    res.status(200).json(formattedReport);
   } catch (error) {
     console.error('Error generating occupancy report:', error);
     res.status(500).json({ message: 'Server error' });

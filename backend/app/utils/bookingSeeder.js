@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { Booking } = require('../models/Booking'); // Correct import using named export
-const { Room } = require('../models/Room');
+const Room = require('../models/Room');
 const User = require('../models/User');
 
 /**

@@ -11,9 +11,13 @@ const rentalSchema = new mongoose.Schema({
   },
   pricePerDay: {
     type: Number,
+    get: v => Math.ceil(v),
+    set: v => Math.ceil(v)
   },
   total: {
     type: Number,
+    get: v => Math.ceil(v),
+    set: v => Math.ceil(v)
   }
 });
 
@@ -28,7 +32,9 @@ const invoiceSchema = new mongoose.Schema({
   },
   totalValue: {
     type: Number,
-    required: true
+    required: true,
+    get: v => Math.ceil(v),
+    set: v => Math.ceil(v)
   },
   rentals: [rentalSchema],
   issueDate: {

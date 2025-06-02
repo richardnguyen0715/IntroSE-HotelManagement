@@ -6,11 +6,13 @@ const connectDB = require("./config/database");
 const systemRoutes = require("./routes/systemRoutes");
 const userRoutes = require("./routes/userRoutes");
 const roomRoutes = require("./routes/roomRoutes");
+const roomTypeRoutes = require("./routes/roomTypeRoutes");
 const authRoutes = require("./routes/authRoutes");
 const invoiceRoutes = require("./routes/invoiceRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
 const hotelPolicyRoutes = require("./routes/hotelPolicyRoutes");
 const reportRoutes = require("./routes/reportRoutes");
+const mapperRoutes = require("./routes/mapperRoutes");
 // Khởi tạo Express app
 const app = express();
 
@@ -52,12 +54,14 @@ app.use("/api/auth", authRoutes);
 app.use("/api/system", systemRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/rooms", roomRoutes);
+app.use("/api/roomtypes", roomTypeRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/bookings", bookingRoutes);
 app.use("/api/policy", hotelPolicyRoutes);
 app.use("/api/reports", reportRoutes);
+app.use("/api/mapper", mapperRoutes);
 // Simple test route
-app.get("/", (req, res) => {
+app.get("/", (_, res) => {
   res.send("Hotel Management API is running");
 });
 
@@ -67,5 +71,3 @@ app.listen(config.PORT, () => {
     `Server running in ${config.NODE_ENV} mode on port ${config.PORT}`
   );
 });
-
-console.log(`Dont you try to be smart you.`);

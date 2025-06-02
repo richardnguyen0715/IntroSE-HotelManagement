@@ -11,7 +11,7 @@ mongoose.connect(config.MONGODB_URI)
     return dbSeeder.seedDatabase();
   })
   .then(() => {
-    console.log('Database seeding completed successfully');
+    // console.log('Database seeding completed successfully');
     process.exit(0);
   })
   .catch(err => {

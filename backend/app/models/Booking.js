@@ -7,7 +7,6 @@ const CustomerSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['domestic', 'foreign'],
     required: true
   },
   identityCard: {
@@ -31,12 +30,11 @@ const BookingSchema = new mongoose.Schema({
   customerList: [CustomerSchema],
   status: {
     type: String,
-    enum: ['active', 'inactive'],
+    enum: ['active', 'inactive','inPayment'],
     default: 'active'
   }
 });
 
-// Sử dụng index đơn cho trường status để thực hiện truy vấn nhanh hơn
 const Booking = mongoose.model('Booking', BookingSchema);
 
 module.exports = { Booking };

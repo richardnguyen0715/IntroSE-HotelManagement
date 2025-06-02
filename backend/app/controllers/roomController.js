@@ -1,198 +1,211 @@
-const { Room, RoomType } = require('../models/Room');
+const Room = require('../models/Room');
+const RoomType = require('../models/RoomType');
 const HotelPolicy = require('../models/hotelPolicy');
-// Get all rooms
-exports.getAllRooms = async (req, res, next) => {
+
+// Get all rooms with filtering options
+exports.getAllRooms = async (req, res) => {
   try {
     let query = Room.find();
-    // Filter by room type
+    
+    // Filter by room type if provided
     if (req.query.type) {
       query = query.find({ type: req.query.type });
     }
     
-    // Filter by status
+    // Filter by status if provided
     if (req.query.status) {
       query = query.find({ status: req.query.status });
     }
     
-    // Filter by capacity
+    // Filter by capacity if provided
     if (req.query.capacity) {
-      query = query.find({ capacity: { $gte: req.query.capacity } });
+      query = query.find({ capacity: req.query.capacity });
     }
     
     const rooms = await query;
     
     res.status(200).json({
-      success: true,
+      message: 'Rooms retrieved successfully',
+      status: 'success',
       count: rooms.length,
       data: rooms
     });
   } catch (error) {
-    next(error);
+    console.error('Error in getAllRooms:', error);
+    res.status(500).json({
+      message: error.message || 'Internal server error',
+      status: 'error'
+    });
   }
 };
 
-// Get single room
-exports.getRoom = async (req, res, next) => {
+// Get a single room by room number
+exports.getRoom = async (req, res) => {
   try {
-    const room = await Room.findOne({roomNumber : req.params.id}); 
+    const room = await Room.findOne({roomNumber: req.params.id}); 
     
     if (!room) {
-      const error = new Error('Room not found');
-      error.statusCode = 404;
-      return next(error);
+      return res.status(404).json({
+        message: 'Room not found',
+        status: 'error'
+      });
     }
     
     res.status(200).json({
-      success: true,
+      message: 'Room retrieved successfully',
+      status: 'success',
       data: room
     });
   } catch (error) {
-    next(error);
+    console.error('Error in getRoom:', error);
+    res.status(500).json({
+      message: error.message || 'Internal server error',
+      status: 'error'
+    });
   }
 };
 
-// Create new room
-exports.createRoom = async (req, res, next) => {
+// Create a new room
+exports.createRoom = async (req, res) => {
   try {
-    const room = await Room.create(req.body);
+    // Check if room type exists and is valid
+    const roomType = req.body.type;
+    const capacity = req.body.capacity;
+    
+    if (!roomType) {
+      return res.status(400).json({
+        message: 'Room type is required',
+        status: 'error'
+      });
+    }
+    
+    const roomTypeExists = await RoomType.findOne({type: roomType});
+    if (!roomTypeExists) {
+      return res.status(400).json({
+        message: 'Room type does not exist',
+        status: 'error'
+      });
+    }
 
+    const hotelPolicy = await HotelPolicy.findOne();
+    if (hotelPolicy && hotelPolicy.maxCapacity && capacity > hotelPolicy.maxCapacity) {
+      return res.status(400).json({
+        message: `Room capacity (${capacity}) exceeds hotel policy maximum (${hotelPolicy.maxCapacity})`,
+        status: 'error'
+      });
+    }
+    
+    // Create room with the validated type
+    const room = await Room.create({
+      ...req.body,
+      type: roomType
+    });
+    
     res.status(201).json({
-      success: true,
+      message: 'Room created successfully',
+      status: 'success',
       data: room
     });
   } catch (error) {
+    console.error('Error in createRoom:', error);
+    
+    // Handle validation errors
     if (error.name === 'ValidationError') {
       const messages = Object.values(error.errors).map(val => val.message);
-      error.statusCode = 400;
-      error.message = messages;
-    } else if (error.code === 11000) {
-      error.statusCode = 400;
-      error.message = 'Room number already exists';
+      return res.status(400).json({
+        message: messages,
+        status: 'error'
+      });
+    } 
+    // Handle duplicate key errors (room number already exists)
+    else if (error.code === 11000) {
+      return res.status(400).json({
+        message: 'Room number already exists',
+        status: 'error'
+      });
+    } 
+    // Handle other errors
+    else {
+      return res.status(500).json({
+        message: error.message || 'Internal server error',
+        status: 'error'
+      });
     }
-    next(error);
   }
 };
 
-// Update room
-exports.updateRoomCapacity = async (req, res, next) => {
+// Delete a room if it's available
+exports.deleteRoom = async (req, res) => {
   try {
-    const { roomNumber, capacity } = req.body;
-
-    // Kiểm tra xem roomNumber và capacity có được cung cấp không
-    if (!roomNumber || !capacity) {
-      const error = new Error('Room number and capacity are required');
-      error.statusCode = 400;
-      return next(error);
-    }
-
-    // Tìm và cập nhật phòng dựa trên roomNumber
-    const room = await Room.findOneAndUpdate(
-      { roomNumber: roomNumber },
-      { $set: { capacity: capacity } },
-      { 
-        new: true,    // Trả về tài liệu đã cập nhật
-        runValidators: true // Chạy các quy tắc xác thực của schema
-      }
-    );     
-
-    // Kiểm tra xem phòng có tồn tại không
+    // First find the room to check its status
+    const room = await Room.findOne({roomNumber: req.params.id});
+    
     if (!room) {
-      const error = new Error('Room not found');
-      error.statusCode = 404;
-      return next(error);
-    }
-
-    // Trả về phản hồi thành công
-    res.status(200).json({
-      success: true,
-      data: room
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-
-// Delete room
-exports.deleteRoom = async (req, res, next) => {
-  try {
-    const room = await Room.findOneAndDelete({roomNumber: req.params.id});
-    if (!room) {
-      const error = new Error('Room not found');
-      error.statusCode = 404;
-      return next(error);
+      return res.status(404).json({
+        message: 'Room not found',
+        status: 'error'
+      });
     }
     
+    // Only allow deletion of available rooms
+    if (room.status !== 'available') {
+      return res.status(400).json({
+        message: 'Only available rooms can be deleted',
+        status: 'error'
+      });
+    }
+    
+    // Delete the room if it's available
+    await Room.findOneAndDelete({roomNumber: req.params.id});
+    
     res.status(200).json({
-      success: true,
+      message: 'Room deleted successfully',
+      status: 'success',
       data: {}
     });
   } catch (error) {
-    next(error);
+    console.error('Error in deleteRoom:', error);
+    res.status(500).json({
+      message: error.message || 'Internal server error',
+      status: 'error'
+    });
   }
 };
 
-// Get room types
-exports.getRoomTypes = async (_, res, next) => {
+// Update room status to maintenance
+exports.updateRoomToMaintenance = async (req, res) => {
   try {
-    const roomTypes = Object.entries(RoomType).map(([type, price]) => ({
-      type,
-      price
-    }));
+    // Find rooms with available status
+    const room = await Room.findOne({
+      roomNumber: req.params.id, 
+      status: 'available'
+    });
+    
+    if (!room) {
+      return res.status(404).json({
+        message: 'Available room not found',
+        status: 'error'
+      });
+    }
+    
+    // Update the room status to maintenance
+    const updatedRoom = await Room.findOneAndUpdate(
+      { roomNumber: req.params.id },
+      { status: 'maintenance' },
+      { new: true }
+    );
     
     res.status(200).json({
-      success: true,
-      count: roomTypes.length,
-      data: roomTypes
+      message: 'Room status updated to maintenance successfully',
+      status: 'success',
+      data: updatedRoom
     });
   } catch (error) {
-    next(error);
+    console.error('Error in updateRoomToMaintenance:', error);
+    res.status(500).json({
+      message: error.message || 'Internal server error',
+      status: 'error'
+    });
   }
 };
-
-// Update room price
-exports.updateRoomPrice = async (req, res, next) => {
-  try {
-    const { type, price } = req.body;
-
-    // Validate input
-    if (!type || !price) {
-      const error = new Error('Room type and price are required');
-      error.statusCode = 400;
-      return next(error);
-    }
-
-    // Validate if room type exists
-    if (!Object.keys(RoomType).includes(type)) {
-      const error = new Error('Invalid room type');
-      error.statusCode = 400;
-      return next(error);
-    }
-
-    // Validate price is a positive number
-    if (price <= 0 || !Number.isInteger(price)) {
-      const error = new Error('Price must be a positive integer');
-      error.statusCode = 400;
-      return next(error);
-    }
-
-    // Update the price in RoomType
-    RoomType[type] = price;
-
-    // Return the updated room types
-    const roomTypes = Object.entries(RoomType).map(([type, price]) => ({
-      type,
-      price
-    }));
-
-    res.status(200).json({
-      success: true,
-      message: `Price updated successfully for room type ${type}`,
-      data: roomTypes
-    });
-
-  } catch (error) {
-    next(error);
-  }
-}; 
 
