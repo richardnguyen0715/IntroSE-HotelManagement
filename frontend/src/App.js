@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 
 import HomePage from './pages/HomePage/HomePage';
 import Login from './pages/Login/Login';
@@ -19,12 +19,9 @@ import OccupancyReport from './pages/Feature5/OccupancyReport';
 import OccupancyReportForm from './pages/Feature5/OccupancyReportForm';
 import { ReportProvider } from './pages/Feature5/ReportContext';
 
-import Feature6 from './pages/Feature6/Feature6';
 import Regulation1 from './pages/Feature6/Regulation1';
 import Regulation2 from './pages/Feature6/Regulation2';
 import Regulation4 from './pages/Feature6/Regulation4';
-import RoomTypeForm from './pages/Feature6/RoomTypeForm';
-import RegulationForm from './pages/Feature6/RegulationForm';
 import { RegulationProvider } from './pages/Feature6/RegulationContext';
 import Feature6Main from './pages/Feature6/Feature6Main';
 
@@ -56,12 +53,8 @@ function App() {
           {/* Feature 6 Routes */}
           <Route path="/feature6" element={<Feature6Main />} />
           <Route path="/feature6/regulation1" element={<Regulation1 />} />
-          <Route path="/feature6/regulation1/add" element={<RoomTypeForm />} />
-          <Route path="/feature6/regulation1/edit" element={<RoomTypeForm />} />
           <Route path="/feature6/regulation2" element={<Regulation2 />} />
           <Route path="/feature6/regulation4" element={<Regulation4 />} />
-          <Route path="/feature6/room-type-form" element={<RoomTypeForm />} />
-          <Route path="/feature6/regulation-form" element={<RegulationForm />} />
         </Routes>
       </ReportProvider>
     </RegulationProvider>
