@@ -7,7 +7,6 @@ const CustomerSchema = new mongoose.Schema({
   },
   type: {
     type: String,
-    enum: ['domestic', 'foreign'],
     required: true
   },
   identityCard: {
