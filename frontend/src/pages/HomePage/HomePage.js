@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import './HomePage.css';
-import '../App.css';
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../App.css";
+import "./HomePage.css";
 
 function HomePage() {
   const navigate = useNavigate();
@@ -48,11 +48,16 @@ function HomePage() {
 
         <div className="header-right">
           <Link to="/about">Về chúng tôi</Link>
-          <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag"/>
+          <img
+            src="/icons/VietnamFlag.png"
+            alt="Vietnam Flag"
+            className="flag"
+          />
           <div className="user-menu">
-            <div 
-              className="user-avatar" 
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
+            <div
+              className="user-avatar"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
               <img src="/icons/User.png" alt="User" />
             </div>
 
@@ -64,9 +69,7 @@ function HomePage() {
                   <p>Email: {userInfo?.email}</p>
                   <p>Vai trò: {userInfo?.role}</p>
                 </div>
-                <button 
-                  className="logout-button" 
-                  onClick={handleLogout}>
+                <button className="logout-button" onClick={handleLogout}>
                   Đăng xuất
                 </button>
               </div>
@@ -80,9 +83,8 @@ function HomePage() {
         <div className="header-container">
           <h2>Trang chủ</h2>
         </div>
-        
+
         <div className="function-grid">
-  
           <Link to="/feature1" className="function-item">
             <img src="/icons/Catalogue.png" alt="Lập danh mục thuê phòng" />
             <p>LẬP DANH MỤC PHÒNG</p>
@@ -112,11 +114,10 @@ function HomePage() {
             <img src="/icons/Regulation.png" alt="Thay đổi quy định" />
             <p>THAY ĐỔI QUY ĐỊNH</p>
           </Link>
-
         </div>
       </main>
     </div>
   );
 }
 
-export default HomePage; 
+export default HomePage;
