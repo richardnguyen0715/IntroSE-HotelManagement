@@ -15,12 +15,14 @@ function Login() {
 
   // Kiểm tra token khi vào trang
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     if (token) {
-      //navigate("/HomePage");
-      navigate("/");
+      navigate("/HomePage");
+      // navigate("/");
     }
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Hàm kiểm tra định dạng email
   const validateEmail = (email) => {

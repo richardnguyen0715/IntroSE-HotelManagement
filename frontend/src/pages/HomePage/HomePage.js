@@ -28,7 +28,8 @@ function HomePage() {
     if (savedUserInfo) {
       setUserInfo(JSON.parse(savedUserInfo));
     }
-  }, [navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleLogout = () => {
     // Xóa token và userInfo ở cả localStorage và sessionStorage

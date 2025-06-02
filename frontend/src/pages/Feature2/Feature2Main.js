@@ -50,6 +50,7 @@ function Feature2Main() {
       clearInterval(intervalId);
       console.log("Feature2Main unmounted, interval cleared");
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Mảng dependencies rỗng - chỉ chạy một lần khi mount
 
   // Fetch tất cả phòng để hiển thị trong dropdown
@@ -89,6 +90,7 @@ function Feature2Main() {
     }
 
     filterRentals();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters, isFiltering, rentals]);
 
   // Cập nhật allRooms khi rentals thay đổi - với debounce để tránh quá nhiều request
