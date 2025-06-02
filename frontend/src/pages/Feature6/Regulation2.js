@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../Feature6/Feature6.css";
-import customerTypeMap from "../Feature6/customerTypesMap.json";
 
 const API_URL = "http://localhost:5000/api";
 
@@ -17,16 +16,27 @@ const Regulation2 = () => {
   const [selectedCustomerTypes, setSelectedCustomerTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [customerTypeMap, setCustomerTypeMap] = useState({}); // map từ API
 
   const navigate = useNavigate();
 
+  // Fetch mapping
   useEffect(() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    const userInfo = localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
-    setIsLoggedIn(!!(token && userInfo));
-  }, [navigate]);
+    fetch(`${API_URL}/mapper`)
+      .then(res => {
+        if (!res.ok) throw new Error("Không thể tải dữ liệu mapper");
+        return res.json();
+      })
+      .then(data => {
+        setCustomerTypeMap(data);
+      })
+      .catch(err => setError(err.message));
+  }, []);
 
+  // Fetch policy sau khi có mapper
   useEffect(() => {
+    if (Object.keys(customerTypeMap).length === 0) return;
+
     fetch(`${API_URL}/policy`)
       .then(res => {
         if (!res.ok) throw new Error("Không thể tải dữ liệu quy định");
@@ -46,7 +56,13 @@ const Regulation2 = () => {
       })
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
-  }, []);
+  }, [customerTypeMap]);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userInfo = localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+    setIsLoggedIn(!!(token && userInfo));
+  }, [navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -60,6 +76,28 @@ const Regulation2 = () => {
   const handleMaxCustomersChange = (e) => {
     setMaxCustomersValue(parseInt(e.target.value));
   };
+
+  const handleDelete = async () => {
+    if (!window.confirm("Bạn có chắc chắn muốn xoá loại khách này?")) return;
+
+    try {
+      for (const id of selectedCustomerTypes) {
+        const res = await fetch(`${API_URL}/policy/field/${id}`, {
+          method: "DELETE"
+        });
+        if (!res.ok) throw new Error(`Xoá thất bại: ${id}`);
+      }
+
+      // Cập nhật lại danh sách
+      setEditingCustomerTypes(prev =>
+        prev.filter(ct => !selectedCustomerTypes.includes(ct.id))
+      );
+      setSelectedCustomerTypes([]);
+    } catch (err) {
+      alert("Đã xảy ra lỗi khi xoá: " + err.message);
+    }
+  };
+
 
   const saveMaxCustomers = async () => {
     try {
@@ -104,47 +142,71 @@ const Regulation2 = () => {
   };
 
   const handleModalSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      let newKey = convertVietnameseToKey(editForm.type);
-      const value = parseFloat(editForm.coefficient);
+  e.preventDefault();
+  try {
+    const vietnameseName = editForm.type;
+    const englishKey = convertVietnameseToKey(vietnameseName);
+    const value = parseFloat(editForm.coefficient);
 
-      if (isNaN(value) || value <= 0) {
-        alert("Hệ số không hợp lệ");
-        return;
-      }
-
-      if (isEditing) {
-        const updates = {};
-        editingCustomerTypes.forEach(ct => {
-          if (ct.id === editForm.id) {
-            ct.coefficient = editForm.coefficient;
-            updates[editForm.id] = value;
-          }
-        });
-
-        await fetch(`${API_URL}/policy`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updates)
-        });
-      } else {
-        await fetch(`${API_URL}/policy/add-field`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ fieldName: newKey, fieldValue: value })
-        });
-
-        customerTypeMap[newKey] = editForm.type;
-        editingCustomerTypes.push({ id: newKey, type: editForm.type, coefficient: editForm.coefficient });
-      }
-
-      setModalVisible(false);
-      setSelectedCustomerTypes([]);
-    } catch (err) {
-      alert("Cập nhật lỗi: " + err.message);
+    if (isNaN(value) || value <= 0) {
+      alert("Hệ số không hợp lệ");
+      return;
     }
-  };
+
+    if (isEditing) {
+      // CHỈ sửa hệ số
+      const updates = {};
+      editingCustomerTypes.forEach(ct => {
+        if (ct.id === editForm.id) {
+          ct.coefficient = editForm.coefficient;
+          updates[editForm.id] = value;
+        }
+      });
+
+      await fetch(`${API_URL}/policy/field/${editForm.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fieldValue: value })
+      });
+    } else {
+      // 1. Gửi lên policy
+      await fetch(`${API_URL}/policy/add-field`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          fieldName: englishKey,
+          fieldValue: value
+        })
+      });
+
+      // 2. Gửi lên mapper
+      await fetch(`${API_URL}/mapper/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          engkey: englishKey,
+          vnkey: vietnameseName
+        })
+      });
+
+      // 3. Cập nhật UI
+      setEditingCustomerTypes(prev => [
+        ...prev,
+        {
+          id: englishKey,
+          type: vietnameseName,
+          coefficient: editForm.coefficient
+        }
+      ]);
+    }
+
+    setModalVisible(false);
+    setSelectedCustomerTypes([]);
+  } catch (err) {
+    alert("Cập nhật lỗi: " + err.message);
+  }
+};
+
 
   if (loading) return <div className="loading">Đang tải dữ liệu...</div>;
   if (error) return <div className="error">Lỗi: {error}</div>;
@@ -242,7 +304,13 @@ const Regulation2 = () => {
               >
                 Sửa
               </button>
-              <button className="action-button delete disabled" disabled>Xoá</button>
+              <button
+                className={`action-button delete ${selectedCustomerTypes.length > 0 ? "clickable" : "disabled"}`}
+                onClick={handleDelete}
+                disabled={selectedCustomerTypes.length === 0}
+              >
+                Xoá
+              </button>
             </div>
           </div>
         </div>

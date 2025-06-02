@@ -184,7 +184,6 @@ exports.resetHotelPolicyToDefault = async (req, res) => {
 // @access  Private
 exports.addCustomField = async (req, res) => {
     try {
-        console.log(req.body);
         const { fieldName, fieldValue } = req.body;
 
         // Validate input
