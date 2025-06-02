@@ -2,7 +2,7 @@ import { createContext, useState, useContext, useEffect } from "react";
 import {
   getRooms,
   addRoom as addRoomAPI,
-  updateRoom,
+  //updateRoom,
   deleteRoom,
   deleteMultipleRooms,
   getRoomPrice,
@@ -159,48 +159,48 @@ export function RoomProvider({ children }) {
     }
   };
 
-  // Cập nhật thông tin phòng
-  const editRoom = async (id, updatedRoom) => {
-    try {
-      setLoading(true);
-      setError(null);
+  // // Cập nhật thông tin phòng
+  // const editRoom = async (id, updatedRoom) => {
+  //   try {
+  //     setLoading(true);
+  //     setError(null);
 
-      validateRoom(updatedRoom);
+  //     validateRoom(updatedRoom);
 
-      // Kiểm tra số phòng đã tồn tại ở phòng khác
-      const hasConflict = rooms.some(
-        (room) => room._id !== id && room.roomNumber === updatedRoom.roomNumber
-      );
+  //     // Kiểm tra số phòng đã tồn tại ở phòng khác
+  //     const hasConflict = rooms.some(
+  //       (room) => room._id !== id && room.roomNumber === updatedRoom.roomNumber
+  //     );
 
-      if (hasConflict) {
-        throw new Error("Số phòng này đã tồn tại");
-      }
+  //     if (hasConflict) {
+  //       throw new Error("Số phòng này đã tồn tại");
+  //     }
 
-      // Nếu không nhập giá, tự động lấy giá theo loại phòng
-      if (!updatedRoom.price) {
-        updatedRoom.price = getRoomPrice(updatedRoom._type);
-      }
+  //     // Nếu không nhập giá, tự động lấy giá theo loại phòng
+  //     if (!updatedRoom.price) {
+  //       updatedRoom.price = getRoomPrice(updatedRoom._type);
+  //     }
 
-      // Gọi API cập nhật phòng
-      const response = await updateRoom(id, updatedRoom);
+  //     // Gọi API cập nhật phòng
+  //     const response = await updateRoom(id, updatedRoom);
 
-      // Cập nhật state khi API thành công
-      const updatedRooms = rooms.map((room) =>
-        room._id === id ? response.data : room
-      );
+  //     // Cập nhật state khi API thành công
+  //     const updatedRooms = rooms.map((room) =>
+  //       room._id === id ? response.data : room
+  //     );
 
-      setRooms(updatedRooms);
-      return true;
-    } catch (error) {
-      console.error("Error updating room:", error);
-      setError(
-        error.message || "Không thể cập nhật phòng. Vui lòng thử lại sau."
-      );
-      return false;
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setRooms(updatedRooms);
+  //     return true;
+  //   } catch (error) {
+  //     console.error("Error updating room:", error);
+  //     setError(
+  //       error.message || "Không thể cập nhật phòng. Vui lòng thử lại sau."
+  //     );
+  //     return false;
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Xóa phòng
   // Xóa phòng
@@ -273,7 +273,7 @@ export function RoomProvider({ children }) {
         error,
         fetchRooms,
         addRoom,
-        editRoom,
+        //editRoom,
         deleteRooms,
         syncRoomStatusWithBookings,
       }}

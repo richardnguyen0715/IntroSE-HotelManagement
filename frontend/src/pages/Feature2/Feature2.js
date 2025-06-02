@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { RoomProvider } from "../Feature1/RoomContext";
 import { RentalProvider } from "./RentalContext";
 import Feature2Main from "./Feature2Main";
+import "../App.css";
 import "./Feature2.css";
 
 function Feature2() {

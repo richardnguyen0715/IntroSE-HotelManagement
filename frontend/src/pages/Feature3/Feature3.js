@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { RoomProvider, useRooms } from "../Feature1/RoomContext";
-import "./Feature3.css";
 import "../App.css";
+import "./Feature3.css";
 import { getRoomPrice, getRoomTypes } from "../../services/rooms";
 
 // Separate inner component to use context

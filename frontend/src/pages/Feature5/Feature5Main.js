@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
+import "../App.css";
 import "./Feature5.css";
 
 function Feature5Main() {

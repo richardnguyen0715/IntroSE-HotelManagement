@@ -1,82 +1,125 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useReports } from "./ReportContext";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import "./Feature5.css";
+import { useReports } from "./ReportContext";
 
-function OccupancyReport() {
+function OccupancyReportForm() {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { occupancyReport, loading, error, fetchOccupancyReport } =
-    useReports();
-  const [yearMonth, setYearMonth] = useState({
-    year: new Date().getFullYear(),
-    month: new Date().getMonth() + 1,
+  const location = useLocation();
+  const { addOccupancyReport, editOccupancyReport } = useReports();
+  const isEditing = location.pathname.includes("edit");
+  const editData = location.state;
+
+  const [formData, setFormData] = useState({
+    month: "",
+    roomType: "",
+    roomCount: "",
+    occupiedDays: "",
+    totalAvailableDays: "",
+    occupancyRate: "",
   });
 
-  // Kiểm tra đăng nhập khi component mount
-  useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    const userInfo =
-      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+  const [errors, setErrors] = useState({
+    month: "",
+    roomType: "",
+    roomCount: "",
+    occupiedDays: "",
+    totalAvailableDays: "",
+    occupancyRate: "",
+  });
 
-    if (token && userInfo) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-      // Redirect to login if not logged in
-      navigate("/login");
-    }
-  }, [navigate]);
-
-  // Fetch report when component mounts or year/month changes
   useEffect(() => {
-    if (isLoggedIn) {
-      fetchOccupancyReport(yearMonth.year, yearMonth.month);
+    if (isEditing && editData) {
+      setFormData({
+        month: editData.month,
+        roomType: editData.roomType,
+        roomCount: editData.roomCount,
+        occupiedDays: editData.occupiedDays,
+        totalAvailableDays: editData.totalAvailableDays,
+        occupancyRate: editData.occupancyRate,
+      });
     }
-  }, [yearMonth, isLoggedIn, fetchOccupancyReport]);
+  }, [isEditing, editData]);
 
   const handleGoBack = () => {
-    navigate("/feature5");
+    navigate(-1);
   };
 
-  const handleMonthChange = (e) => {
-    setYearMonth((prev) => ({ ...prev, month: parseInt(e.target.value) }));
+  const validateField = (name, value) => {
+    switch (name) {
+      case "month":
+        const monthRegex = /^(0?[1-9]|1[0-2])\/20\d{2}$/;
+        return monthRegex.test(value)
+          ? ""
+          : "Tháng không hợp lệ. Định dạng phải là MM/YYYY";
+      case "roomType":
+        const roomTypeRegex = /^[A-Z]$/;
+        return roomTypeRegex.test(value)
+          ? ""
+          : "Loại phòng không hợp lệ. Chỉ chấp nhận một ký tự từ A-Z";
+      case "roomCount":
+      case "occupiedDays":
+      case "totalAvailableDays":
+        return /^\d+$/.test(value) && parseInt(value) >= 0
+          ? ""
+          : "Phải là số nguyên không âm";
+      case "occupancyRate":
+        const rate = parseFloat(value);
+        return !isNaN(rate) && rate >= 0 && rate <= 100
+          ? ""
+          : "Mật độ sử dụng phải từ 0 đến 100";
+      default:
+        return "";
+    }
   };
 
-  const handleYearChange = (e) => {
-    setYearMonth((prev) => ({ ...prev, year: parseInt(e.target.value) }));
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    setErrors((prev) => ({
+      ...prev,
+      [name]: validateField(name, value),
+    }));
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userInfo");
-    setIsLoggedIn(false);
-    navigate("/login");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    // Validate all fields
+    const newErrors = {
+      month: validateField("month", formData.month),
+      roomType: validateField("roomType", formData.roomType),
+      roomCount: validateField("roomCount", formData.roomCount),
+      occupiedDays: validateField("occupiedDays", formData.occupiedDays),
+      totalAvailableDays: validateField(
+        "totalAvailableDays",
+        formData.totalAvailableDays
+      ),
+      occupancyRate: validateField("occupancyRate", formData.occupancyRate),
+    };
+
+    setErrors(newErrors);
+
+    // Check if there are any errors
+    if (Object.values(newErrors).some((error) => error !== "")) {
+      return;
+    }
+
+    try {
+      if (isEditing) {
+        await editOccupancyReport(editData.month, editData.id, formData);
+      } else {
+        await addOccupancyReport(formData);
+      }
+      navigate("/feature5/occupancy");
+    } catch (error) {
+      alert(error.message);
+    }
   };
-
-  // Generate month options
-  const monthOptions = [];
-  for (let i = 1; i <= 12; i++) {
-    monthOptions.push(
-      <option key={i} value={i}>
-        {new Date(2000, i - 1, 1).toLocaleString("default", { month: "long" })}
-      </option>
-    );
-  }
-
-  // Generate year options (from 2020 to current year + 1)
-  const currentYear = new Date().getFullYear();
-  const yearOptions = [];
-  for (let year = 2020; year <= currentYear + 1; year++) {
-    yearOptions.push(
-      <option key={year} value={year}>
-        {year}
-      </option>
-    );
-  }
 
   return (
     <div className="app">
@@ -93,92 +136,137 @@ function OccupancyReport() {
             alt="Vietnam Flag"
             className="flag"
           />
-          {!isLoggedIn ? (
-            <>
-              <Link to="/register">
-                <button className="button-reg">Đăng ký</button>
-              </Link>
-              <Link to="/login">
-                <button className="button-log">Đăng nhập</button>
-              </Link>
-            </>
-          ) : (
-            <button className="button-log" onClick={handleLogout}>
-              Đăng xuất
-            </button>
-          )}
+          <Link to="/register">
+            <button className="button-reg">Đăng ký</button>
+          </Link>
+          <Link to="/login">
+            <button className="button-log">Đăng nhập</button>
+          </Link>
         </nav>
       </header>
 
       {/* Main Content */}
       <main className="main-content">
         <div className="header-container">
-          <h2>Báo cáo mật độ sử dụng phòng</h2>
+          <h2>
+            {isEditing ? "Cập nhật báo cáo mật độ" : "Tạo báo cáo mật độ"}
+          </h2>
           <button onClick={handleGoBack} className="back-button">
             <img src="/icons/Navigate.png" alt="Back" />
           </button>
         </div>
 
-        <div className="filter-container">
-          <div className="filter-group">
-            <label>Tháng:</label>
-            <select value={yearMonth.month} onChange={handleMonthChange}>
-              {monthOptions}
-            </select>
-          </div>
-          <div className="filter-group">
-            <label>Năm:</label>
-            <select value={yearMonth.year} onChange={handleYearChange}>
-              {yearOptions}
-            </select>
-          </div>
-        </div>
-
-        <div className="reports-container">
-          {loading && (
-            <div className="loading-message">Đang tải dữ liệu...</div>
-          )}
-          {error && <div className="error-message">{error}</div>}
-
-          {!loading && !occupancyReport ? (
-            <div className="no-data">
-              <p>Không có dữ liệu báo cáo cho thời gian đã chọn.</p>
+        <div className="report-form">
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label>Tháng</label>
+              <input
+                type="text"
+                name="month"
+                value={formData.month}
+                onChange={handleChange}
+                placeholder="VD: 1/2025"
+                disabled={isEditing}
+              />
+              {errors.month && (
+                <span className="error-message">{errors.month}</span>
+              )}
             </div>
-          ) : !loading && occupancyReport ? (
-            <div className="occupancy-report">
-              <h3>
-                Tháng {occupancyReport.month}/{occupancyReport.year} -{" "}
-                {occupancyReport.monthName}
-              </h3>
-              <p>Số ngày trong tháng: {occupancyReport.daysInMonth}</p>
-              <table className="report-table">
-                <thead>
-                  <tr>
-                    <th>Loại phòng</th>
-                    <th>Số phòng</th>
-                    <th>Ngày sử dụng</th>
-                    <th>Tổng ngày có thể sử dụng</th>
-                    <th>Mật độ sử dụng (%)</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {occupancyReport.roomTypes.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.roomType}</td>
-                      <td>{item.roomCount}</td>
-                      <td>{item.occupiedDays}</td>
-                      <td>{item.totalAvailableDays}</td>
-                      <td>{item.occupancyRate}%</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+
+            <div className="form-group">
+              <label>Loại phòng</label>
+              <input
+                type="text"
+                name="roomType"
+                value={formData.roomType}
+                onChange={handleChange}
+                placeholder="VD: A"
+                disabled={isEditing}
+              />
+              {errors.roomType && (
+                <span className="error-message">{errors.roomType}</span>
+              )}
             </div>
-          ) : null}
+
+            <div className="form-group">
+              <label>Số phòng</label>
+              <input
+                type="text"
+                name="roomCount"
+                value={formData.roomCount}
+                onChange={handleChange}
+                placeholder="VD: 10"
+              />
+              {errors.roomCount && (
+                <span className="error-message">{errors.roomCount}</span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Ngày sử dụng</label>
+              <input
+                type="text"
+                name="occupiedDays"
+                value={formData.occupiedDays}
+                onChange={handleChange}
+                placeholder="VD: 120"
+              />
+              {errors.occupiedDays && (
+                <span className="error-message">{errors.occupiedDays}</span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Tổng ngày có thể sử dụng</label>
+              <input
+                type="text"
+                name="totalAvailableDays"
+                value={formData.totalAvailableDays}
+                onChange={handleChange}
+                placeholder="VD: 150"
+              />
+              {errors.totalAvailableDays && (
+                <span className="error-message">
+                  {errors.totalAvailableDays}
+                </span>
+              )}
+            </div>
+
+            <div className="form-group">
+              <label>Mật độ sử dụng (%)</label>
+              <input
+                type="text"
+                name="occupancyRate"
+                value={formData.occupancyRate}
+                onChange={handleChange}
+                placeholder="VD: 80"
+              />
+              {errors.occupancyRate && (
+                <span className="error-message">{errors.occupancyRate}</span>
+              )}
+            </div>
+
+            <div className="form-actions">
+              <button
+                type="button"
+                className="action-button cancel-button"
+                onClick={handleGoBack}
+              >
+                Hủy
+              </button>
+              <button
+                type="submit"
+                className="action-button confirm-button"
+                disabled={Object.values(errors).some((error) => error !== "")}
+              >
+                {isEditing ? "Cập nhật" : "Thêm mới"}
+              </button>
+            </div>
+          </form>
         </div>
       </main>
     </div>
   );
 }
 
-export default OccupancyReport;
+export default OccupancyReportForm;

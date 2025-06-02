@@ -82,15 +82,15 @@ function Feature1Main() {
     setShowForm(true);
   };
 
-  const handleEdit = () => {
-    if (selectedRooms.length !== 1) return;
+  // const handleEdit = () => {
+  //   if (selectedRooms.length !== 1) return;
 
-    const roomToEdit = rooms.find((room) => room._id === selectedRooms[0]);
-    if (roomToEdit) {
-      setEditingRoom(roomToEdit);
-      setShowForm(true);
-    }
-  };
+  //   const roomToEdit = rooms.find((room) => room._id === selectedRooms[0]);
+  //   if (roomToEdit) {
+  //     setEditingRoom(roomToEdit);
+  //     setShowForm(true);
+  //   }
+  // };
 
   const handleCloseForm = () => {
     setShowForm(false);
@@ -166,7 +166,7 @@ function Feature1Main() {
         <button className="action-button add" onClick={handleAdd}>
           Thêm
         </button>
-        <button
+        {/* <button
           className={`action-button edit ${
             selectedRooms.length === 1 ? "clickable" : "disabled"
           }`}
@@ -174,7 +174,7 @@ function Feature1Main() {
           disabled={selectedRooms.length !== 1}
         >
           Sửa
-        </button>
+        </button> */}
         <button
           className="action-button delete"
           onClick={handleDelete}

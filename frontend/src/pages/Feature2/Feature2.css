@@ -1,3 +1,5 @@
+/* Giữ lại các phần dành riêng cho Feature2 mà không có trong App.css */
+
 .feature-content {
   padding: 2rem;
 }
@@ -238,7 +240,16 @@
   border-radius: 4px;
   background-color: #f9f9f9;
 }
-
+/* Reset button */
+.reset-button {
+  margin-left: 10px;
+  padding: 5px 10px;
+  font-size: 12px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -263,6 +274,7 @@ button.confirm-button {
   color: white;
 }
 
+/* Button container được giữ lại */
 .button-container {
   display: flex;
   gap: 1rem;
@@ -275,6 +287,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Action button styles được giữ lại */
 .action-button {
   padding: 0.5rem 1.5rem;
   border: none;

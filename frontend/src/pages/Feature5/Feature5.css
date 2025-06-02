@@ -1,124 +1,4 @@
-.app {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Phần Header */
-.app-header {
-    background-color: #fafaf5;
-    border: 2px solid #e6e6e6;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 90px;
-    padding-left: 20px;
-    padding-right: 20px;
-}
-
-.header-left a {
-    text-decoration: none;
-}
-
-.header-left h1 {
-    margin: 0;
-    color: #426b1f;
-    font-weight: 500;
-    padding-top: 10px;
-    padding-left: 50px;
-    font-size: 40px;
-}
-
-.header-right {
-    display: flex;
-    align-items: center;
-    margin-right: 60px;
-}
-
-.header-right a {
-    color: #333;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 20px;
-    padding-top: 5px;
-    width: 120px;
-    margin-left: 20px;
-    margin-right: 10px;
-}
-
-.flag {
-    width: 60px;
-    height: auto;
-    margin-right: 5px;
-}
-
-.button-reg {
-    margin-bottom: 5px;
-    background: #d3f8b4;
-    color: #333;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 15px;
-    cursor: pointer;
-    font-family: "Inter", sans-serif;
-    font-weight: bold;
-    font-size: 17px;
-    width: 130px;
-    height: 50px;
-}
-
-.button-log {
-    margin-bottom: 5px;
-    background: #426b1f;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 10px 15px;
-    cursor: pointer;
-    font-family: "Inter", sans-serif;
-    font-weight: bold;
-    font-size: 17px;
-    width: 130px;
-    height: 50px;
-}
-
-.button-reg:hover {
-    background-color: #f8f9fa;
-}
-
-.button-log:hover {
-    background-color: #0056b3;
-}
-
-.main-content {
-    flex: 1;
-    padding: 2rem;
-    background-color: #f8f9fa;
-}
-
-.header-container {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 2rem;
-}
-
-.header-container h2 {
-    margin: 0;
-    color: #333;
-}
-
-.back-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 0.5rem;
-}
-
-.back-button img {
-    width: 24px;
-    height: 24px;
-}
+/* Giữ lại các phần dành riêng cho Feature5 mà không có trong App.css */
 
 .reports-container {
     background-color: #fff;
@@ -402,40 +282,6 @@
     color: #6c757d;
 }
 
-@media (max-width: 768px) {
-    .app-header {
-        padding: 1rem;
-    }
-
-    .header-right {
-        gap: 1rem;
-    }
-
-    .main-content {
-        padding: 1rem;
-    }
-
-    .reports-container {
-        padding: 1rem;
-    }
-
-    .report-types {
-        grid-template-columns: 1fr;
-    }
-
-    .report-actions {
-        flex-wrap: wrap;
-    }
-
-    .action-button {
-        flex: 1;
-        min-width: 120px;
-    }
-
-    .report-form {
-        padding: 1rem;
-    }
-}
 /* Thêm styles cho bộ lọc năm/tháng */
 .filter-container {
   display: flex;
@@ -503,4 +349,23 @@
   text-align: center;
   margin-bottom: 15px;
   font-style: italic;
+}
+
+@media (max-width: 768px) {
+    .report-types {
+        grid-template-columns: 1fr;
+    }
+
+    .report-actions {
+        flex-wrap: wrap;
+    }
+
+    .action-button {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .report-form {
+        padding: 1rem;
+    }
 }

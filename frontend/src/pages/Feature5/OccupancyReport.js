@@ -5,6 +5,7 @@ import "./Feature5.css";
 
 function OccupancyReport() {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { occupancyReport, loading, error, fetchOccupancyReport } =
     useReports();
   const [yearMonth, setYearMonth] = useState({
@@ -12,10 +13,28 @@ function OccupancyReport() {
     month: new Date().getMonth() + 1,
   });
 
+  // Kiểm tra đăng nhập khi component mount
+  useEffect(() => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const userInfo =
+      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+
+    if (token && userInfo) {
+      setIsLoggedIn(true);
+    } else {
+      setIsLoggedIn(false);
+      // Redirect to login if not logged in
+      navigate("/login");
+    }
+  }, [navigate]);
+
   // Fetch report when component mounts or year/month changes
   useEffect(() => {
-    fetchOccupancyReport(yearMonth.year, yearMonth.month);
-  }, [yearMonth]);
+    if (isLoggedIn) {
+      fetchOccupancyReport(yearMonth.year, yearMonth.month);
+    }
+  }, [yearMonth, isLoggedIn]);
 
   const handleGoBack = () => {
     navigate("/feature5");
@@ -27,6 +46,15 @@ function OccupancyReport() {
 
   const handleYearChange = (e) => {
     setYearMonth((prev) => ({ ...prev, year: parseInt(e.target.value) }));
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userInfo");
+    setIsLoggedIn(false);
+    navigate("/login");
   };
 
   // Generate month options
@@ -65,12 +93,20 @@ function OccupancyReport() {
             alt="Vietnam Flag"
             className="flag"
           />
-          <Link to="/register">
-            <button className="button-reg">Đăng ký</button>
-          </Link>
-          <Link to="/login">
-            <button className="button-log">Đăng nhập</button>
-          </Link>
+          {!isLoggedIn ? (
+            <>
+              <Link to="/register">
+                <button className="button-reg">Đăng ký</button>
+              </Link>
+              <Link to="/login">
+                <button className="button-log">Đăng nhập</button>
+              </Link>
+            </>
+          ) : (
+            <button className="button-log" onClick={handleLogout}>
+              Đăng xuất
+            </button>
+          )}
         </nav>
       </header>
 

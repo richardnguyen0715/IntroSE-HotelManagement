@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { RoomProvider } from "./RoomContext";
 import Feature1Main from "./Feature1Main";
+import "../App.css";
 import "./Feature1.css";
 
 function Feature1() {

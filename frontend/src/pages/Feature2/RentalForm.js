@@ -10,7 +10,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
   const { maxCustomers } = useRegulation();
   const [formData, setFormData] = useState(getInitialFormData());
   const [availableRooms, setAvailableRooms] = useState([]);
-  const [isLoaded, setIsLoaded] = useState(false);
+  //const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null); // Thêm state để xử lý lỗi
   const isEditMode = rental && !rental.isNew; // Biến để kiểm tra có phải đang edit không
 
@@ -115,11 +115,11 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
         console.log("Available rooms:", filteredRooms.length);
         setAvailableRooms(filteredRooms);
-        setIsLoaded(true);
+        //setIsLoaded(true);
       } catch (error) {
         console.error("Error initializing rooms:", error);
         setError("Không thể tải danh sách phòng. Vui lòng thử lại sau.");
-        setIsLoaded(true);
+        //setIsLoaded(true);
       }
     };
 
@@ -413,15 +413,6 @@ function RentalForm({ rental, onClose, onSuccess }) {
                   type="button"
                   onClick={handleResetCustomers}
                   className="reset-button"
-                  style={{
-                    marginLeft: "10px",
-                    padding: "5px 10px",
-                    fontSize: "12px",
-                    backgroundColor: "#f0f0f0",
-                    border: "1px solid #ccc",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
                 >
                   Reset Customers
                 </button>

@@ -18,7 +18,6 @@ function Feature2Main() {
   // Thêm trường checkInDate vào filters
   const [filters, setFilters] = useState({
     room: "",
-    email: "",
     checkInDate: "",
   });
   const [filteredRentals, setFilteredRentals] = useState([]);
@@ -127,7 +126,7 @@ function Feature2Main() {
 
   // Hàm xử lý lọc phiếu thuê (cải thiện)
   const filterRentals = () => {
-    const { room, email, checkInDate } = filters;
+    const { room, checkInDate } = filters;
 
     let result = [...rentals];
     console.log("Filtering rentals:", rentals.length);
@@ -136,16 +135,6 @@ function Feature2Main() {
     if (room) {
       result = result.filter((rental) => rental.room === room);
     }
-
-    // Lọc theo email
-    if (email) {
-      result = result.filter(
-        (rental) =>
-          rental.email &&
-          rental.email.toLowerCase().includes(email.toLowerCase())
-      );
-    }
-
     // Lọc theo ngày nhận phòng
     if (checkInDate) {
       const filterDate = new Date(checkInDate);
@@ -176,7 +165,6 @@ function Feature2Main() {
   const resetFilters = () => {
     setFilters({
       room: "",
-      email: "",
       checkInDate: "",
     });
     setIsFiltering(false);
@@ -307,15 +295,6 @@ function Feature2Main() {
     }, 1000);
   };
 
-  // Function to format VND price
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat("vi-VN", {
-      style: "currency",
-      currency: "VND",
-      maximumFractionDigits: 0,
-    }).format(price);
-  };
-
   // Function to get status text in Vietnamese
   const getStatusText = (status) => {
     switch (status) {
@@ -325,18 +304,6 @@ function Feature2Main() {
         return "Đang chờ";
       case "cancelled":
         return "Đã hủy";
-      default:
-        return status;
-    }
-  };
-
-  // Function to get payment status text in Vietnamese
-  const getPaymentStatusText = (status) => {
-    switch (status) {
-      case "paid":
-        return "Đã thanh toán";
-      case "pending":
-        return "Chưa thanh toán";
       default:
         return status;
     }
@@ -373,17 +340,6 @@ function Feature2Main() {
             </select>
           </div>
 
-          <div className="filter-group">
-            <label>Email:</label>
-            <input
-              type="text"
-              name="email"
-              value={filters.email}
-              onChange={handleFilterChange}
-              placeholder="Tìm theo email"
-            />
-          </div>
-
           {/* Thêm trường ngày nhận phòng */}
           <div className="filter-group">
             <label>Ngày nhận phòng:</label>
@@ -410,9 +366,10 @@ function Feature2Main() {
             <p>
               Đang hiển thị {filteredRentals.length} kết quả
               {filters.room && ` cho phòng ${filters.room}`}
-              {filters.email && ` với email chứa "${filters.email}"`}
+              {/* {filters.email && ` với email chứa "${filters.email}"`} */}
               {filters.checkInDate &&
-                ` nhận phòng vào ngày ${filters.checkInDate}`}
+                ` nhận phòng vào ngày ${filters.checkInDate}`}{" "}
+              (năm/tháng/ngày)
             </p>
           </div>
         )}

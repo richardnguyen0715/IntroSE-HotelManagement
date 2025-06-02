@@ -81,28 +81,28 @@ export const addRoom = async (roomData) => {
  * @param {Object} roomData Dữ liệu phòng cần cập nhật
  * @returns {Promise} Promise với dữ liệu phòng đã cập nhật
  */
-export const updateRoom = async (_id, roomData) => {
-  try {
-    const response = await fetch(`${API_URL}/rooms/${_id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(roomData),
-    });
+// export const updateRoom = async (_id, roomData) => {
+//   try {
+//     const response = await fetch(`${API_URL}/rooms/${_id}`, {
+//       method: "PUT",
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//       body: JSON.stringify(roomData),
+//     });
 
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.message || `Error: ${response.status}`);
-    }
+//     if (!response.ok) {
+//       const errorData = await response.json();
+//       throw new Error(errorData.message || `Error: ${response.status}`);
+//     }
 
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error(`Error updating room ${_id}:`, error);
-    throw error;
-  }
-};
+//     const data = await response.json();
+//     return data;
+//   } catch (error) {
+//     console.error(`Error updating room ${_id}:`, error);
+//     throw error;
+//   }
+// };
 
 /**
  * Xóa phòng
