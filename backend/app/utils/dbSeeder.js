@@ -5,6 +5,7 @@ const RoomType = require('../models/RoomType');
 const { Booking } = require('../models/Booking'); // Fixed import syntax
 const Invoice = require('../models/Invoice');
 const HotelPolicy = require('../models/hotelPolicy');
+const Mapper = require('../models/Mapper');
 
 // Main seeder function to call all seeders
 exports.seedDatabase = async () => {
@@ -13,11 +14,12 @@ exports.seedDatabase = async () => {
   try {
     // Seed in order of dependencies
     await this.seedHotelPolicy();
+    await this.seedMapper();
     await this.seedRoomTypes();
     const users = await this.seedUsers();
     const rooms = await this.seedRooms();
     const bookings = await this.seedBookings(users, rooms);
-    await this.seedInvoices(bookings); // Add this line back
+    await this.seedInvoices(bookings);
     // await this.seedTestBookings();
     console.log('Database seeding completed successfully');
   } catch (error) {
@@ -362,3 +364,45 @@ exports.seedTestBookings = async () => {
     return [];
   }
 };
+
+// Seed Vietnamese to English mappings
+exports.seedMapper = async () => {
+  try {
+    // Check if mappings exist
+    const count = await Mapper.countDocuments();
+
+    if (count === 0) {
+      console.log('Creating default Vietnamese-English mappings...');
+      
+      const defaultMappings = [
+        {
+          vnkey: "Số khách tối đa",
+          engkey: "maxCapacity"
+        },
+        {
+          vnkey: "Nội địa",
+          engkey: "domesticPolicy"
+        },
+        {
+          vnkey: "Nước ngoài",
+          engkey: "foreignPolicy"
+        },
+        {
+          vnkey: "Phụ thu",
+          engkey: "surchargePolicy"
+        }
+      ];
+      
+      await Mapper.insertMany(defaultMappings);
+      console.log('Default Vietnamese-English mappings initialized');
+    } else {
+      console.log(`Mappings already exist (${count} mappings found)`);
+    }
+    
+    return await Mapper.find();
+  } catch (error) {
+    console.error('Error seeding mappings:', error);
+    throw error;
+  }
+};
+
