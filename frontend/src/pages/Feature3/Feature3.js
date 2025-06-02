@@ -63,12 +63,6 @@ function Feature3() {
             alt="Vietnam Flag"
             className="flag"
           />
-          <Link to="/register">
-            <button className="button-reg">Đăng ký</button>
-          </Link>
-          <Link to="/login">
-            <button className="button-log">Đăng nhập</button>
-          </Link>
         </nav>
       </header>
 
