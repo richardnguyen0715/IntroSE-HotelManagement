@@ -92,61 +92,6 @@ export function RentalProvider({ children }) {
     }
   };
 
-  // Add a new booking
-  // const addRental = async (rentalData) => {
-  //   try {
-  //     setLoading(true);
-  //     setError(null);
-
-  //     // Validate data before sending
-  //     if (!rentalData.room) {
-  //       setError("Thiếu thông tin phòng");
-  //       setLoading(false);
-  //       return false;
-  //     }
-
-  //     if (!rentalData.email) {
-  //       setError("Thiếu thông tin email");
-  //       setLoading(false);
-  //       return false;
-  //     }
-
-  //     if (!rentalData.customers || rentalData.customers.length === 0) {
-  //       setError("Vui lòng nhập thông tin ít nhất một khách hàng");
-  //       setLoading(false);
-  //       return false;
-  //     }
-
-  //     // Convert field names to match API format
-  //     const apiData = mapRentalToBooking(rentalData);
-  //     console.log("Sending data to API:", apiData);
-
-  //     const response = await createBooking(apiData);
-  //     console.log("API response:", response);
-
-  //     if (response.success) {
-  //       // Thêm độ trễ nhỏ để đảm bảo API đã lưu dữ liệu
-  //       await new Promise((resolve) => setTimeout(resolve, 500));
-  //       await fetchRentals(); // Refresh the list
-  //       return true;
-  //     } else {
-  //       const errorMessage = response.message || "Không thể tạo phiếu thuê mới";
-  //       setError(errorMessage);
-
-  //       // Log additional debug info
-  //       if (response.rawResponse) {
-  //         console.error("Raw API response:", response.rawResponse);
-  //       }
-  //       return false;
-  //     }
-  //   } catch (err) {
-  //     console.error("Error adding rental:", err);
-  //     setError(err.message || "Có lỗi xảy ra khi tạo phiếu thuê");
-  //     return false;
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
   const addRental = async (rentalData) => {
     try {
       setLoading(true);
