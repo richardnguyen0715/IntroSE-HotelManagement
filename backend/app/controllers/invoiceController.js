@@ -50,7 +50,7 @@ exports.createInvoice = async (req, res) => {
       }, {});
       // Apply policy multiplier for each customer type dynamically
       for (const [type, count] of Object.entries(customerTypes)) {
-        const policyKey = `${type}Policy`;
+        const policyKey = type;
         if (hotelPolicy[policyKey] !== undefined) {
           policyMultiplier += (count / booking.customerList.length) * hotelPolicy[policyKey];
         } else {
