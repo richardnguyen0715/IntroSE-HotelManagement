@@ -8,7 +8,7 @@ exports.getAllMappings = async (req, res) => {
     // Transform the data to the requested format { vnkey: engkey }
     const formattedData = {};
     mappings.forEach(mapping => {
-      formattedData[mapping.vnkey] = mapping.engkey;
+      formattedData[mapping.engkey] = mapping.vnkey;
     });
     
     res.status(200).json(formattedData);
