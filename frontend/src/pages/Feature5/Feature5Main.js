@@ -90,18 +90,17 @@ function Feature5Main() {
         </div>
 
         <div className="function-grid_2">
+  
           <Link to="revenue" className="function-item">
-            <div className="report-icon">
-              <img src="/icons/Money.png" alt="Revenue Report" />
-            </div>
-            <p>BÁO CÁO DOANH THU THEO LOẠI PHÒNG</p>
+            <img src="/icons/Money.png" alt="Báo cáo doanh thu theo loại phòng" />
+            <p>BÁO CÁO DOANH THU<br></br>THEO LOẠI PHÒNG</p>
           </Link>
+
           <Link to="occupancy" className="function-item">
-            <div className="report-icon">
-              <img src="/icons/Clock.png" alt="Occupancy Report" />
-            </div>
-            <p>BÁO CÁO MẬT ĐỘ SỬ DỤNG PHÒNG</p>
+            <img src="/icons/Clock.png" alt="Báo cáo mật độ sử dụng phòng" />
+            <p>BÁO CÁO MẬT ĐỘ<br></br>SỬ DỤNG PHÒNG</p>
           </Link>
+
         </div>
       </main>
     </div>
