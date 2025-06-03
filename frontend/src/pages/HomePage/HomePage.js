@@ -29,7 +29,7 @@ function HomePage() {
       setUserInfo(JSON.parse(savedUserInfo));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [navigate]);
 
   const handleLogout = () => {
     // Xóa token và userInfo ở cả localStorage và sessionStorage

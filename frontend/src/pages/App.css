@@ -83,7 +83,7 @@ body {
   margin-top: 35px;
 }
 
-.function-grid_2 {
+.function-grid_2 { 
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px; 

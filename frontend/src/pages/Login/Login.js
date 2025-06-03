@@ -53,45 +53,41 @@ function Login() {
 
     if (validateForm()) {
       try {
-        const response = await axios.post(
-          "http://localhost:5000/api/auth/login",
-          {
-            email,
-            password,
-          }
-        );
-
+        const response = await axios.post("http://localhost:5000/api/auth/login", {
+          email,
+          password
+        });
+        
         if (response.status === 200) {
           console.log("Đăng nhập thành công");
-
+          
           // Xử lý remember me
           if (remember) {
             // Nếu remember -> lưu vào localStorage
             localStorage.setItem("token", response.data.token);
-            localStorage.setItem(
-              "userInfo",
-              JSON.stringify(response.data.user)
-            );
+            localStorage.setItem("userInfo", JSON.stringify(response.data.user));
           } else {
             // Nếu không remember -> lưu vào sessionStorage
             sessionStorage.setItem("token", response.data.token);
-            sessionStorage.setItem(
-              "userInfo",
-              JSON.stringify(response.data.user)
-            );
+            sessionStorage.setItem("userInfo", JSON.stringify(response.data.user));
           }
+          
+          navigate("/HomePage");
+        }   
+      } 
 
-          //navigate("/HomePage");
-          navigate("/");
-        }
-      } catch (error) {
+      catch (error) {
         if (error.response.status === 400) {
           console.log("");
           setMessage("Tài khoản hoặc mật khẩu không đúng");
-        } else if (error.response.status === 500) {
+        }
+        
+        else if (error.response.status === 500) {
           console.log("Lỗi từ server");
           setMessage("Lỗi từ server");
-        } else {
+        }
+
+        else {
           console.log("Lỗi không xác định");
           setMessage("Lỗi không xác định");
         }
