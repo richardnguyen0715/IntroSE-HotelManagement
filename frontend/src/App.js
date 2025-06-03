@@ -10,8 +10,6 @@ import Feature1 from './pages/Feature1/Feature1';
 import Feature2 from './pages/Feature2/Feature2';
 import Feature3 from './pages/Feature3/Feature3';
 import Feature4Main from './pages/Feature4/Feature4Main';
-import Feature4Add from './pages/Feature4/Feature4Add';
-import Feature4Edit from './pages/Feature4/Feature4Edit';
 
 // Import Feature5 components directly
 import Feature5Main from './pages/Feature5/Feature5Main';
@@ -46,8 +44,6 @@ function App() {
           <Route path="/feature2" element={<Feature2 />} />
           <Route path="/feature3" element={<Feature3 />} />
           <Route path="/feature4" element={<Feature4Main />} />
-          <Route path="/feature4/add" element={<Feature4Add />} />
-          <Route path="/feature4/edit/:id" element={<Feature4Edit />} />
 
           {/* Feature 5 Routes */}
           <Route path="/feature5" element={<Feature5Main />} />
