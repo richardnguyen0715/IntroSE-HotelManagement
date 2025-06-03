@@ -49,22 +49,21 @@ function Feature3Content() {
 
   // Tải danh sách loại phòng KHI COMPONENT MOUNT (chỉ một lần)
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchRoomTypes = async () => {
       try {
-        // Gọi API để lấy danh sách loại phòng
-        const response = await getRoomTypes();
-        if (response && response.data) {
-          setRoomTypes(response.data);
-        }
+        const data = await getRoomTypes();
+        console.log("Room types fetched:", data);
+        setRoomTypes(data);
       } catch (error) {
         console.error("Error fetching room types:", error);
       }
-
-      // Gọi API để đồng bộ trạng thái phòng
-      await syncRoomStatusWithBookings();
     };
-    fetchData();
-  }, []); // Empty dependency array to run only once
+
+    fetchRoomTypes();
+    // Chỉ đồng bộ trạng thái phòng một lần khi component mount
+    syncRoomStatusWithBookings();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSearch = () => {
     if (!searchRoom) {

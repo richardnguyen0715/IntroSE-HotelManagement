@@ -13,7 +13,6 @@ function OccupancyReportForm() {
   const [formData, setFormData] = useState({
     month: "",
     roomType: "",
-    roomCount: "",
     occupiedDays: "",
     totalAvailableDays: "",
     occupancyRate: "",
@@ -22,7 +21,6 @@ function OccupancyReportForm() {
   const [errors, setErrors] = useState({
     month: "",
     roomType: "",
-    roomCount: "",
     occupiedDays: "",
     totalAvailableDays: "",
     occupancyRate: "",

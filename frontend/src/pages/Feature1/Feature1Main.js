@@ -17,9 +17,9 @@ function Feature1Main() {
   useEffect(() => {
     const fetchRoomTypes = async () => {
       try {
-        const response = await getRoomTypes();
-        console.log("Room types fetched:", response.data);
-        setRoomTypes(response.data);
+        const data = await getRoomTypes();
+        console.log("Room types fetched:", data);
+        setRoomTypes(data);
       } catch (error) {
         console.error("Error fetching room types:", error);
       }

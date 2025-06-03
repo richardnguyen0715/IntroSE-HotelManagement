@@ -152,28 +152,30 @@ export const deleteMultipleRooms = async (ids) => {
  */
 export const getRoomTypes = async () => {
   try {
-    const response = await fetch(`${API_URL}/rooms/types`);
+    const response = await fetch(`${API_URL}/roomTypes`);
 
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
 
     const data = await response.json();
-    return data; // Returns the list of room types
+    return data; // Trả về danh sách room types
   } catch (error) {
     console.error("Error getting room types:", error);
     throw error;
   }
 };
+
 export const getRoomPrice = (roomType, roomTypes) => {
-  if (!roomTypes || !Array.isArray(roomTypes) || roomTypes.length === 0) {
+  if (!Array.isArray(roomTypes) || roomTypes.length === 0) {
     console.warn("Room types data is not available or invalid:", roomTypes);
     return 0;
   }
 
   const roomTypeData = roomTypes.find((type) => type.type === roomType);
+
   if (!roomTypeData) {
-    console.warn(`Room type "${roomType}" not found in roomTypes:`, roomTypes);
+    console.warn(`Room type "${roomType}" not found:`, roomTypes);
     return 0;
   }
 
