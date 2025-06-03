@@ -210,53 +210,53 @@ const Feature4Main = () => {
   };
 
   // Render each bill table
-  const renderBillTable = (bill) => {
+    const renderBillTable = (bill) => {
     const isSelected = selectedBills.some(b => b._id === bill._id);
-    return (
-      <div
-        className={`bill-section ${isSelected ? 'selected' : ''}`}
+        return (
+            <div
+                className={`bill-section ${isSelected ? 'selected' : ''}`}
         key={bill._id}
         onClick={(e) => {
           e.stopPropagation();
           handleBillSelection(bill);
         }}
-      >
-        <div className={`bill-status ${bill.status === 'paid' ? 'paid' : 'unpaid'}`}>
-          <div className="status-header">
-            <h3>Trạng thái</h3>
+            >
+                <div className={`bill-status ${bill.status === 'paid' ? 'paid' : 'unpaid'}`}>
+                    <div className="status-header">
+                        <h3>Trạng thái</h3>
             <span className="status-text">{bill.status === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}</span>
-          </div>
-        </div>
-        <div className="bill-info">
-          <div className="customer-info">
-            <div className="info-row">
-              <span className="label">Khách hàng/Cơ quan:</span>
-              <span className="value">{bill.customer}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Địa chỉ:</span>
-              <span className="value">{bill.address}</span>
-            </div>
-            <div className="info-row">
-              <span className="label">Trị giá:</span>
+                    </div>
+                </div>
+                <div className="bill-info">
+                    <div className="customer-info">
+                        <div className="info-row">
+                            <span className="label">Khách hàng/Cơ quan:</span>
+                            <span className="value">{bill.customer}</span>
+                        </div>
+                        <div className="info-row">
+                            <span className="label">Địa chỉ:</span>
+                            <span className="value">{bill.address}</span>
+                        </div>
+                        <div className="info-row">
+                            <span className="label">Trị giá:</span>
               <span className="value">{(bill.totalValue ?? 0).toLocaleString('vi-VN')} VND</span>
             </div>
             <div className="info-row">
               <span className="label">Ngày tạo:</span>
               <span className="value">{new Date(bill.issueDate).toLocaleDateString('vi-VN')}</span>
-            </div>
-          </div>
-          <table className="bill-table">
-            <thead>
-              <tr>
-                <th>STT</th>
-                <th>Phòng</th>
-                <th>Số ngày thuê</th>
-                <th>Đơn giá</th>
-                <th>Thành tiền</th>
-              </tr>
-            </thead>
-            <tbody>
+                        </div>
+                    </div>
+                    <table className="bill-table">
+                        <thead>
+                            <tr>
+                                <th>STT</th>
+                                <th>Phòng</th>
+                                <th>Số ngày thuê</th>
+                                <th>Đơn giá</th>
+                                <th>Thành tiền</th>
+                            </tr>
+                        </thead>
+                        <tbody>
               {(bill.rentals ?? []).map((rental, idx) => (
                 <tr key={rental._id}>
                   <td>{idx + 1}</td>
@@ -264,26 +264,26 @@ const Feature4Main = () => {
                   <td>{rental.numberOfDays || 0}</td>
                   <td>{rental.pricePerDay ? rental.pricePerDay.toLocaleString('vi-VN') : '0'}</td>
                   <td>{(rental.total ?? 0).toLocaleString('vi-VN')}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    );
-  };
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        );
+    };
 
-  return (
-    <div className="app">
-      <header className="app-header">
-        <div className="header-left">
+    return (
+        <div className="app">
+            <header className="app-header">
+                <div className="header-left">
           <Link to="/">
-            <h1>HotelManager</h1>
-          </Link>
-        </div>
-        <nav className="header-right">
-          <Link to="/about">Về chúng tôi</Link>
-          <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag" />
+                        <h1>HotelManager</h1>
+                    </Link>
+                </div>
+                <nav className="header-right">
+                    <Link to="/about">Về chúng tôi</Link>
+                    <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag" />
           <div className="user-menu">
             <div
               className="user-avatar"
@@ -326,12 +326,12 @@ const Feature4Main = () => {
             )}
           </div>
 
-        </nav>
-      </header>
+                </nav>
+            </header>
 
-      <main className="main-content">
-        <div className="header-container">
-          <h2>Lập Hóa đơn thanh toán</h2>
+            <main className="main-content">
+                <div className="header-container">
+                    <h2>Lập Hóa đơn thanh toán</h2>
           <Link to="/" className="back-button"><img src="/icons/Navigate.png" alt="Back" /></Link>
         </div>
 
@@ -405,21 +405,21 @@ const Feature4Main = () => {
               onChange={e => setFilterEndDate(e.target.value)}
             />
           </div>
-        </div>
+                </div>
 
         <div className="bills-container" onClick={() => setSelectedBills([])}>
-          <h3>Danh sách các hóa đơn thanh toán</h3>
+                    <h3>Danh sách các hóa đơn thanh toán</h3>
           {loading && <p>Đang tải hóa đơn...</p>}
           {error && <p className="error">{error}</p>}
           {!loading && !error && filteredBills.map(renderBillTable)}
 
-          <div className="actions-container">
+                    <div className="actions-container">
             <button className="action-button add" onClick={() => setShowAddPopup(true)}>Thêm</button>
             <button className="action-button pay" disabled={selectedBills.length === 0} onClick={handlePay}>Thanh toán</button>
             <button className="action-button delete" disabled={selectedBills.length === 0} onClick={handleDelete}>Xóa</button>
-          </div>
-        </div>
-      </main>
+                    </div>
+                </div>
+            </main>
 
       {showAddPopup && (
       <AddForm
@@ -431,8 +431,8 @@ const Feature4Main = () => {
         initialRooms={selectedRoomsFromFeature2} // truyền mảng số phòng cho AddForm
       />
     )}
-    </div>
-  );
+        </div>
+    );
 };
 
-export default Feature4Main;
+export default Feature4Main; 
