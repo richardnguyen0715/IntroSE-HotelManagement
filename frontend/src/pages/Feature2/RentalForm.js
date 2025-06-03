@@ -211,7 +211,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null); // Xóa thông báo lỗi cũ
+    setError(null);
 
     // Kiểm tra phòng đã được chọn chưa
     if (!formData.room) {
@@ -230,21 +230,13 @@ function RentalForm({ rental, onClose, onSuccess }) {
     }
 
     try {
-      // Đảm bảo chỉ gửi khách hàng có thông tin hợp lệ và giữ lại room
+      // Đảm bảo dữ liệu phù hợp với API
       const finalData = {
         ...formData,
-        room: formData.room.trim(), // Đảm bảo không có khoảng trắng
+        room: formData.room.trim(), // roomNumber string
         customers: validCustomers,
       };
 
-      // Kiểm tra lại một lần nữa
-      if (!finalData.room) {
-        setError("Không thể lưu khi thiếu thông tin phòng");
-        return;
-      }
-
-      // Logging để debug
-      console.log("Số lượng khách gửi đi:", validCustomers.length);
       console.log("Dữ liệu gửi đi:", finalData);
 
       let result;

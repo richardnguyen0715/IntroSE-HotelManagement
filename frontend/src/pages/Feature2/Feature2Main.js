@@ -163,20 +163,34 @@ function Feature2Main() {
     setFilteredRentals(result);
   };
 
-  // Reset bộ lọc
+  const applyFilters = () => {
+    setIsFiltering(true);
+
+    // Chuẩn bị API filters
+    const apiFilters = {};
+
+    // Chuyển đổi filters UI sang API filters
+    if (filters.room) {
+      apiFilters.roomNumber = filters.room;
+    }
+
+    if (filters.checkInDate) {
+      // Chuyển đổi từ định dạng input date (YYYY-MM-DD) sang định dạng API
+      apiFilters.startDate = filters.checkInDate;
+    }
+
+    // Gọi API với bộ lọc
+    fetchRentals(apiFilters);
+  };
+
+  // Cập nhật hàm resetFilters
   const resetFilters = () => {
     setFilters({
       room: "",
       checkInDate: "",
     });
     setIsFiltering(false);
-    setFilteredRentals(rentals);
-  };
-
-  // Apply filters
-  const applyFilters = () => {
-    setIsFiltering(true);
-    filterRentals();
+    fetchRentals(); // Gọi API không có filter
   };
 
   // Kiểm tra dữ liệu từ Feature1 khi component mount

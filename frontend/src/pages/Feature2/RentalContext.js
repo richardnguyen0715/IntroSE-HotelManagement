@@ -37,10 +37,11 @@ export function RentalProvider({ children }) {
   }, []);
 
   // Fetch all rentals from the API
-  const fetchRentals = async () => {
+  // Sửa hàm fetchRentals để hỗ trợ bộ lọc
+  const fetchRentals = async (filters = {}) => {
     setLoading(true);
     try {
-      const data = await getBookings();
+      const data = await getBookings(filters);
       setRentals(data);
       setError(null);
     } catch (err) {

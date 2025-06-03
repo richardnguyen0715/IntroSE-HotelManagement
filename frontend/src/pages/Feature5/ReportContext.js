@@ -16,7 +16,7 @@ export function ReportProvider({ children }) {
       setError(null);
 
       const response = await getRevenueReports(year, month);
-
+      console.log("Response data:", response);
       if (response.success) {
         setRevenueReport(response.data);
         return response.data;
@@ -39,7 +39,7 @@ export function ReportProvider({ children }) {
       setError(null);
 
       const response = await getOccupancyReports(year, month);
-
+      console.log("Response data:", response);
       if (response.success) {
         setOccupancyReport(response.data);
         return response.data;
