@@ -28,16 +28,6 @@ function RevenueReportForm() {
     year: "",
   });
 
-    useEffect(() => {
-        if (isEditing && editData) {
-            setFormData({
-                month: editData.month,
-                roomType: editData.roomType,
-                revenue: editData.revenue,
-                rentDays: editData.rentDays,
-            });
-        }
-    }, [isEditing, editData]);
   useEffect(() => {
     if (isEditing && editData) {
       setFormData({
@@ -94,15 +84,6 @@ function RevenueReportForm() {
       [name]: value,
     }));
 
-        setErrors(prev => ({
-            ...prev,
-            [name]: validateField(name, value)
-        }));
-    };
-
-    const handleGoBack = () => {
-        navigate(-1);
-    }
     setErrors((prev) => ({
       ...prev,
       [name]: validateField(name, value),
@@ -139,15 +120,6 @@ function RevenueReportForm() {
     }
   };
 
-    return (
-        <div className="app">
-            {/* Header */}
-            <header className="app-header">
-                <div className="header-left">
-                    <Link to="/HomePage">
-                        <h1>HotelManager</h1>
-                    </Link>
-                </div>
   return (
     <div className="app">
       {/* Header */}
@@ -166,14 +138,6 @@ function RevenueReportForm() {
         </nav>
       </header>
 
-            {/* Main Content */}
-            <main className="main-content">
-                <div className="header-container">
-                    <h2>{isEditing ? 'Cập nhật báo cáo' : 'Tạo báo cáo'}</h2>
-                    <Link to="/HomePage" className="back-button">
-                        <img src="/icons/Navigate.png" alt="Back" />
-                    </Link>
-                </div>
       {/* Main Content */}
       <main className="main-content">
         <div className="header-container">
