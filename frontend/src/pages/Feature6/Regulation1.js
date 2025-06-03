@@ -8,34 +8,48 @@ const Regulation1 = () => {
   const [selectedRoomTypes, setSelectedRoomTypes] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [formData, setFormData] = useState({
     id: null,
     type: "",
     price: 0,
   });
-  const navigate = useNavigate();
+
+  const navigate = useNavigate(); 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
+
   useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    const userInfo =
-      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
-
-    if (token && userInfo) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
+    // Kiểm tra token theo thứ tự ưu tiên
+    let token = localStorage.getItem("token");
+    let savedUserInfo = localStorage.getItem("userInfo");
+  
+    // Nếu không có trong localStorage, kiểm tra sessionStorage
+    if (!token) {
+      token = sessionStorage.getItem("token");
+      savedUserInfo = sessionStorage.getItem("userInfo");
     }
+  
+    if (!token) {
+      // Nếu không có token ở cả 2 nơi -> chuyển về login
+      navigate("/login", { replace: true });
+      return;
+    }
+  
+    if (savedUserInfo) {
+      setUserInfo(JSON.parse(savedUserInfo));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
-
+  
   const handleLogout = () => {
+    // Xóa token và userInfo ở cả localStorage và sessionStorage
     localStorage.removeItem("token");
     localStorage.removeItem("userInfo");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("userInfo");
-    setIsLoggedIn(false);
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
+
   // Xử lý chọn/bỏ chọn loại phòng
   const handleRoomTypeSelection = (roomTypeId) => {
     if (selectedRoomTypes.includes(roomTypeId)) {
@@ -129,33 +143,39 @@ const Regulation1 = () => {
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <Link to="/">
-            <h1>HotelManager</h1>
-          </Link>
+          <h1>HotelManager</h1>
         </div>
 
-        <nav className="header-right">
+        <div className="header-right">
           <Link to="/about">Về chúng tôi</Link>
           <img
             src="/icons/VietnamFlag.png"
             alt="Vietnam Flag"
             className="flag"
           />
-          {!isLoggedIn ? (
-            <>
-              <Link to="/register">
-                <button className="button-reg">Đăng ký</button>
-              </Link>
-              <Link to="/login">
-                <button className="button-log">Đăng nhập</button>
-              </Link>
-            </>
-          ) : (
-            <button className="button-log" onClick={handleLogout}>
-              Đăng xuất
-            </button>
-          )}
-        </nav>
+          <div className="user-menu">
+            <div
+              className="user-avatar"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <img src="/icons/User.png" alt="User" />
+            </div>
+
+            {isDropdownOpen && (
+              <div className="user-dropdown">
+                <div className="user-info">
+                  <h3>Thông tin người dùng</h3>
+                  <p>Họ tên: {userInfo?.name}</p>
+                  <p>Email: {userInfo?.email}</p>
+                  <p>Vai trò: {userInfo?.role}</p>
+                </div>
+                <button className="logout-button" onClick={handleLogout}>
+                  Đăng xuất
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       <main className="main-content">

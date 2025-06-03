@@ -35,10 +35,6 @@ function RevenueReportForm() {
         }
     }, [isEditing, editData]);
 
-    const handleGoBack = () => {
-        navigate(-1);
-    };
-
     const validateField = (name, value) => {
         switch (name) {
             case 'month':
@@ -78,6 +74,10 @@ function RevenueReportForm() {
         }));
     };
 
+    const handleGoBack = () => {
+        navigate(-1);
+    }
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -113,7 +113,9 @@ function RevenueReportForm() {
             {/* Header */}
             <header className="app-header">
                 <div className="header-left">
-                    <h1>HotelManager</h1>
+                    <Link to="/HomePage">
+                        <h1>HotelManager</h1>
+                    </Link>
                 </div>
 
                 <nav className="header-right">
@@ -126,9 +128,9 @@ function RevenueReportForm() {
             <main className="main-content">
                 <div className="header-container">
                     <h2>{isEditing ? 'Cập nhật báo cáo' : 'Tạo báo cáo'}</h2>
-                    <button onClick={handleGoBack} className="back-button">
+                    <Link to="/HomePage" className="back-button">
                         <img src="/icons/Navigate.png" alt="Back" />
-                    </button>
+                    </Link>
                 </div>
 
                 <div className="report-form">

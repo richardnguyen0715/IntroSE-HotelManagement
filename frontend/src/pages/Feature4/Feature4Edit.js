@@ -1,12 +1,47 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams, useLocation } from 'react-router-dom';
 import './Feature4.css';
+import "../App.css";
 
 const Feature4Edit = ({ setBills }) => {
     const navigate = useNavigate();
     const { id } = useParams();
     const location = useLocation();
     const { bill } = location.state || {};
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [userInfo, setUserInfo] = useState(null);
+
+    useEffect(() => {
+        // Kiểm tra token theo thứ tự ưu tiên
+        let token = localStorage.getItem("token");
+        let savedUserInfo = localStorage.getItem("userInfo");
+      
+        // Nếu không có trong localStorage, kiểm tra sessionStorage
+        if (!token) {
+          token = sessionStorage.getItem("token");
+          savedUserInfo = sessionStorage.getItem("userInfo");
+        }
+      
+        if (!token) {
+          // Nếu không có token ở cả 2 nơi -> chuyển về login
+          navigate("/login", { replace: true });
+          return;
+        }
+      
+        if (savedUserInfo) {
+          setUserInfo(JSON.parse(savedUserInfo));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [navigate]);
+    
+    const handleLogout = () => {
+        // Xóa token và userInfo ở cả localStorage và sessionStorage
+        localStorage.removeItem("token");
+        localStorage.removeItem("userInfo");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("userInfo");
+        navigate("/login", { replace: true });
+    };
 
     const [formData, setFormData] = useState({
         customer: '',
@@ -78,12 +113,39 @@ const Feature4Edit = ({ setBills }) => {
         <div className="app">
             <header className="app-header">
                 <div className="header-left">
-                    <Link to="/"><h1>HotelManager</h1></Link>
+                    <h1>HotelManager</h1>
                 </div>
-                <nav className="header-right">
+
+                <div className="header-right">
                     <Link to="/about">Về chúng tôi</Link>
-                    <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag" />
-                </nav>
+                    <img
+                        src="/icons/VietnamFlag.png"
+                        alt="Vietnam Flag"
+                        className="flag"
+                    />
+                    <div className="user-menu">
+                        <div
+                            className="user-avatar"
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        >
+                            <img src="/icons/User.png" alt="User" />
+                        </div>
+
+                        {isDropdownOpen && (
+                            <div className="user-dropdown">
+                                <div className="user-info">
+                                    <h3>Thông tin người dùng</h3>
+                                    <p>Họ tên: {userInfo?.name}</p>
+                                    <p>Email: {userInfo?.email}</p>
+                                    <p>Vai trò: {userInfo?.role}</p>
+                                </div>
+                                <button className="logout-button" onClick={handleLogout}>
+                                    Đăng xuất
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </header>
 
             <main className="main-content">

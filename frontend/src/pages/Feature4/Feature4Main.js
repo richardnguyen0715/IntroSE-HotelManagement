@@ -1,8 +1,13 @@
-import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import './Feature4.css';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import "../App.css";
+import "./Feature4.css";
 
-const Feature4Main = () => {
+function Feature4Main() {
+    const navigate = useNavigate();
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [userInfo, setUserInfo] = useState(null);
+
     const [bills, setBills] = useState([
         {
             id: 1,
@@ -29,6 +34,38 @@ const Feature4Main = () => {
     ]);
 
     const [selectedBill, setSelectedBill] = useState(null);
+
+    useEffect(() => {
+        // Kiểm tra token theo thứ tự ưu tiên
+        let token = localStorage.getItem("token");
+        let savedUserInfo = localStorage.getItem("userInfo");
+    
+        // Nếu không có trong localStorage, kiểm tra sessionStorage
+        if (!token) {
+            token = sessionStorage.getItem("token");
+            savedUserInfo = sessionStorage.getItem("userInfo");
+        }
+    
+        if (!token) {
+            // Nếu không có token ở cả 2 nơi -> chuyển về login
+            navigate("/login", { replace: true });
+            return;
+        }
+    
+        if (savedUserInfo) {
+            setUserInfo(JSON.parse(savedUserInfo));
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [navigate]);
+    
+    const handleLogout = () => {
+        // Xóa token và userInfo ở cả localStorage và sessionStorage
+        localStorage.removeItem("token");
+        localStorage.removeItem("userInfo");
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("userInfo");
+        navigate("/login", { replace: true });
+    };
 
     // Xử lý xóa hóa đơn
     const handleDelete = () => {
@@ -103,26 +140,49 @@ const Feature4Main = () => {
         );
     };
 
-
     return (
         <div className="app">
             <header className="app-header">
                 <div className="header-left">
-                    <Link to="/">
-                        <h1>HotelManager</h1>
-                    </Link>
+                    <h1>HotelManager</h1>
                 </div>
 
-                <nav className="header-right">
+                <div className="header-right">
                     <Link to="/about">Về chúng tôi</Link>
-                    <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag" />
-                </nav>
+                    <img
+                        src="/icons/VietnamFlag.png"
+                        alt="Vietnam Flag"
+                        className="flag"
+                    />
+                    <div className="user-menu">
+                        <div
+                            className="user-avatar"
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        >
+                            <img src="/icons/User.png" alt="User" />
+                        </div>
+
+                        {isDropdownOpen && (
+                            <div className="user-dropdown">
+                                <div className="user-info">
+                                    <h3>Thông tin người dùng</h3>
+                                    <p>Họ tên: {userInfo?.name}</p>
+                                    <p>Email: {userInfo?.email}</p>
+                                    <p>Vai trò: {userInfo?.role}</p>
+                                </div>
+                                <button className="logout-button" onClick={handleLogout}>
+                                    Đăng xuất
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                </div>
             </header>
 
             <main className="main-content">
                 <div className="header-container">
-                    <h2>Lập Hóa đơn thanh toán</h2>
-                    <Link to="/" className="back-button">
+                    <h2>Lập hóa đơn</h2>
+                    <Link to="/HomePage" className="back-button">
                         <img src="/icons/Navigate.png" alt="Back" />
                     </Link>
                 </div>
@@ -160,6 +220,6 @@ const Feature4Main = () => {
             </main>
         </div>
     );
-};
+}
 
 export default Feature4Main; 

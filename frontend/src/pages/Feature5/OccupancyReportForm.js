@@ -126,7 +126,9 @@ function OccupancyReportForm() {
       {/* Header */}
       <header className="app-header">
         <div className="header-left">
-          <h1>HotelManager</h1>
+          <Link to="/HomePage">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
 
         <nav className="header-right">

@@ -5,90 +5,103 @@ import "../App.css";
 import "./Feature5.css";
 
 function Feature5Main() {
-  const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    const userInfo =
-      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+  const navigate = useNavigate(); 
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [userInfo, setUserInfo] = useState(null);
 
-    if (token && userInfo) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
+  useEffect(() => {
+    // Kiểm tra token theo thứ tự ưu tiên
+    let token = localStorage.getItem("token");
+    let savedUserInfo = localStorage.getItem("userInfo");
+  
+    // Nếu không có trong localStorage, kiểm tra sessionStorage
+    if (!token) {
+      token = sessionStorage.getItem("token");
+      savedUserInfo = sessionStorage.getItem("userInfo");
     }
-  }, []);
-  const handleGoBack = () => {
-    // Thay vì navigate(-1), dùng đường dẫn rõ ràng đến trang chủ
-    navigate("/");
+  
+    if (!token) {
+      // Nếu không có token ở cả 2 nơi -> chuyển về login
+      navigate("/login", { replace: true });
+      return;
+    }
+  
+    if (savedUserInfo) {
+      setUserInfo(JSON.parse(savedUserInfo));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [navigate]);
+  
+  const handleLogout = () => {
+    // Xóa token và userInfo ở cả localStorage và sessionStorage
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userInfo");
+    navigate("/login", { replace: true });
   };
 
   return (
     <div className="app">
-      {/* Header */}
-      <header className="app-header">
+     <header className="app-header">
         <div className="header-left">
           <h1>HotelManager</h1>
         </div>
 
-        <nav className="header-right">
+        <div className="header-right">
           <Link to="/about">Về chúng tôi</Link>
           <img
             src="/icons/VietnamFlag.png"
             alt="Vietnam Flag"
             className="flag"
           />
-          {!isLoggedIn ? (
-            <>
-              <Link to="/register">
-                <button className="button-reg">Đăng ký</button>
-              </Link>
-              <Link to="/login">
-                <button className="button-log">Đăng nhập</button>
-              </Link>
-            </>
-          ) : (
-            <button
-              className="button-log"
-              onClick={() => {
-                localStorage.removeItem("token");
-                localStorage.removeItem("userInfo");
-                setIsLoggedIn(false);
-                navigate("/login");
-              }}
+          <div className="user-menu">
+            <div
+              className="user-avatar"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
-              Đăng xuất
-            </button>
-          )}
-        </nav>
+              <img src="/icons/User.png" alt="User" />
+            </div>
+
+            {isDropdownOpen && (
+              <div className="user-dropdown">
+                <div className="user-info">
+                  <h3>Thông tin người dùng</h3>
+                  <p>Họ tên: {userInfo?.name}</p>
+                  <p>Email: {userInfo?.email}</p>
+                  <p>Vai trò: {userInfo?.role}</p>
+                </div>
+                <button className="logout-button" onClick={handleLogout}>
+                  Đăng xuất
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       {/* Main Content */}
       <main className="main-content">
         <div className="header-container">
           <h2>Lập Báo cáo tháng</h2>
-          <button onClick={handleGoBack} className="back-button">
+          <Link to="/HomePage" className="back-button">
             <img src="/icons/Navigate.png" alt="Back" />
-          </button>
+          </Link>
         </div>
 
-        <div className="reports-container">
-          <div className="report-types">
-            <Link to="/feature5/revenue" className="report-type">
-              <div className="report-icon">
-                <img src="/icons/Money.png" alt="Revenue Report" />
-              </div>
-              <p>BÁO CÁO DOANH THU THEO LOẠI PHÒNG</p>
-            </Link>
-
-            <Link to="/feature5/occupancy" className="report-type">
-              <div className="report-icon">
-                <img src="/icons/Clock.png" alt="Occupancy Report" />
-              </div>
-              <p>BÁO CÁO MẬT ĐỘ SỬ DỤNG PHÒNG</p>
-            </Link>
-          </div>
+        <div className="function-grid_2">
+          <Link to="revenue" className="function-item">
+            <div className="report-icon">
+              <img src="/icons/Money.png" alt="Revenue Report" />
+            </div>
+            <p>BÁO CÁO DOANH THU THEO LOẠI PHÒNG</p>
+          </Link>
+          <Link to="occupancy" className="function-item">
+            <div className="report-icon">
+              <img src="/icons/Clock.png" alt="Occupancy Report" />
+            </div>
+            <p>BÁO CÁO MẬT ĐỘ SỬ DỤNG PHÒNG</p>
+          </Link>
         </div>
       </main>
     </div>

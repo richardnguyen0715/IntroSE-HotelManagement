@@ -80,7 +80,9 @@ function RevenueReport() {
       {/* Header */}
       <header className="app-header">
         <div className="header-left">
-          <h1>HotelManager</h1>
+          <Link to="/HomePage">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
 
         <nav className="header-right">
@@ -110,9 +112,9 @@ function RevenueReport() {
       <main className="main-content">
         <div className="header-container">
           <h2>Báo cáo doanh thu theo loại phòng</h2>
-          <button onClick={handleGoBack} className="back-button">
+          <Link to="/HomePage" className="back-button">
             <img src="/icons/Navigate.png" alt="Back" />
-          </button>
+          </Link>
         </div>
 
         <div className="filter-container">
