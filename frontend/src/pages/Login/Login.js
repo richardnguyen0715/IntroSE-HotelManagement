@@ -127,7 +127,7 @@ function Login() {
                     setMessage("");
                   }}
                 />
-                <span className="error-message">
+                <span className="error-message_log">
                   {errors.email || "\u00A0"}
                 </span>
               </div>
@@ -148,7 +148,7 @@ function Login() {
                     setMessage("");
                   }}
                 />
-                <span className="error-message">
+                <span className="error-message_log">
                   {errors.password || "\u00A0"}
                 </span>
               </div>
@@ -170,7 +170,7 @@ function Login() {
               <button type="submit" className="login-button">
                 Đăng nhập
               </button>
-              <span className="error-message">{message || "\u00A0"}</span>
+              <span className="error-message_log">{message || "\u00A0"}</span>
             </form>
 
             <div className="forgot-password">

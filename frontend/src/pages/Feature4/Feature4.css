@@ -1,43 +1,8 @@
-.flag {
-    width: 24px;
-    height: 16px;
-}
-
-.button-reg {
-    background-color: #E8F5E3;
-    color: #4B6F44;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.button-log {
-    background-color: #4B6F44;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-
 .header-container {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 2rem;
-}
-
-.back-button {
-    background: none;
-    border: none;
-    cursor: pointer;
-}
-
-.back-button img {
-    width: 24px;
-    height: 24px;
 }
 
 .bills-container {
