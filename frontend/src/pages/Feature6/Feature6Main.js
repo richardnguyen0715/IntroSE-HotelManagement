@@ -184,22 +184,19 @@ const Feature6Main = () => {
         </div>
 
         <div className="function-grid">
-          <Link to="regulation1" className="function-item">
-            <div className="card-icon">
-              <img src="/icons/Pen.png" alt="Quy định 1" />
-            </div>
+        <Link to="regulation1" className="function-item">
+            <img src="/icons/Pen.png" alt="Thay đổi quy định 1" />
+            <p>THAY ĐỔI QUY ĐỊNH 1</p>
           </Link>
 
           <Link to="regulation2" className="function-item">
-            <div className="card-icon">
-              <img src="/icons/Pen.png" alt="Quy định 2" />
-            </div>
+            <img src="/icons/Pen.png" alt="Thay đổi quy định 2" />
+            <p>THAY ĐỔI QUY ĐỊNH 2</p>
           </Link>
 
           <Link to="regulation4" className="function-item">
-            <div className="card-icon">
-              <img src="/icons/Pen.png" alt="Quy định 4" />
-            </div>
+            <img src="/icons/Pen.png" alt="Thay đổi quy định 4" />
+            <p>THAY ĐỔI QUY ĐỊNH 4</p>
           </Link>
         </div>
       </main>
