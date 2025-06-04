@@ -46,7 +46,7 @@ export function RegulationProvider({ children }) {
           setPolicyId(policyData._id);
 
           // Cập nhật state với dữ liệu từ backend
-          setMaxCustomers(policyData.maxUser);
+          setMaxCustomers(policyData.maxCapacity || 5);
           setSurchargeRate(policyData.surchargePolicy);
 
           // Cập nhật loại khách hàng

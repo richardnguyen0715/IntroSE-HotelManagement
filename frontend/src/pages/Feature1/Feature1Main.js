@@ -139,6 +139,7 @@ function Feature1Main() {
               <th>Phòng</th>
               <th>Loại phòng</th>
               <th>Đơn giá</th>
+              <th>Số người</th>
               <th>Ghi chú</th>
             </tr>
           </thead>
@@ -156,6 +157,7 @@ function Feature1Main() {
                 <td>{room.roomNumber}</td>
                 <td>{room.type}</td>
                 <td>{formatPrice(room.price, room.type)}</td>
+                <td>{room.capacity}</td>
                 <td>{room.status}</td>
               </tr>
             ))}

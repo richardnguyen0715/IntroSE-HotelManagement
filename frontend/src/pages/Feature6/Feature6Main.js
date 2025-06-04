@@ -1,66 +1,39 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useRegulation } from "./RegulationContext";
 import "./Feature6.css";
 
 const Feature6Main = () => {
-  const { loading, error } = useRegulation();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // State lưu trữ thông tin người dùng và trạng thái hiển thị dropdown
+  const [userInfo, setUserInfo] = useState(null);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
   const navigate = useNavigate();
+
+  // Kiểm tra token và thông tin người dùng khi component được mount
   useEffect(() => {
     const token =
       localStorage.getItem("token") || sessionStorage.getItem("token");
-    const userInfo =
+    const savedUserInfo =
       localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
 
-    if (token && userInfo) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
     }
-  }, []);
 
+    if (savedUserInfo) {
+      setUserInfo(JSON.parse(savedUserInfo));
+    }
+  }, [navigate]);
+
+  // Hàm xử lý đăng xuất
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userInfo");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("userInfo");
-    setIsLoggedIn(false);
+    setUserInfo(null);
     navigate("/login");
   };
-  if (loading) {
-    return (
-      <div className="app">
-        <header className="app-header">
-          <div className="header-left">
-            <Link to="/">
-              <h1>HotelManager</h1>
-            </Link>
-          </div>
-        </header>
-        <main className="main-content">
-          <div className="loading">Đang tải dữ liệu quy định...</div>
-        </main>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="app">
-        <header className="app-header">
-          <div className="header-left">
-            <Link to="/">
-              <h1>HotelManager</h1>
-            </Link>
-          </div>
-        </header>
-        <main className="main-content">
-          <div className="error">Lỗi: {error}</div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="app">
@@ -78,20 +51,29 @@ const Feature6Main = () => {
             alt="Vietnam Flag"
             className="flag"
           />
-          {!isLoggedIn ? (
-            <>
-              <Link to="/register">
-                <button className="button-reg">Đăng ký</button>
-              </Link>
-              <Link to="/login">
-                <button className="button-log">Đăng nhập</button>
-              </Link>
-            </>
-          ) : (
-            <button className="button-log" onClick={handleLogout}>
-              Đăng xuất
-            </button>
-          )}
+
+          <div className="user-menu">
+            <div
+              className="user-avatar"
+              onClick={() => setShowUserDropdown((prev) => !prev)}
+            >
+              <img src="/icons/User.png" alt="User" />
+            </div>
+
+            {showUserDropdown && userInfo && (
+              <div className="user-dropdown">
+                <div className="user-info">
+                  <h3>Thông tin người dùng</h3>
+                  <p>Họ tên: {userInfo.name}</p>
+                  <p>Email: {userInfo.email}</p>
+                  <p>Vai trò: {userInfo.role}</p>
+                </div>
+                <button className="logout-button" onClick={handleLogout}>
+                  Đăng xuất
+                </button>
+              </div>
+            )}
+          </div>
         </nav>
       </header>
 
@@ -103,43 +85,21 @@ const Feature6Main = () => {
           </Link>
         </div>
 
-        <div className="regulations-container">
-          <div className="regulations-grid">
-            <Link to="/feature6/regulation1" className="regulation-card">
-              <div className="card-icon">
-                <img src="/icons/pen-rule.png" alt="Quy định 1" />
-              </div>
-              <div className="card-content">
-                <h3>Quy định về các loại phòng</h3>
-                <p>
-                  Thiết lập và quản lý các loại phòng khác nhau trong khách sạn
-                </p>
-              </div>
-            </Link>
+        <div className="function-grid">
+          <Link to="regulation1" className="function-item">
+            <img src="/icons/Pen.png" alt="Thay đổi quy định 1" />
+            <p>THAY ĐỔI QUY ĐỊNH 1</p>
+          </Link>
 
-            <Link to="/feature6/regulation2" className="regulation-card">
-              <div className="card-icon">
-                <img src="/icons/pen-rule.png" alt="Quy định 2" />
-              </div>
-              <div className="card-content">
-                <h3>Quy định về số lượng khách</h3>
-                <p>Quy định số lượng khách tối đa cho mỗi loại phòng</p>
-              </div>
-            </Link>
+          <Link to="regulation2" className="function-item">
+            <img src="/icons/Pen.png" alt="Thay đổi quy định 2" />
+            <p>THAY ĐỔI QUY ĐỊNH 2</p>
+          </Link>
 
-            <Link to="/feature6/regulation4" className="regulation-card">
-              <div className="card-icon">
-                <img src="/icons/pen-rule.png" alt="Quy định 4" />
-              </div>
-              <div className="card-content">
-                <h3>Quy định về phụ thu</h3>
-                <p>
-                  Thiết lập các quy định về phụ thu theo số lượng khách và khách
-                  nước ngoài
-                </p>
-              </div>
-            </Link>
-          </div>
+          <Link to="regulation4" className="function-item">
+            <img src="/icons/Pen.png" alt="Thay đổi quy định 4" />
+            <p>THAY ĐỔI QUY ĐỊNH 4</p>
+          </Link>
         </div>
       </main>
     </div>
