@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 
+const API_URL = 'http://localhost:5000/api';
+
 const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
   const [formData, setFormData] = useState({
     customer: '',
@@ -49,11 +51,20 @@ const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
     };
 
     try {
-      const response = await fetch('http://localhost:5000/api/invoices', {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (!token) {
+        setErrorMsg("Bạn cần đăng nhập để tiếp tục");
+        return;
+      }
+
+      const response = await fetch(`${API_URL}/invoices`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Thêm token vào headers
+        },
         body: JSON.stringify(payload),
-      });
+      }); 
 
       if (!response.ok) {
         const errorData = await response.json();

@@ -1,18 +1,32 @@
 import React, { useState, useEffect } from "react";
 import { useRentals } from "./RentalContext";
 import { useRooms } from "../Feature1/RoomContext";
-import { useRegulation } from "../Feature6/RegulationContext";
 import { formatDateForUI } from "../../services/bookings";
 
 function RentalForm({ rental, onClose, onSuccess }) {
   const { addRental, updateRental } = useRentals();
   const { rooms, syncRoomStatusWithBookings } = useRooms();
-  const { maxCustomers } = useRegulation();
   const [formData, setFormData] = useState(getInitialFormData());
   const [availableRooms, setAvailableRooms] = useState([]);
-  //const [isLoaded, setIsLoaded] = useState(false);
   const [error, setError] = useState(null); // Thêm state để xử lý lỗi
   const isEditMode = rental && !rental.isNew; // Biến để kiểm tra có phải đang edit không
+
+  const [maxCustomers, setMaxCustomers] = useState(4);
+  // Lấy maxCustomers từ API
+  useEffect(() => {
+    const fetchMaxCustomers = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/policy/');
+        const data = await response.json();
+        setMaxCustomers(data.maxCapacity || 4); // Gán maxCustomers từ API
+      } catch (error) {
+        console.error('Error fetching maxCustomers:', error);
+        setError('Không thể lấy thông tin số lượng khách. Vui lòng thử lại sau.');
+      }
+    };
+
+    fetchMaxCustomers();
+  }, []);
 
   function getInitialFormData() {
     // Nếu là edit với phòng được chọn từ Feature1
@@ -168,8 +182,8 @@ function RentalForm({ rental, onClose, onSuccess }) {
   };
 
   const handleAddCustomer = () => {
-    if (formData.customers.length >= (maxCustomers || 4)) {
-      setError(`Số lượng khách không được vượt quá ${maxCustomers || 4} người`);
+    if (formData.customers.length >= maxCustomers) {
+      setError(`Số lượng khách không được vượt quá ${maxCustomers} người`);
       return;
     }
 

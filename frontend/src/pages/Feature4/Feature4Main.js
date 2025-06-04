@@ -9,8 +9,9 @@ const Feature4Main = () => {
   const [selectedBills, setSelectedBills] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const API_URL = 'http://localhost:5000/api';
 
-  // Filter states
+  // Các state bộ lọc
   const [filterCustomer, setFilterCustomer] = useState('');
   const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'paid', 'unpaid'
   const [filterMinPrice, setFilterMinPrice] = useState('');
@@ -18,25 +19,35 @@ const Feature4Main = () => {
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
 
-  // Token and user info check
+  // Kiểm tra người dùng đã đăng nhập
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
 
   useEffect(() => {
-    const token =
-      localStorage.getItem('token') || sessionStorage.getItem('token');
-    const savedUserInfo =
-      localStorage.getItem('userInfo') || sessionStorage.getItem('userInfo');
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const savedUserInfo = localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
 
-    if (token && savedUserInfo) {
-      setUserInfo(JSON.parse(savedUserInfo));
-    } else {
-      setUserInfo(null);
+    if (!token) {
+      navigate("/login", { replace: true });
+      return;
     }
-  }, []);
 
-  // Get the current pathname to determine if we are on the Feature4 page
+    if (savedUserInfo) {
+      setUserInfo(JSON.parse(savedUserInfo));
+    }
+  }, [navigate]);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userInfo");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("userInfo");
+    setUserInfo(null);
+    navigate("/login");
+  };
+
+  // Lấy thông tin về các phòng đã chọn từ Feature2
   const location = useLocation();
   const selectedRoomsFromFeature2 = useMemo(() => {
     return location.state?.selectedRooms || [];
@@ -48,13 +59,21 @@ const Feature4Main = () => {
     }
   }, [selectedRoomsFromFeature2]);
 
-  // Call API to fetch bills
+  // Gọi API để lấy danh sách hóa đơn
   const fetchBills = async () => {
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5000/api/invoices', {
-        headers: { 'Content-Type': 'application/json' },
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (!token) {
+        setError("Bạn cần đăng nhập để tiếp tục");
+        return;
+      }
+      const response = await fetch(`${API_URL}/invoices`, {
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
       });
       if (!response.ok) throw new Error('Lỗi khi gọi API');
       const data = await response.json();
@@ -114,7 +133,7 @@ const Feature4Main = () => {
     return true;
   });
 
-  // Handle bill selection
+  // Xử lý sự kiện khi chọn hoặc bỏ chọn hóa đơn
   const handleBillSelection = (bill) => {
     if (selectedBills.some(b => b._id === bill._id)) {
       setSelectedBills(selectedBills.filter(b => b._id !== bill._id));
@@ -123,7 +142,7 @@ const Feature4Main = () => {
     }
   };
 
-  // Handle payment
+  // Xử lý thanh toán hóa đơn
   const handlePay = async () => {
     if (selectedBills.length === 0) return;
 
@@ -140,9 +159,18 @@ const Feature4Main = () => {
 
     for (const billToPay of selectedBills) {
       try {
-        const response = await fetch(`http://localhost:5000/api/invoices/${billToPay._id}/confirm-payment`, {
+        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+        if (!token) {
+          setError("Bạn cần đăng nhập để thực hiện thanh toán");
+          return;
+        }
+
+        const response = await fetch(`${API_URL}/invoices/${billToPay._id}/confirm-payment`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          },
         });
 
         const result = await response.json();
@@ -177,7 +205,7 @@ const Feature4Main = () => {
     alert(alertMessage);
   };
 
-  // Handle payment
+  // Xử lý xóa hóa đơn
   const handleDelete = async () => {
     if (selectedBills.length === 0) return;
 
@@ -187,10 +215,19 @@ const Feature4Main = () => {
 
     try {
       // Gọi API xóa lần lượt từng hóa đơn đã chọn
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (!token) {
+        setError("Bạn cần đăng nhập để thực hiện xóa");
+        return;
+      }
+
       for (const bill of selectedBills) {
-        const response = await fetch(`http://localhost:5000/api/invoices/${bill._id}`, {
+        const response = await fetch(`${API_URL}/invoices/${bill._id}`, {
           method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' }
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
         });
 
         if (!response.ok) {
@@ -209,8 +246,8 @@ const Feature4Main = () => {
     }
   };
 
-  // Render each bill table
-    const renderBillTable = (bill) => {
+  // Render bảng hóa đơn
+  const renderBillTable = (bill) => {
     const isSelected = selectedBills.some(b => b._id === bill._id);
         return (
             <div
@@ -300,29 +337,8 @@ const Feature4Main = () => {
                   <p>Email: {userInfo.email}</p>
                   <p>Vai trò: {userInfo.role}</p>
                 </div>
-                <button
-                  className="logout-button"
-                  onClick={() => {
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('userInfo');
-                    setUserInfo(null);
-                    navigate('/login');
-                  }}
-                >
-                  Đăng xuất
-                </button>
+                <button className="logout-button" onClick={handleLogout}>Đăng xuất</button>
               </div>
-            )}
-
-            {!userInfo && (
-              <>
-                <Link to="/register">
-                  <button className="button-reg">Đăng ký</button>
-                </Link>
-                <Link to="/login">
-                  <button className="button-log">Đăng nhập</button>
-                </Link>
-              </>
             )}
           </div>
 

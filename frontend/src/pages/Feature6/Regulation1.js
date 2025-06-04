@@ -1,181 +1,228 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useRegulation } from "./RegulationContext";
+import { Link, useNavigate} from "react-router-dom";
+import RoomTypeModal from "./RoomTypeModal";
 import "./Feature6.css";
 
+const API_URL = "http://localhost:5000/api";
+
 const Regulation1 = () => {
-  const { roomTypes, updateRoomTypes, loading, error } = useRegulation();
+  const [roomTypes, setRoomTypes] = useState([]);
   const [selectedRoomTypes, setSelectedRoomTypes] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    id: null,
-    type: "",
-    price: 0,
-  });
-
-  const navigate = useNavigate(); 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [formData, setFormData] = useState({ id: null, type: "", price: 0 });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  // Các state để quản lý thông tin người dùng và trạng thái hiển thị dropdown
   const [userInfo, setUserInfo] = useState(null);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const navigate = useNavigate();
 
+  // Kiểm tra token và thông tin người dùng khi component được mount
   useEffect(() => {
-    // Kiểm tra token theo thứ tự ưu tiên
-    let token = localStorage.getItem("token");
-    let savedUserInfo = localStorage.getItem("userInfo");
-  
-    // Nếu không có trong localStorage, kiểm tra sessionStorage
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const savedUserInfo = localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+
     if (!token) {
-      token = sessionStorage.getItem("token");
-      savedUserInfo = sessionStorage.getItem("userInfo");
-    }
-  
-    if (!token) {
-      // Nếu không có token ở cả 2 nơi -> chuyển về login
       navigate("/login", { replace: true });
       return;
     }
-  
+
     if (savedUserInfo) {
       setUserInfo(JSON.parse(savedUserInfo));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [navigate]);
-  
+
+  // Hàm xử lý đăng xuất
   const handleLogout = () => {
-    // Xóa token và userInfo ở cả localStorage và sessionStorage
     localStorage.removeItem("token");
     localStorage.removeItem("userInfo");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("userInfo");
-    navigate("/login", { replace: true });
+    setUserInfo(null);
+    navigate("/login");
   };
 
-  // Xử lý chọn/bỏ chọn loại phòng
-  const handleRoomTypeSelection = (roomTypeId) => {
-    if (selectedRoomTypes.includes(roomTypeId)) {
-      setSelectedRoomTypes(selectedRoomTypes.filter((id) => id !== roomTypeId));
-    } else {
-      setSelectedRoomTypes([...selectedRoomTypes, roomTypeId]);
+  // Hàm lấy danh sách loại phòng từ API
+  const fetchRoomTypes = async () => {
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (!token) throw new Error("Chưa đăng nhập");
+
+      const res = await fetch(`${API_URL}/roomtypes`, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Thêm token vào headers
+        }
+      });
+      if (!res.ok) throw new Error("Không thể tải dữ liệu loại phòng");
+      const data = await res.json();
+      setRoomTypes(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
+  useEffect(() => {
+    fetchRoomTypes();
+  }, []);
 
-  // Xử lý thêm loại phòng mới
+  // Hàm xử lý chọn loại phòng
+  const handleRoomTypeSelection = (roomTypeId) => {
+    setSelectedRoomTypes(prev =>
+      prev.includes(roomTypeId) ? prev.filter(id => id !== roomTypeId) : [...prev, roomTypeId]
+    );
+  };
+
+  // Hàm xử lý thêm phòng
   const handleAddRoomType = () => {
     setIsEditing(false);
-    setFormData({
-      id: null,
-      type: "",
-      price: 0,
-    });
+    setFormData({ id: null, type: "", price: 0 });
     setShowForm(true);
   };
 
-  // Xử lý chỉnh sửa loại phòng
+  // Hàm xử lý sửa loại phòng
   const handleEditRoomType = () => {
     if (selectedRoomTypes.length === 1) {
-      const roomType = roomTypes.find((rt) => rt.id === selectedRoomTypes[0]);
+      const roomType = roomTypes.find(rt => rt._id === selectedRoomTypes[0]);
       setIsEditing(true);
-      setFormData({
-        id: roomType.id,
-        type: roomType.type,
-        price: roomType.price,
-      });
+      setFormData({ id: roomType._id, type: roomType.type, price: roomType.price });
       setShowForm(true);
     }
   };
 
-  // Xử lý xóa loại phòng
-  const handleDeleteRoomType = () => {
-    if (selectedRoomTypes.length > 0) {
-      if (window.confirm("Bạn có chắc chắn muốn xóa các loại phòng đã chọn?")) {
-        const updatedRoomTypes = roomTypes.filter(
-          (roomType) => !selectedRoomTypes.includes(roomType.id)
-        );
-        updateRoomTypes(updatedRoomTypes);
-        setSelectedRoomTypes([]);
+  // Hàm xử lý xóa loại phòng
+  const handleDeleteRoomType = async () => {
+    if (selectedRoomTypes.length > 0 && window.confirm("Bạn có chắc chắn muốn xóa các loại phòng đã chọn?")) {
+      // Kiểm tra token trước khi thực hiện xóa
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      if (!token) {
+        alert("Bạn cần đăng nhập để tiếp tục");
+        return;
       }
+
+      let errorMessages = []; // Danh sách các lỗi nếu có
+
+      // Gửi yêu cầu xóa từng loại phòng đã chọn
+      for (const id of selectedRoomTypes) {
+        const room = roomTypes.find(rt => rt._id === id);
+        if (!room) continue;
+
+        try {
+          const response = await fetch(`${API_URL}/roomtypes/${room.type}`, {
+            method: "DELETE",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}` // Thêm token vào headers
+            }
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json();
+            errorMessages.push(`Xóa loại phòng "${room.type}" thất bại: ${errorData.message || 'Lỗi không xác định'}`);
+          } else {
+            console.log(`Loại phòng "${room.type}" đã được xóa thành công.`);
+          }
+        } catch (error) {
+          errorMessages.push(`Lỗi khi xóa loại phòng "${room.type}": ${error.message}`);
+        }
+      }
+
+      if (errorMessages.length > 0) {
+        alert(errorMessages.join("\n"));
+      } else {
+        alert('Xóa loại phòng thành công!');
+      }
+
+      // Tải lại danh sách phòng dù có lỗi hay không
+      await fetchRoomTypes();
+      setSelectedRoomTypes([]);
     }
   };
 
-  // Xử lý submit form
-  const handleSubmit = (e) => {
-    e.preventDefault();
 
-    // Kiểm tra loại phòng đã tồn tại
-    const isDuplicate = roomTypes.some(
-      (rt) =>
-        rt.type.toLowerCase() === formData.type.toLowerCase() &&
-        (!isEditing || rt.id !== formData.id)
+  // Hàm xử lý gửi form
+  const handleSubmit = async () => {
+    const isDuplicate = roomTypes.some(rt =>
+      rt.type.toLowerCase() === formData.type.toLowerCase() && (!isEditing || rt._id !== formData.id)
     );
-
     if (isDuplicate) {
       alert("Loại phòng này đã tồn tại!");
       return;
     }
 
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) {
+      alert("Bạn cần đăng nhập để tiếp tục");
+      return;
+    }
+
     if (isEditing) {
-      // Cập nhật loại phòng hiện có
-      const updatedRoomTypes = roomTypes.map((rt) =>
-        rt.id === formData.id ? formData : rt
-      );
-      updateRoomTypes(updatedRoomTypes);
+      await fetch(`${API_URL}/roomtypes/${formData.type}`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json", 
+          "Authorization": `Bearer ${token}`
+      },
+        body: JSON.stringify({ price: formData.price })
+      });
     } else {
-      // Thêm loại phòng mới
-      const newRoomType = {
-        ...formData,
-        id: Date.now(),
-      };
-      updateRoomTypes([...roomTypes, newRoomType]);
+      await fetch(`${API_URL}/roomtypes`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        },
+        body: JSON.stringify({ type: formData.type, price: formData.price })
+      });
     }
     setShowForm(false);
     setSelectedRoomTypes([]);
+    await fetchRoomTypes();
   };
 
-  if (loading) {
-    return <div className="loading">Đang tải dữ liệu...</div>;
-  }
-
-  if (error) {
-    return <div className="error">Lỗi: {error}</div>;
-  }
+  if (loading) return <div className="loading">Đang tải dữ liệu...</div>;
+  if (error) return <div className="error">Lỗi: {error}</div>;
 
   return (
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <h1>HotelManager</h1>
+          <Link to="/">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
-
-        <div className="header-right">
+        <nav className="header-right">
           <Link to="/about">Về chúng tôi</Link>
-          <img
-            src="/icons/VietnamFlag.png"
-            alt="Vietnam Flag"
-            className="flag"
-          />
+          <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag" />
+
           <div className="user-menu">
             <div
               className="user-avatar"
-              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+              onClick={() => setShowUserDropdown(prev => !prev)}
             >
               <img src="/icons/User.png" alt="User" />
             </div>
 
-            {isDropdownOpen && (
+            {showUserDropdown && userInfo && (
               <div className="user-dropdown">
                 <div className="user-info">
                   <h3>Thông tin người dùng</h3>
-                  <p>Họ tên: {userInfo?.name}</p>
-                  <p>Email: {userInfo?.email}</p>
-                  <p>Vai trò: {userInfo?.role}</p>
+                  <p>Họ tên: {userInfo.name}</p>
+                  <p>Email: {userInfo.email}</p>
+                  <p>Vai trò: {userInfo.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>
+                <button
+                  className="logout-button"
+                  onClick={handleLogout}
+                >
                   Đăng xuất
                 </button>
               </div>
             )}
           </div>
-        </div>
+        </nav>
       </header>
 
       <main className="main-content">
@@ -187,112 +234,62 @@ const Regulation1 = () => {
         </div>
 
         <div className="regulation-container">
-          {!showForm ? (
-            <>
-              <h3>Danh sách loại phòng</h3>
-              <div className="room-types-table">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>STT</th>
-                      <th>Loại phòng</th>
-                      <th>Đơn giá (VND)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {roomTypes.map((roomType, index) => (
-                      <tr key={roomType.id}>
-                        <td>
-                          <input
-                            type="checkbox"
-                            checked={selectedRoomTypes.includes(roomType.id)}
-                            onChange={() =>
-                              handleRoomTypeSelection(roomType.id)
-                            }
-                          />
-                          {index + 1}
-                        </td>
-                        <td>{roomType.type}</td>
-                        <td>{roomType.price.toLocaleString()}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+          <h3>Danh sách loại phòng</h3>
+          <div className="room-types-table">
+            <table>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>STT</th>
+                  <th>Loại phòng</th>
+                  <th>Đơn giá (VND)</th>
+                </tr>
+              </thead>
+              <tbody>
+                {roomTypes.map((roomType, index) => (
+                  <tr key={roomType._id}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={selectedRoomTypes.includes(roomType._id)}
+                        onChange={() => handleRoomTypeSelection(roomType._id)}
+                      />
+                    </td>
+                    <td>{index + 1}</td>
+                    <td>{roomType.type}</td>
+                    <td>{roomType.price.toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-              <div className="button-container">
-                <button
-                  className="action-button add clickable"
-                  onClick={handleAddRoomType}
-                >
-                  THÊM
-                </button>
-                <button
-                  className={`action-button edit ${
-                    selectedRoomTypes.length === 1 ? "clickable" : "disabled"
-                  }`}
-                  onClick={handleEditRoomType}
-                  disabled={selectedRoomTypes.length !== 1}
-                >
-                  SỬA
-                </button>
-                <button
-                  className={`action-button delete ${
-                    selectedRoomTypes.length > 0 ? "clickable" : "disabled"
-                  }`}
-                  onClick={handleDeleteRoomType}
-                  disabled={selectedRoomTypes.length === 0}
-                >
-                  XÓA
-                </button>
-              </div>
-            </>
-          ) : (
-            <div className="room-form">
-              <h3>{isEditing ? "Sửa loại phòng" : "Thêm loại phòng mới"}</h3>
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label>Loại phòng:</label>
-                  <input
-                    type="text"
-                    value={formData.type}
-                    onChange={(e) =>
-                      setFormData({ ...formData, type: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Đơn giá (VND):</label>
-                  <input
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        price: parseInt(e.target.value),
-                      })
-                    }
-                    min="0"
-                    step="1000"
-                    required
-                  />
-                </div>
-                <div className="form-actions">
-                  <button
-                    type="button"
-                    className="cancel-button"
-                    onClick={() => setShowForm(false)}
-                  >
-                    Hủy
-                  </button>
-                  <button type="submit" className="confirm-button">
-                    {isEditing ? "Cập nhật" : "Thêm"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
+          <div className="button-container">
+            <button className="action-button add clickable" onClick={handleAddRoomType}>THÊM</button>
+            <button
+              className={`action-button edit ${selectedRoomTypes.length === 1 ? "clickable" : "disabled"}`}
+              onClick={handleEditRoomType}
+              disabled={selectedRoomTypes.length !== 1}
+            >
+              SỬA
+            </button>
+            <button
+              className={`action-button delete ${selectedRoomTypes.length > 0 ? "clickable" : "disabled"}`}
+              onClick={handleDeleteRoomType}
+              disabled={selectedRoomTypes.length === 0}
+            >
+              XÓA
+            </button>
+          </div>
+
+          <RoomTypeModal
+            visible={showForm}
+            onClose={() => setShowForm(false)}
+            onSubmit={handleSubmit}
+            formData={formData}
+            setFormData={setFormData}
+            isEditing={isEditing}
+          />
         </div>
       </main>
     </div>
