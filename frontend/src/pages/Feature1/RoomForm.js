@@ -1,18 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useRooms } from "./RoomContext";
-import { useRegulation } from "../Feature6/RegulationContext";
+//import { useRegulation } from "../Feature6/RegulationContext";
 import "./Feature1.css";
 
 function RoomForm({ room, onClose }) {
   const { addRoom, editRoom } = useRooms();
-  const { maxCustomers } = useRegulation();
+  const [maxCustomers, setMaxCustomers] = useState(4);
   const [formData, setFormData] = useState({
     roomNumber: "",
     type: "",
     capacity: 1,
   });
   const [error, setError] = useState("");
+  useEffect(() => {
+    const fetchMaxCustomers = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/policy/");
+        const data = await response.json();
+        setMaxCustomers(data.maxCapacity || 4); // Gán maxCustomers từ API
+      } catch (error) {
+        console.error("Error fetching maxCustomers:", error);
+        setError(
+          "Không thể lấy thông tin số lượng khách. Vui lòng thử lại sau."
+        );
+      }
+    };
 
+    fetchMaxCustomers();
+  }, []);
   useEffect(() => {
     if (room) {
       setFormData({

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import {
   getBookings,
   createBooking,
-  updateBooking,
+  //updateBooking,
   deleteBooking,
   mapRentalToBooking,
   // formatDateForAPI,
@@ -53,45 +53,45 @@ export function RentalProvider({ children }) {
   };
 
   // Update an existing booking
-  const updateRental = async (id, rentalData) => {
-    try {
-      setLoading(true);
+  // const updateRental = async (id, rentalData) => {
+  //   try {
+  //     setLoading(true);
 
-      // Kiểm tra roomNumber
-      if (!rentalData.room) {
-        console.error("Missing room in updateRental", rentalData);
-        throw new Error("Thiếu thông tin phòng khi cập nhật");
-      }
+  //     // Kiểm tra roomNumber
+  //     if (!rentalData.room) {
+  //       console.error("Missing room in updateRental", rentalData);
+  //       throw new Error("Thiếu thông tin phòng khi cập nhật");
+  //     }
 
-      console.log(
-        "Sending data to API for update (ID: " + id + "):",
-        rentalData
-      );
-      const result = await updateBooking(id, rentalData);
+  //     console.log(
+  //       "Sending data to API for update (ID: " + id + "):",
+  //       rentalData
+  //     );
+  //     const result = await updateBooking(id, rentalData);
 
-      if (result.success) {
-        // Cập nhật phiếu thuê trong danh sách local
-        setRentals((prevRentals) =>
-          prevRentals.map((rental) =>
-            rental.id === id ? { ...result.data, id } : rental
-          )
-        );
-        console.log("Successfully updated rental with ID:", id);
-        return result;
-      } else {
-        // Xử lý lỗi từ API
-        console.error("API error during update:", result.message);
-        setError(result.message || "Lỗi khi cập nhật phiếu thuê");
-        return result;
-      }
-    } catch (error) {
-      console.error("Error updating rental:", error);
-      setError(error.message || "Lỗi khi cập nhật phiếu thuê");
-      return { success: false, message: error.message };
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     if (result.success) {
+  //       // Cập nhật phiếu thuê trong danh sách local
+  //       setRentals((prevRentals) =>
+  //         prevRentals.map((rental) =>
+  //           rental.id === id ? { ...result.data, id } : rental
+  //         )
+  //       );
+  //       console.log("Successfully updated rental with ID:", id);
+  //       return result;
+  //     } else {
+  //       // Xử lý lỗi từ API
+  //       console.error("API error during update:", result.message);
+  //       setError(result.message || "Lỗi khi cập nhật phiếu thuê");
+  //       return result;
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating rental:", error);
+  //     setError(error.message || "Lỗi khi cập nhật phiếu thuê");
+  //     return { success: false, message: error.message };
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const addRental = async (rentalData) => {
     try {
@@ -181,7 +181,7 @@ export function RentalProvider({ children }) {
         error,
         fetchRentals,
         addRental,
-        updateRental,
+        //updateRental,
         deleteRentals,
       }}
     >

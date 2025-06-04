@@ -19,16 +19,18 @@ function Feature2Main() {
   // Lấy danh sách phòng rồi truyền qua feature4
   const handleCreateInvoice = () => {
     // Lấy mảng số phòng từ selectedRentals
-    const selectedRooms = selectedRentals.map(id => {
-      const rental = rentals.find(r => r.id === id);
-      return rental ? rental.room : null;
-    }).filter(Boolean); // loại bỏ null
+    const selectedRooms = selectedRentals
+      .map((id) => {
+        const rental = rentals.find((r) => r.id === id);
+        return rental ? rental.room : null;
+      })
+      .filter(Boolean); // loại bỏ null
 
     // Chuyển sang trang Feature4 với dữ liệu phòng
-    navigate('/feature4', {
+    navigate("/feature4", {
       state: {
         selectedRooms,
-      }
+      },
     });
   };
 
@@ -283,21 +285,21 @@ function Feature2Main() {
     });
   };
 
-  const handleEdit = () => {
-    if (selectedRentals.length !== 1) return;
+  // const handleEdit = () => {
+  //   if (selectedRentals.length !== 1) return;
 
-    const rentalToEdit = rentals.find(
-      (rental) => rental.id === selectedRentals[0]
-    );
+  //   const rentalToEdit = rentals.find(
+  //     (rental) => rental.id === selectedRentals[0]
+  //   );
 
-    if (rentalToEdit) {
-      setEditingRental({
-        ...rentalToEdit,
-        isNew: false,
-      });
-      setShowForm(true);
-    }
-  };
+  //   if (rentalToEdit) {
+  //     setEditingRental({
+  //       ...rentalToEdit,
+  //       isNew: false,
+  //     });
+  //     setShowForm(true);
+  //   }
+  // };
 
   const handleDelete = async () => {
     if (selectedRentals.length === 0) return;
@@ -326,20 +328,6 @@ function Feature2Main() {
         fetchAllRooms();
       }, 1000);
     }, 1000);
-  };
-
-  // Function to get status text in Vietnamese
-  const getStatusText = (status) => {
-    switch (status) {
-      case "confirmed":
-        return "Đã xác nhận";
-      case "pending":
-        return "Đang chờ";
-      case "cancelled":
-        return "Đã hủy";
-      default:
-        return status;
-    }
   };
 
   // Sử dụng filteredRentals nếu đang lọc, ngược lại sử dụng rentals
@@ -446,10 +434,8 @@ function Feature2Main() {
                     <strong>Email:</strong> {rental.email}
                   </div>
                   <div className="rental-info-item">
-                    <strong>Trạng thái:</strong>{" "}
-                    <span className={`status-${rental.status}`}>
-                      {getStatusText(rental.status)}
-                    </span>
+                    <strong>Trạng thái: </strong>
+                    {rental.status}
                   </div>
                 </div>
 
@@ -497,7 +483,7 @@ function Feature2Main() {
         <button className="action-button add clickable" onClick={handleAdd}>
           Thêm
         </button>
-        <button
+        {/* <button
           className={`action-button edit ${
             selectedRentals.length === 1 ? "clickable" : "disabled"
           }`}
@@ -508,7 +494,7 @@ function Feature2Main() {
           disabled={selectedRentals.length !== 1}
         >
           Sửa
-        </button>
+        </button> */}
         <button
           className={`action-button delete ${
             selectedRentals.length > 0 ? "clickable" : "disabled"
@@ -522,7 +508,10 @@ function Feature2Main() {
           Xóa
         </button>
 
-        <button className="action-button add clickable" onClick={handleCreateInvoice}>
+        <button
+          className="action-button add clickable"
+          onClick={handleCreateInvoice}
+        >
           Lập Hóa đơn
         </button>
 
