@@ -10,7 +10,9 @@ const Regulation4 = () => {
   const [editMode, setEditMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [initialFormData, setInitialFormData] = useState({ extraGuestSurcharge: "25.0" });
+  const [initialFormData, setInitialFormData] = useState({
+    extraGuestSurcharge: "25.0",
+  });
   // Các state để quản lý thông tin người dùng và trạng thái hiển thị dropdown
   const [userInfo, setUserInfo] = useState(null);
   const [showUserDropdown, setShowUserDropdown] = useState(false);
@@ -18,8 +20,10 @@ const Regulation4 = () => {
 
   // Kiểm tra token và thông tin người dùng khi component được mount
   useEffect(() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    const savedUserInfo = localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const savedUserInfo =
+      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
 
     if (!token) {
       navigate("/login", { replace: true });
@@ -43,7 +47,8 @@ const Regulation4 = () => {
 
   // Lấy dữ liệu quy định khi component được mount
   useEffect(() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
       alert("Bạn cần đăng nhập để tiếp tục");
       return;
@@ -52,21 +57,23 @@ const Regulation4 = () => {
     // fetch(`${API_URL}/policy`)
     fetch(`${API_URL}/policy`, {
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Thêm token vào header
-      }
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Thêm token vào header
+      },
     })
-    .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error("Không thể tải dữ liệu quy định");
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         const surcharge = (data.surchargePolicy * 100).toFixed(1);
-        setFormData({ extraGuestSurcharge: (data.surchargePolicy * 100).toFixed(1) });
+        setFormData({
+          extraGuestSurcharge: (data.surchargePolicy * 100).toFixed(1),
+        });
         setInitialFormData({ extraGuestSurcharge: surcharge });
         setForeignGuestCoefficient(data.foreignPolicy || 1.5);
       })
-      .catch(err => setError(err.message))
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
@@ -83,7 +90,8 @@ const Regulation4 = () => {
       return;
     }
 
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
       alert("Bạn cần đăng nhập để tiếp tục");
       return;
@@ -92,11 +100,11 @@ const Regulation4 = () => {
     try {
       await fetch(`${API_URL}/policy/field/surchargePolicy`, {
         method: "PUT",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` // Thêm token vào header
+          Authorization: `Bearer ${token}`, // Thêm token vào header
         },
-        body: JSON.stringify({ fieldValue: parsed / 100 })
+        body: JSON.stringify({ fieldValue: parsed / 100 }),
       });
       alert("Cập nhật quy định phụ thu thành công!");
       setFormData({ extraGuestSurcharge: parsed.toFixed(1) });
@@ -125,12 +133,16 @@ const Regulation4 = () => {
         </div>
         <nav className="header-right">
           <Link to="/about">Về chúng tôi</Link>
-          <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag" />
+          <img
+            src="/icons/VietnamFlag.png"
+            alt="Vietnam Flag"
+            className="flag"
+          />
 
           <div className="user-menu">
             <div
               className="user-avatar"
-              onClick={() => setShowUserDropdown(prev => !prev)}
+              onClick={() => setShowUserDropdown((prev) => !prev)}
             >
               <img src="/icons/User.png" alt="User" />
             </div>
@@ -143,7 +155,9 @@ const Regulation4 = () => {
                   <p>Email: {userInfo.email}</p>
                   <p>Vai trò: {userInfo.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>Đăng xuất</button>
+                <button className="logout-button" onClick={handleLogout}>
+                  Đăng xuất
+                </button>
               </div>
             )}
           </div>
@@ -165,7 +179,9 @@ const Regulation4 = () => {
 
           <form onSubmit={handleSubmit} className="surcharge-form">
             <p className="regulation-summary">
-              Đơn giá phòng cho 2 khách. Khách thứ 3 phụ thu theo tỷ lệ dưới đây. Phòng có khách nước ngoài (chỉ cần có 1 người) được nhân với hệ số 1.5
+              Đơn giá phòng cho 2 khách. Khách thứ 3 phụ thu theo tỷ lệ dưới
+              đây. Phòng có khách nước ngoài (chỉ cần có 1 người) được nhân với
+              hệ số 1.5
             </p>
 
             <div className="regulation-section">
@@ -186,7 +202,8 @@ const Regulation4 = () => {
                   <span className="input-suffix">%</span>
                 </div>
                 <p className="regulation-description">
-                  Khách thứ 3 trở đi sẽ bị tính thêm phụ phí theo tỷ lệ này so với giá phòng tiêu chuẩn.
+                  Khách thứ 3 trở đi sẽ bị tính thêm phụ phí theo tỷ lệ này so
+                  với giá phòng tiêu chuẩn.
                 </p>
               </div>
 
@@ -203,18 +220,33 @@ const Regulation4 = () => {
                   <span className="input-suffix">x</span>
                 </div>
                 <p className="regulation-description">
-                  Phòng có khách nước ngoài sẽ được tính giá theo hệ số này. Hệ số này được thiết lập trong quy định về loại khách.
+                  Phòng có khách nước ngoài sẽ được tính giá theo hệ số này. Hệ
+                  số này được thiết lập trong quy định về loại khách.
                 </p>
               </div>
             </div>
 
             <div className="button-container">
               {!editMode ? (
-                <button type="button" className="action-button edit" onClick={() => setEditMode(true)}>Chỉnh sửa</button>
+                <button
+                  type="button"
+                  className="action-button edit"
+                  onClick={() => setEditMode(true)}
+                >
+                  Chỉnh sửa
+                </button>
               ) : (
                 <>
-                  <button type="button" className="cancel-button" onClick={handleCancel}>Hủy bỏ</button>
-                  <button type="submit" className="save-button">Xác nhận</button>
+                  <button
+                    type="button"
+                    className="cancel-button"
+                    onClick={handleCancel}
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button type="submit" className="save-button">
+                    Xác nhận
+                  </button>
                 </>
               )}
             </div>

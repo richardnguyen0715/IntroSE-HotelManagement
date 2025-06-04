@@ -26,7 +26,9 @@ const RoomTypeModal = ({
             <input
               type="text"
               value={formData.type}
-              onChange={(e) => setFormData({ ...formData, type: e.target.value })}
+              onChange={(e) =>
+                setFormData({ ...formData, type: e.target.value })
+              }
               required
             />
           </div>
@@ -44,11 +46,7 @@ const RoomTypeModal = ({
             />
           </div>
           <div className="form-actions">
-            <button
-              type="button"
-              className="cancel-button"
-              onClick={onClose}
-            >
+            <button type="button" className="cancel-button" onClick={onClose}>
               Hủy
             </button>
             <button type="submit" className="confirm-button">

@@ -11,7 +11,11 @@ const Regulation2 = () => {
   const [editingCustomerTypes, setEditingCustomerTypes] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ id: null, type: '', coefficient: "1" });
+  const [editForm, setEditForm] = useState({
+    id: null,
+    type: "",
+    coefficient: "1",
+  });
   const [selectedCustomerTypes, setSelectedCustomerTypes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -24,8 +28,10 @@ const Regulation2 = () => {
 
   // Kiểm tra token và thông tin người dùng khi component được mount
   useEffect(() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    const savedUserInfo = localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const savedUserInfo =
+      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
 
     if (!token) {
       navigate("/login", { replace: true });
@@ -49,53 +55,55 @@ const Regulation2 = () => {
 
   // Fetch mapping
   useEffect(() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
       alert("Bạn cần đăng nhập để tiếp tục");
       return;
     }
 
     fetch(`${API_URL}/mapper`, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Thêm token vào header
-      }
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`, // Thêm token vào header
+      },
     })
-    .then(res => {
-      if (!res.ok) throw new Error("Không thể tải dữ liệu mapper");
-      return res.json();
-    })
-    .then(data => {
-      setCustomerTypeMap(data);
-    })
-    .catch(err => setError(err.message));
+      .then((res) => {
+        if (!res.ok) throw new Error("Không thể tải dữ liệu mapper");
+        return res.json();
+      })
+      .then((data) => {
+        setCustomerTypeMap(data);
+      })
+      .catch((err) => setError(err.message));
   }, []);
-
 
   // Fetch policy sau khi có mapper
   useEffect(() => {
     if (Object.keys(customerTypeMap).length === 0) return;
 
     fetch(`${API_URL}/policy`)
-      .then(res => {
+      .then((res) => {
         if (!res.ok) throw new Error("Không thể tải dữ liệu quy định");
         return res.json();
       })
-      .then(data => {
+      .then((data) => {
         setMaxCustomersValue(data.maxCapacity);
         setInitialMaxCapacity(data.maxCapacity);
         // Tạo map các loại khách từ dữ liệu trả về
         const types = Object.entries(data)
-          .filter(([key]) => key.endsWith("Policy") && key !== "surchargePolicy")
+          .filter(
+            ([key]) => key.endsWith("Policy") && key !== "surchargePolicy"
+          )
           .map(([key, coefficient]) => ({
             id: key,
             type: customerTypeMap[key] || key,
-            coefficient: coefficient.toString()
+            coefficient: coefficient.toString(),
           }));
         setEditingCustomerTypes(types);
       })
-      .catch(err => setError(err.message))
+      .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, [customerTypeMap]);
 
@@ -108,7 +116,8 @@ const Regulation2 = () => {
   const handleDelete = async () => {
     if (!window.confirm("Bạn có chắc chắn muốn xoá loại khách này?")) return;
     // Kiểm tra token login trước khi xoá
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
       alert("Bạn cần đăng nhập để tiếp tục");
       return;
@@ -120,15 +129,15 @@ const Regulation2 = () => {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`  // Thêm token vào headers
-          }
+            Authorization: `Bearer ${token}`, // Thêm token vào headers
+          },
         });
         if (!res.ok) throw new Error(`Xoá thất bại: ${id}`);
       }
 
       // Cập nhật lại danh sách
-      setEditingCustomerTypes(prev =>
-        prev.filter(ct => !selectedCustomerTypes.includes(ct.id))
+      setEditingCustomerTypes((prev) =>
+        prev.filter((ct) => !selectedCustomerTypes.includes(ct.id))
       );
       setSelectedCustomerTypes([]);
     } catch (err) {
@@ -138,7 +147,8 @@ const Regulation2 = () => {
 
   // Hàm lưu số lượng khách tối đa
   const saveMaxCustomers = async () => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
     if (!token) {
       alert("Bạn cần đăng nhập để tiếp tục");
       return;
@@ -146,11 +156,11 @@ const Regulation2 = () => {
     try {
       const res = await fetch(`${API_URL}/policy/field/maxCapacity`, {
         method: "PUT",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ fieldValue: maxCustomersValue })
+        body: JSON.stringify({ fieldValue: maxCustomersValue }),
       });
       if (!res.ok) throw new Error("Cập nhật thất bại");
       setInitialMaxCapacity(maxCustomersValue);
@@ -162,23 +172,28 @@ const Regulation2 = () => {
 
   // Hàm chuyển đổi tên tiếng Việt sang key tiếng Anh
   const convertVietnameseToKey = (text) => {
-    return text.normalize("NFD")
-      .replace(/\p{Diacritic}/gu, "")
-      .replace(/\s+/g, "")
-      .toLowerCase() + "Policy";
+    return (
+      text
+        .normalize("NFD")
+        .replace(/\p{Diacritic}/gu, "")
+        .replace(/\s+/g, "")
+        .toLowerCase() + "Policy"
+    );
   };
 
   // Mở modal thêm loại khách
   const openAddModal = () => {
     setIsEditing(false);
-    setEditForm({ id: null, type: '', coefficient: "1" });
+    setEditForm({ id: null, type: "", coefficient: "1" });
     setModalVisible(true);
   };
 
   // Mở modal sửa loại khách
   const openEditModal = () => {
     if (selectedCustomerTypes.length === 1) {
-      const target = editingCustomerTypes.find(c => c.id === selectedCustomerTypes[0]);
+      const target = editingCustomerTypes.find(
+        (c) => c.id === selectedCustomerTypes[0]
+      );
       setIsEditing(true);
       setEditForm({ ...target });
       setModalVisible(true);
@@ -187,92 +202,93 @@ const Regulation2 = () => {
 
   // Hàm xử lý chọn loại khách
   const handleRowSelection = (id) => {
-    setSelectedCustomerTypes(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
+    setSelectedCustomerTypes((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
     );
   };
 
   // Hàm xử lý gửi form trong modal
   const handleModalSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-  if (!token) {
-    alert("Bạn cần đăng nhập để tiếp tục");
-    return;
-  }
-  try {
-    const vietnameseName = editForm.type;
-    const englishKey = convertVietnameseToKey(vietnameseName);
-    const value = parseFloat(editForm.coefficient);
-
-    if (isNaN(value) || value <= 0) {
-      alert("Hệ số không hợp lệ");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    if (!token) {
+      alert("Bạn cần đăng nhập để tiếp tục");
       return;
     }
+    try {
+      const vietnameseName = editForm.type;
+      const englishKey = convertVietnameseToKey(vietnameseName);
+      const value = parseFloat(editForm.coefficient);
 
-    if (isEditing) {
-      // CHỈ sửa hệ số
-      const updates = {};
-      editingCustomerTypes.forEach(ct => {
-        if (ct.id === editForm.id) {
-          ct.coefficient = editForm.coefficient;
-          updates[editForm.id] = value;
-        }
-      });
+      if (isNaN(value) || value <= 0) {
+        alert("Hệ số không hợp lệ");
+        return;
+      }
 
-      await fetch(`${API_URL}/policy/field/${editForm.id}`, {
-        method: "PUT",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
-        },
-        body: JSON.stringify({ fieldValue: value })
-      });
-    } else {
-      // 1. Gửi lên policy
-      await fetch(`${API_URL}/policy/add-field`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          fieldName: englishKey,
-          fieldValue: value
-        })
-      });
+      if (isEditing) {
+        // CHỈ sửa hệ số
+        const updates = {};
+        editingCustomerTypes.forEach((ct) => {
+          if (ct.id === editForm.id) {
+            ct.coefficient = editForm.coefficient;
+            updates[editForm.id] = value;
+          }
+        });
 
-      // 2. Gửi lên mapper
-      await fetch(`${API_URL}/mapper/`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
-        },
-        body: JSON.stringify({
-          engkey: englishKey,
-          vnkey: vietnameseName
-        })
-      });
+        await fetch(`${API_URL}/policy/field/${editForm.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ fieldValue: value }),
+        });
+      } else {
+        // 1. Gửi lên policy
+        await fetch(`${API_URL}/policy/add-field`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            fieldName: englishKey,
+            fieldValue: value,
+          }),
+        });
 
-      // 3. Cập nhật UI
-      setEditingCustomerTypes(prev => [
-        ...prev,
-        {
-          id: englishKey,
-          type: vietnameseName,
-          coefficient: editForm.coefficient
-        }
-      ]);
+        // 2. Gửi lên mapper
+        await fetch(`${API_URL}/mapper/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            engkey: englishKey,
+            vnkey: vietnameseName,
+          }),
+        });
+
+        // 3. Cập nhật UI
+        setEditingCustomerTypes((prev) => [
+          ...prev,
+          {
+            id: englishKey,
+            type: vietnameseName,
+            coefficient: editForm.coefficient,
+          },
+        ]);
+      }
+
+      setModalVisible(false);
+      setSelectedCustomerTypes([]);
+    } catch (err) {
+      alert("Cập nhật lỗi: " + err.message);
     }
-
-    setModalVisible(false);
-    setSelectedCustomerTypes([]);
-  } catch (err) {
-    alert("Cập nhật lỗi: " + err.message);
-  }
-};
+  };
 
   if (loading) return <div className="loading">Đang tải dữ liệu...</div>;
   if (error) return <div className="error">Lỗi: {error}</div>;
@@ -281,16 +297,22 @@ const Regulation2 = () => {
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <Link to="/"><h1>HotelManager</h1></Link>
+          <Link to="/">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
         <nav className="header-right">
           <Link to="/about">Về chúng tôi</Link>
-          <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag" />
+          <img
+            src="/icons/VietnamFlag.png"
+            alt="Vietnam Flag"
+            className="flag"
+          />
 
           <div className="user-menu">
             <div
               className="user-avatar"
-              onClick={() => setShowUserDropdown(prev => !prev)}
+              onClick={() => setShowUserDropdown((prev) => !prev)}
             >
               <img src="/icons/User.png" alt="User" />
             </div>
@@ -303,7 +325,9 @@ const Regulation2 = () => {
                   <p>Email: {userInfo.email}</p>
                   <p>Vai trò: {userInfo.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>Đăng xuất</button>
+                <button className="logout-button" onClick={handleLogout}>
+                  Đăng xuất
+                </button>
               </div>
             )}
           </div>
@@ -325,12 +349,25 @@ const Regulation2 = () => {
               {!maxEditMode ? (
                 <>
                   <span>{maxCustomersValue}</span>
-                  <button className="edit-button-small" onClick={() => setMaxEditMode(true)}>Chỉnh sửa</button>
+                  <button
+                    className="edit-button-small"
+                    onClick={() => setMaxEditMode(true)}
+                  >
+                    Chỉnh sửa
+                  </button>
                 </>
               ) : (
                 <>
-                  <input type="number" min="1" max="10" value={maxCustomersValue} onChange={handleMaxCustomersChange} />
-                  <button className="confirm-button" onClick={saveMaxCustomers}>Lưu</button>
+                  <input
+                    type="number"
+                    min="1"
+                    max="10"
+                    value={maxCustomersValue}
+                    onChange={handleMaxCustomersChange}
+                  />
+                  <button className="confirm-button" onClick={saveMaxCustomers}>
+                    Lưu
+                  </button>
                   <button
                     className="cancel-button"
                     onClick={() => {
@@ -374,19 +411,28 @@ const Regulation2 = () => {
                   ))}
                 </tbody>
               </table>
-              </div>
+            </div>
 
             <div className="button-container">
-              <button className="action-button add clickable" onClick={openAddModal}>Thêm</button>
               <button
-                className={`action-button edit ${selectedCustomerTypes.length === 1 ? "clickable" : "disabled"}`}
+                className="action-button add clickable"
+                onClick={openAddModal}
+              >
+                Thêm
+              </button>
+              <button
+                className={`action-button edit ${
+                  selectedCustomerTypes.length === 1 ? "clickable" : "disabled"
+                }`}
                 onClick={openEditModal}
                 disabled={selectedCustomerTypes.length !== 1}
               >
                 Sửa
               </button>
               <button
-                className={`action-button delete ${selectedCustomerTypes.length > 0 ? "clickable" : "disabled"}`}
+                className={`action-button delete ${
+                  selectedCustomerTypes.length > 0 ? "clickable" : "disabled"
+                }`}
                 onClick={handleDelete}
                 disabled={selectedCustomerTypes.length === 0}
               >
@@ -399,14 +445,16 @@ const Regulation2 = () => {
         {modalVisible && (
           <div className="modal">
             <div className="modal-content">
-              <h3>{isEditing ? 'Sửa loại khách' : 'Thêm loại khách'}</h3>
+              <h3>{isEditing ? "Sửa loại khách" : "Thêm loại khách"}</h3>
               <form onSubmit={handleModalSubmit}>
                 <div className="form-group">
                   <label>Loại khách:</label>
                   <input
                     type="text"
                     value={editForm.type}
-                    onChange={(e) => setEditForm({ ...editForm, type: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, type: e.target.value })
+                    }
                     required
                     disabled={isEditing}
                   />
@@ -418,13 +466,23 @@ const Regulation2 = () => {
                     min="0.1"
                     step="0.1"
                     value={editForm.coefficient}
-                    onChange={(e) => setEditForm({ ...editForm, coefficient: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, coefficient: e.target.value })
+                    }
                     required
                   />
                 </div>
                 <div className="form-actions">
-                  <button type="button" className="cancel-button" onClick={() => setModalVisible(false)}>Hủy</button>
-                  <button type="submit" className="confirm-button">Cập nhật</button>
+                  <button
+                    type="button"
+                    className="cancel-button"
+                    onClick={() => setModalVisible(false)}
+                  >
+                    Hủy
+                  </button>
+                  <button type="submit" className="confirm-button">
+                    Cập nhật
+                  </button>
                 </div>
               </form>
             </div>

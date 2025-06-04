@@ -3,6 +3,7 @@ import { useRentals } from "./RentalContext";
 import { useRooms } from "../Feature1/RoomContext";
 import { formatDateForUI } from "../../services/bookings";
 
+const API_URL = "http://localhost:5000/api";
 function RentalForm({ rental, onClose, onSuccess }) {
   const { addRental, updateRental } = useRentals();
   const { rooms, syncRoomStatusWithBookings } = useRooms();
@@ -10,24 +11,72 @@ function RentalForm({ rental, onClose, onSuccess }) {
   const [availableRooms, setAvailableRooms] = useState([]);
   const [error, setError] = useState(null); // Thêm state để xử lý lỗi
   const isEditMode = rental && !rental.isNew; // Biến để kiểm tra có phải đang edit không
-
   const [maxCustomers, setMaxCustomers] = useState(4);
-  // Lấy maxCustomers từ API
+  const [customerTypeMap, setCustomerTypeMap] = useState({});
+  const [customerTypes, setCustomerTypes] = useState([]);
+  //const [loading, setLoading] = useState(true);
+  // Đầu tiên lấy mapping của loại khách
   useEffect(() => {
-    const fetchMaxCustomers = async () => {
-      try {
-        const response = await fetch('http://localhost:5000/api/policy/');
-        const data = await response.json();
-        setMaxCustomers(data.maxCapacity || 4); // Gán maxCustomers từ API
-      } catch (error) {
-        console.error('Error fetching maxCustomers:', error);
-        setError('Không thể lấy thông tin số lượng khách. Vui lòng thử lại sau.');
-      }
-    };
-
-    fetchMaxCustomers();
+    fetch(`${API_URL}/mapper`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Không thể tải dữ liệu mapper");
+        return res.json();
+      })
+      .then((data) => {
+        setCustomerTypeMap(data);
+      })
+      .catch((err) => setError(err.message));
   }, []);
 
+  // Sau đó lấy policy sau khi có mapper
+  useEffect(() => {
+    if (Object.keys(customerTypeMap).length === 0) return;
+
+    fetch(`${API_URL}/policy`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Không thể tải dữ liệu quy định");
+        return res.json();
+      })
+      .then((data) => {
+        // Lưu maxCapacity từ API
+        setMaxCustomers(data.maxCapacity || 4);
+
+        // Lọc và xử lý các loại khách từ dữ liệu policy
+        const types = Object.entries(data)
+          .filter(
+            ([key]) => key.endsWith("Policy") && key !== "surchargePolicy"
+          )
+          .map(([key, coefficient]) => ({
+            id: key.replace("Policy", ""),
+            type: customerTypeMap[key] || key,
+            coefficient: coefficient,
+          }));
+
+        setCustomerTypes(types);
+        console.log("Các loại khách từ API:", types);
+      })
+      .catch((err) => {
+        console.error("Lỗi khi lấy dữ liệu policy:", err);
+        setError("Không thể lấy thông tin quy định. Vui lòng thử lại sau.");
+      });
+    //.finally(() => setLoading(false));
+  }, [customerTypeMap]);
+  // useEffect(() => {
+  //   const fetchMaxCustomers = async () => {
+  //     try {
+  //       const response = await fetch("http://localhost:5000/api/policy/");
+  //       const data = await response.json();
+  //       setMaxCustomers(data.maxCapacity || 4); // Gán maxCustomers từ API
+  //     } catch (error) {
+  //       console.error("Error fetching maxCustomers:", error);
+  //       setError(
+  //         "Không thể lấy thông tin số lượng khách. Vui lòng thử lại sau."
+  //       );
+  //     }
+  //   };
+
+  //   fetchMaxCustomers();
+  // }, []);
   function getInitialFormData() {
     // Nếu là edit với phòng được chọn từ Feature1
     if (rental && rental.isNew && rental.initialRoom) {
@@ -138,6 +187,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
     };
 
     initializeRooms();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Flag để biết nếu rental được tạo với nhiều phòng từ Feature1
@@ -182,11 +232,33 @@ function RentalForm({ rental, onClose, onSuccess }) {
   };
 
   const handleAddCustomer = () => {
-    if (formData.customers.length >= maxCustomers) {
-      setError(`Số lượng khách không được vượt quá ${maxCustomers} người`);
+    // Kiểm tra quy định chung về số lượng khách tối đa
+    if (formData.customers.length >= (maxCustomers || 4)) {
+      setError(
+        `Số lượng khách không được vượt quá ${
+          maxCustomers || 4
+        } người (quy định chung)`
+      );
       return;
     }
 
+    // Tìm thông tin phòng hiện tại
+    const selectedRoom = availableRooms.find(
+      (room) => room.roomNumber === formData.room
+    );
+
+    // Nếu đã chọn phòng và phòng có giới hạn capacity
+    if (selectedRoom && selectedRoom.capacity) {
+      // Kiểm tra nếu số khách hiện tại đã đạt giới hạn capacity của phòng
+      if (formData.customers.length >= selectedRoom.capacity) {
+        setError(
+          `Không thể thêm khách. Phòng ${selectedRoom.roomNumber} chỉ có sức chứa tối đa ${selectedRoom.capacity} người.`
+        );
+        return;
+      }
+    }
+
+    // Nếu thỏa mãn các điều kiện, thêm khách mới
     const newCustomers = [
       ...formData.customers,
       {
@@ -197,10 +269,14 @@ function RentalForm({ rental, onClose, onSuccess }) {
         address: "",
       },
     ];
+
     setFormData({
       ...formData,
       customers: newCustomers,
     });
+
+    // Xóa thông báo lỗi nếu có
+    setError(null);
   };
 
   // Thêm hàm reset customers
@@ -243,6 +319,20 @@ function RentalForm({ rental, onClose, onSuccess }) {
       return;
     }
 
+    // Kiểm tra sức chứa phòng
+    const selectedRoom = availableRooms.find(
+      (room) => room.roomNumber === formData.room
+    );
+    if (
+      selectedRoom &&
+      selectedRoom.capacity &&
+      validCustomers.length > selectedRoom.capacity
+    ) {
+      setError(
+        `Số lượng khách (${validCustomers.length}) vượt quá sức chứa phòng ${selectedRoom.roomNumber} (${selectedRoom.capacity} người)`
+      );
+      return;
+    }
     try {
       // Đảm bảo dữ liệu phù hợp với API
       const finalData = {
@@ -359,7 +449,8 @@ function RentalForm({ rental, onClose, onSuccess }) {
                       <option value="">Chọn phòng</option>
                       {availableRooms.map((room) => (
                         <option key={room.roomNumber} value={room.roomNumber}>
-                          {room.roomNumber} - Loại {room.type}
+                          {room.roomNumber} - Loại {room.type}- Sức chứa:{" "}
+                          {room.capacity || "?"} người
                         </option>
                       ))}
                     </select>
@@ -368,7 +459,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
               )}
 
               {/* Nếu đang edit một phiếu thuê đã tồn tại */}
-              {isEditMode && (
+              {/* {isEditMode && (
                 <select
                   value={formData.room}
                   onChange={(e) =>
@@ -388,7 +479,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
                     </option>
                   ))}
                 </select>
-              )}
+              )} */}
             </div>
 
             <div className="form-group">
@@ -456,8 +547,22 @@ function RentalForm({ rental, onClose, onSuccess }) {
                           handleCustomerChange(index, "type", e.target.value)
                         }
                       >
-                        <option value="Nội địa">Nội địa</option>
-                        <option value="Nước ngoài">Nước ngoài</option>
+                        {customerTypes && customerTypes.length > 0 ? (
+                          customerTypes.map((customerType) => (
+                            <option
+                              key={customerType.id}
+                              value={customerType.id}
+                            >
+                              {customerType.type}
+                            </option>
+                          ))
+                        ) : (
+                          <>
+                            {/* Fallback nếu không tải được dữ liệu */}
+                            <option value="domestic">Nội địa</option>
+                            <option value="foreign">Nước ngoài</option>
+                          </>
+                        )}
                       </select>
                     </td>
                     <td>

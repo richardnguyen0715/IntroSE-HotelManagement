@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate} from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Feature6.css";
 
 const Feature6Main = () => {
@@ -10,8 +10,10 @@ const Feature6Main = () => {
 
   // Kiểm tra token và thông tin người dùng khi component được mount
   useEffect(() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    const savedUserInfo = localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+    const savedUserInfo =
+      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
 
     if (!token) {
       navigate("/login", { replace: true });
@@ -44,12 +46,16 @@ const Feature6Main = () => {
 
         <nav className="header-right">
           <Link to="/about">Về chúng tôi</Link>
-          <img src="/icons/VietnamFlag.png" alt="Vietnam Flag" className="flag" />
+          <img
+            src="/icons/VietnamFlag.png"
+            alt="Vietnam Flag"
+            className="flag"
+          />
 
           <div className="user-menu">
             <div
               className="user-avatar"
-              onClick={() => setShowUserDropdown(prev => !prev)}
+              onClick={() => setShowUserDropdown((prev) => !prev)}
             >
               <img src="/icons/User.png" alt="User" />
             </div>
@@ -80,7 +86,7 @@ const Feature6Main = () => {
         </div>
 
         <div className="function-grid">
-        <Link to="regulation1" className="function-item">
+          <Link to="regulation1" className="function-item">
             <img src="/icons/Pen.png" alt="Thay đổi quy định 1" />
             <p>THAY ĐỔI QUY ĐỊNH 1</p>
           </Link>

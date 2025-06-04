@@ -161,6 +161,7 @@ function Feature3Content() {
                 <th>Phòng</th>
                 <th>Loại phòng</th>
                 <th>Đơn giá (VNĐ)</th>
+                <th>Số người</th>
                 <th>Tình trạng</th>
               </tr>
             </thead>
@@ -171,6 +172,7 @@ function Feature3Content() {
                   <td>{room.roomNumber}</td>
                   <td>{room.type}</td>
                   <td>{formatPrice(room.price, room.type)}</td>
+                  <td>{room.capacity}</td>
                   <td>{room.status}</td>
                 </tr>
               ))}
