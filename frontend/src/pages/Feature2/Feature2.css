@@ -495,3 +495,17 @@ button:not([disabled]).action-button.delete.clickable {
   from { opacity: 1; }
   to { opacity: 0; }
 }
+.button-container {
+    position: sticky;
+    bottom: 0;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 5px;
+    padding: 10px 10px;
+
+    display: inline-flex;       /* inline-flex để kích thước bao vừa đủ nội dung */
+    justify-content: center;
+    align-items: center;
+    /* box-shadow: 0 0 8px rgba(0,0,0,0.1); */
+
+    border: none !important;
+}
