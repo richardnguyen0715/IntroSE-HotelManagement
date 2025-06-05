@@ -1,47 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import { RoomProvider } from "./RoomContext";
+import { useAuth } from "../AuthContext";
 import Feature1Main from "./Feature1Main";
 import "../App.css";
 import "./Feature1.css";
 
+
 function Feature1() {
-  const navigate = useNavigate(); 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
-
-  useEffect(() => {
-    // Kiểm tra token theo thứ tự ưu tiên
-    let token = localStorage.getItem("token");
-    let savedUserInfo = localStorage.getItem("userInfo");
-  
-    // Nếu không có trong localStorage, kiểm tra sessionStorage
-    if (!token) {
-      token = sessionStorage.getItem("token");
-      savedUserInfo = sessionStorage.getItem("userInfo");
-    }
-  
-    if (!token) {
-      // Nếu không có token ở cả 2 nơi -> chuyển về login
-      navigate("/login", { replace: true });
-      return;
-    }
-  
-    if (savedUserInfo) {
-      setUserInfo(JSON.parse(savedUserInfo));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]);
-  
-  const handleLogout = () => {
-    // Xóa token và userInfo ở cả localStorage và sessionStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userInfo");
-    navigate("/login", { replace: true });
-  };
-
+  const { userInfo, logout } = useAuth();
   return (
     <div className="app">
      <header className="app-header">
@@ -72,7 +40,7 @@ function Feature1() {
                   <p>Email: {userInfo?.email}</p>
                   <p>Vai trò: {userInfo?.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>
+                <button className="logout-button" onClick={logout}>
                   Đăng xuất
                 </button>
               </div>

@@ -24,45 +24,51 @@ import Regulation2 from "./pages/Feature6/Regulation2";
 import Regulation4 from "./pages/Feature6/Regulation4";
 import Feature6Main from "./pages/Feature6/Feature6Main";
 
+import { AuthProvider } from "./pages/AuthContext";
+
 function App() {
   return (
-    <ReportProvider>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" />} />
+    <Routes>
+      {/* Public routes (không cần AuthProvider) */}
+      <Route path="/" element={<Navigate to="/login" />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot_password" element={<ForgotPassword />} />
 
-        <Route path="/register" element={<Register />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/forgot_password" element={<ForgotPassword />} />
-        <Route path="/about" element={<AboutUs />} />
-        <Route path="/HomePage" element={<HomePage />} />
+      {/* Protected routes */}
+      <Route
+        path="/*"
+        element={
+          <AuthProvider>
+            <ReportProvider>
+              <Routes>
+                <Route path="/HomePage" element={<HomePage />} />
+                <Route path="/about" element={<AboutUs />} />
+                <Route path="/feature1" element={<Feature1 />} />
+                <Route path="/feature2" element={<Feature2 />} />
+                <Route path="/feature3" element={<Feature3 />} />
+                <Route path="/feature4" element={<Feature4Main />} />
 
-        <Route path="/feature1" element={<Feature1 />} />
-        <Route path="/feature2" element={<Feature2 />} />
-        <Route path="/feature3" element={<Feature3 />} />
-        <Route path="/feature4" element={<Feature4Main />} />
+                {/* Feature 5 */}
+                <Route path="/feature5" element={<Feature5Main />} />
+                <Route path="/feature5/revenue" element={<RevenueReport />} />
+                <Route path="/feature5/revenue/add" element={<RevenueReportForm />} />
+                <Route path="/feature5/revenue/edit" element={<RevenueReportForm />} />
+                <Route path="/feature5/occupancy" element={<OccupancyReport />} />
+                <Route path="/feature5/occupancy/add" element={<OccupancyReportForm />} />
+                <Route path="/feature5/occupancy/edit" element={<OccupancyReportForm />} />
 
-        {/* Feature 5 Routes */}
-        <Route path="/feature5" element={<Feature5Main />} />
-        <Route path="/feature5/revenue" element={<RevenueReport />} />
-        <Route path="/feature5/revenue/add" element={<RevenueReportForm />} />
-        <Route path="/feature5/revenue/edit" element={<RevenueReportForm />} />
-        <Route path="/feature5/occupancy" element={<OccupancyReport />} />
-        <Route
-          path="/feature5/occupancy/add"
-          element={<OccupancyReportForm />}
-        />
-        <Route
-          path="/feature5/occupancy/edit"
-          element={<OccupancyReportForm />}
-        />
-
-        {/* Feature 6 Routes */}
-        <Route path="/feature6" element={<Feature6Main />} />
-        <Route path="/feature6/regulation1" element={<Regulation1 />} />
-        <Route path="/feature6/regulation2" element={<Regulation2 />} />
-        <Route path="/feature6/regulation4" element={<Regulation4 />} />
-      </Routes>
-    </ReportProvider>
+                {/* Feature 6 */}
+                <Route path="/feature6" element={<Feature6Main />} />
+                <Route path="/feature6/regulation1" element={<Regulation1 />} />
+                <Route path="/feature6/regulation2" element={<Regulation2 />} />
+                <Route path="/feature6/regulation4" element={<Regulation4 />} />
+              </Routes>
+            </ReportProvider>
+          </AuthProvider>
+        }
+      />
+    </Routes>
   );
 }
 
