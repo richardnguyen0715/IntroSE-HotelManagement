@@ -129,7 +129,7 @@ function RevenueReport() {
       <main className="main-content">
         <div className="header-container">
           <h2>Báo cáo doanh thu theo loại phòng</h2>
-          <Link to="/HomePage" className="back-button">
+          <Link to="/feature5" className="back-button">
             <img src="/icons/Navigate.png" alt="Back" />
           </Link>
         </div>
