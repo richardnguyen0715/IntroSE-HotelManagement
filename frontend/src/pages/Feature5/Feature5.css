@@ -52,56 +52,6 @@
     margin-top: 2rem;
 }
 
-.action-button {
-    padding: 8px 24px;
-    border: none;
-    border-radius: 4px;
-    font-weight: 500;
-    text-transform: uppercase;
-    min-width: 100px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    cursor: default;
-    opacity: 0.6;
-}
-
-.action-button.add-button {
-    background-color: #4CAF50;
-    color: white;
-    cursor: pointer !important;
-    opacity: 1;
-}
-.action-button.edit-button,
-.action-button.delete-button {
-    background-color: #ffc107;
-    color: black;
-    cursor: not-allowed;
-}
-.action-button.delete-button {
-    background-color: #f44336;
-    color: white;
-}
-
-/* Style khi nút có thể click được */
-.action-button.edit-button:not(:disabled),
-.action-button.delete-button:not(:disabled) {
-    opacity: 1;
-    cursor: pointer !important;
-}
-
-/* Hiệu ứng hover cho các nút có thể click */
-.action-button:not(:disabled):hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-}
-
-/* Style cho nút bị disable */
-.action-button:disabled {
-    opacity: 0.6;
-    cursor: not-allowed !important;
-    pointer-events: none;
-}
-
 .revenue-report {
     margin-bottom: 2rem;
 }

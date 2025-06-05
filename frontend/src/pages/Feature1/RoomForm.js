@@ -11,23 +11,21 @@ function RoomForm({ room, onClose }) {
     type: "",
     capacity: 1,
   });
-  const [error, setError] = useState("");
+
   useEffect(() => {
     const fetchMaxCustomers = async () => {
       try {
         const response = await fetch("http://localhost:5000/api/policy/");
         const data = await response.json();
-        setMaxCustomers(data.maxCapacity || 4); // Gán maxCustomers từ API
+        setMaxCustomers(data.maxCapacity || 4);
       } catch (error) {
         console.error("Error fetching maxCustomers:", error);
-        setError(
-          "Không thể lấy thông tin số lượng khách. Vui lòng thử lại sau."
-        );
       }
     };
 
     fetchMaxCustomers();
   }, []);
+
   useEffect(() => {
     if (room) {
       setFormData({
@@ -46,56 +44,18 @@ function RoomForm({ room, onClose }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
-    // Xử lý đặc biệt cho trường capacity
-    if (name === "capacity") {
-      const capacityValue = parseInt(value, 10);
-
-      // Kiểm tra nếu capacity vượt quá maxCustomers
-      if (capacityValue > maxCustomers) {
-        setError(
-          `Số người không được vượt quá ${maxCustomers} (quy định hiện tại)`
-        );
-      } else if (isNaN(capacityValue) || capacityValue <= 0) {
-        setError("Số người phải là số nguyên dương");
-      } else {
-        setError("");
-      }
-
-      setFormData((prev) => ({
-        ...prev,
-        capacity: value, // Giữ nguyên giá trị trong input để người dùng có thể chỉnh sửa
-      }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: value,
-      }));
-      setError("");
-    }
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Validate form trước khi submit
-    const capacityValue = parseInt(formData.capacity, 10);
-
-    if (isNaN(capacityValue) || capacityValue <= 0) {
-      setError("Số người phải là số nguyên dương");
-      return;
-    }
-
-    if (capacityValue > maxCustomers) {
-      setError(`Số người không được vượt quá ${maxCustomers}`);
-      return;
-    }
-
     try {
-      // Chuyển đổi capacity thành số nguyên
       const roomData = {
         ...formData,
-        capacity: capacityValue,
+        capacity: parseInt(formData.capacity, 10),
       };
 
       if (room) {
@@ -105,7 +65,7 @@ function RoomForm({ room, onClose }) {
       }
       onClose();
     } catch (err) {
-      setError(err.message);
+      console.error(err);
     }
   };
 
@@ -116,7 +76,7 @@ function RoomForm({ room, onClose }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Số Phòng:</label>
+            <label>Số phòng</label>
             <input
               type="text"
               name="roomNumber"
@@ -127,7 +87,7 @@ function RoomForm({ room, onClose }) {
           </div>
 
           <div className="form-group">
-            <label>Loại Phòng:</label>
+            <label>Loại phòng</label>
             <input
               type="text"
               name="type"
@@ -150,7 +110,7 @@ function RoomForm({ room, onClose }) {
             />
           </div> */}
           <div className="form-group">
-            <label>Số người:</label>
+            <label>Số người</label>
             <input
               type="number"
               name="capacity"
@@ -162,11 +122,9 @@ function RoomForm({ room, onClose }) {
               required
             />
             <small className="form-hint">
-              Chú ý: Không được vượt quá {maxCustomers} người (quy định hiện
-              tại)
+              Chú ý: Không được vượt quá {maxCustomers} người (quy định hiện tại)
             </small>
           </div>
-          {error && <div className="error-message">{error}</div>}
 
           <div className="button-group">
             <button type="submit" className="btn-save">

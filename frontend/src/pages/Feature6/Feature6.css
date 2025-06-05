@@ -1,26 +1,3 @@
-.flag {
-    width: 24px;
-    height: 16px;
-}
-
-.button-reg {
-    background-color: #E8F5E3;
-    color: #4B6F44;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.button-log {
-    background-color: #4B6F44;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
 .header-container {
     display: flex;
     justify-content: space-between;
@@ -266,54 +243,6 @@ input:disabled {
     background-color: #45a049;
 }
 
-.action-button {
-    padding: 8px 24px;
-    border: none;
-    border-radius: 4px;
-    font-weight: 500;
-    text-transform: uppercase;
-    min-width: 100px;
-    font-size: 14px;
-    transition: all 0.3s ease;
-    cursor: default; /* Mặc định là default */
-    opacity: 1;
-}
-
-.action-button.add {
-    background-color: #4caf50;
-    color: white;
-    cursor: pointer !important; /* Nút thêm luôn có cursor pointer */
-}
-
-.action-button.edit, .action-button.delete {
-    /* Mặc định cho nút sửa và xóa khi không có gì được chọn */
-    opacity: 0.6;
-    cursor: not-allowed;
-}
-
-.action-button.edit.clickable, .action-button.delete.clickable {
-    /* Khi có thể click được */
-    opacity: 1;
-    cursor: pointer !important;
-}
-
-.action-button.edit {
-    background-color: #ffc107;
-    color: black;
-}
-
-.action-button.delete {
-    background-color: #f44336;
-    color: white;
-}
-
-/* Sửa lỗi hover không có con trỏ bàn tay */
-.action-button.clickable:hover {
-    opacity: 0.9;
-    transform: translateY(-1px);
-    cursor: pointer !important;
-}
-
 /* Descriptions */
 .regulation-description {
     font-size: 0.9rem;
@@ -407,15 +336,6 @@ button:not([disabled]).action-button.clickable {
     justify-content: center;
     align-items: center;
     z-index: 1000;
-}
-
-.modal-content {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 500px;
-    max-width: 90%;
 }
 
 .max-customer-header {
