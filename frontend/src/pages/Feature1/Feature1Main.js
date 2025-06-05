@@ -73,6 +73,7 @@ function Feature1Main() {
       const result = await deleteRooms(selectedRooms);
       if (result) {
         setSelectedRooms([]); // Tải lại danh sách phòng sau khi xóa
+        await syncRoomStatusWithBookings();
       }
     }
   };
