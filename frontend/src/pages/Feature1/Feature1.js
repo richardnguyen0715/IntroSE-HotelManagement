@@ -14,7 +14,9 @@ function Feature1() {
     <div className="app">
      <header className="app-header">
         <div className="header-left">
-          <h1>HotelManager</h1>
+          <Link to="/HomePage">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
 
         <div className="header-right">

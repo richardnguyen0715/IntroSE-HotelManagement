@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useRooms } from "./RoomContext";
 import { useNavigate } from "react-router-dom";
 import RoomForm from "./RoomForm";
-import "./Feature1.css";
 import { getRoomPrice, getRoomTypes } from "../../services/rooms";
+import "./Feature1.css";
 
 function Feature1Main() {
   const { rooms, deleteRooms, syncRoomStatusWithBookings } = useRooms();
@@ -146,7 +146,7 @@ function Feature1Main() {
           <tbody>
             {rooms.map((room, index) => (
               <tr key={room._id}>
-                <td>
+                <td className="checkbox-column">
                   <input
                     type="checkbox"
                     checked={selectedRooms.includes(room._id)}
@@ -169,17 +169,11 @@ function Feature1Main() {
         <button className="action-button add" onClick={handleAdd}>
           Thêm
         </button>
-        {/* <button
-          className={`action-button edit ${
-            selectedRooms.length === 1 ? "clickable" : "disabled"
-          }`}
-          onClick={handleEdit}
-          disabled={selectedRooms.length !== 1}
-        >
-          Sửa
-        </button> */}
+
         <button
-          className="action-button delete"
+          className={`action-button delete ${
+            selectedRooms.length > 0 ? "clickable" : ""
+          }`}
           onClick={handleDelete}
           disabled={selectedRooms.length === 0}
         >
