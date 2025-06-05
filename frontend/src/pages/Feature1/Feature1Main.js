@@ -68,12 +68,11 @@ function Feature1Main() {
       );
       return;
     }
-
     // Nếu tất cả phòng đều available, tiến hành xóa
     if (window.confirm("Bạn có chắc chắn muốn xóa các phòng đã chọn?")) {
       const result = await deleteRooms(selectedRooms);
       if (result) {
-        setSelectedRooms([]);
+        setSelectedRooms([]); // Tải lại danh sách phòng sau khi xóa
       }
     }
   };

@@ -235,7 +235,7 @@ export function RoomProvider({ children }) {
       // Chỉ xóa phòng available
       const availableRoomIds = roomsToDelete
         .filter((room) => room.status === "available")
-        .map((room) => room._id);
+        .map((room) => room.roomNumber);
 
       if (availableRoomIds.length === 0) {
         setError("Không có phòng nào có thể xóa");
@@ -253,7 +253,6 @@ export function RoomProvider({ children }) {
       const updatedRooms = rooms.filter(
         (room) => !availableRoomIds.includes(room._id)
       );
-
       setRooms(updatedRooms);
       return true;
     } catch (error) {

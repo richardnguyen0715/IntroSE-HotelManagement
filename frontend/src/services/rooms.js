@@ -109,9 +109,9 @@ export const addRoom = async (roomData) => {
  * @param {string} id ID của phòng
  * @returns {Promise} Promise với kết quả xóa
  */
-export const deleteRoom = async (_id) => {
+export const deleteRoom = async (roomNumber) => {
   try {
-    const response = await fetch(`${API_URL}/rooms/${_id}`, {
+    const response = await fetch(`${API_URL}/rooms/${roomNumber}`, {
       method: "DELETE",
     });
 
@@ -122,22 +122,24 @@ export const deleteRoom = async (_id) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error deleting room ${_id}:`, error);
+    console.error(`Error deleting room ${roomNumber}:`, error);
     throw error;
   }
 };
 
-export const deleteMultipleRooms = async (ids) => {
+export const deleteMultipleRooms = async (roomNumbers) => {
   try {
     // Tạo một mảng các promises cho mỗi lần gọi API xóa phòng
-    const deletePromises = ids.map((_id) => deleteRoom(_id));
+    const deletePromises = roomNumbers.map((roomNumber) =>
+      deleteRoom(roomNumber)
+    );
 
     // Thực hiện tất cả các promises song song
     await Promise.all(deletePromises);
 
     return {
       status: "success",
-      message: `Đã xóa ${ids.length} phòng thành công`,
+      message: `Đã xóa ${roomNumbers.length} phòng thành công`,
     };
   } catch (error) {
     console.error("Error deleting multiple rooms:", error);
