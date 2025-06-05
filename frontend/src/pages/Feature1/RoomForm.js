@@ -72,28 +72,30 @@ function RoomForm({ room, onClose }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>{room ? "Sửa Phòng" : "Thêm Phòng Mới"}</h3>
+        <h3>{room ? "Sửa Phòng" : "THÊM PHÒNG MỚI"}</h3>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Số phòng</label>
+            <label>Số phòng <span className="required">*</span></label>
             <input
               type="text"
               name="roomNumber"
               value={formData.roomNumber}
               onChange={handleChange}
+              placeholder="Nhập số phòng"
               required
             />
           </div>
 
           <div className="form-group">
-            <label>Loại phòng</label>
+            <label>Loại phòng <span className="required">*</span></label>
             <input
               type="text"
               name="type"
               value={formData.type}
               onChange={handleChange}
-              placeholder="A, B, C"
+              placeholder="Nhập loại phòng"
+              pattern="A|B|C"
               required
             />
           </div>
@@ -110,7 +112,7 @@ function RoomForm({ room, onClose }) {
             />
           </div> */}
           <div className="form-group">
-            <label>Số người</label>
+            <label>Số người <span className="required">*</span></label>
             <input
               type="number"
               name="capacity"
@@ -128,10 +130,10 @@ function RoomForm({ room, onClose }) {
 
           <div className="button-group">
             <button type="submit" className="btn-save">
-              {room ? "Cập Nhật" : "Thêm"}
+              {room ? "Cập Nhật" : "THÊM"}
             </button>
             <button type="button" onClick={onClose} className="btn-cancel">
-              Hủy
+              HỦY
             </button>
           </div>
         </form>
