@@ -370,7 +370,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
   return (
     <div className="modal">
-      <div className="modal-content">
+      <div className="modal-content" id="rental-form">
         <h3>
           {isEditMode ? "Chỉnh sửa phiếu thuê phòng" : "Tạo phiếu thuê phòng"}
         </h3>
@@ -380,7 +380,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label>Email liên hệ:</label>
+            <label>Email liên hệ</label>
             <input
               type="email"
               value={formData.email}
@@ -392,9 +392,8 @@ function RentalForm({ rental, onClose, onSuccess }) {
             />
           </div>
 
-          <div className="form-row">
             <div className="form-group">
-              <label>Phòng:</label>
+              <label>Phòng</label>
               {/* Nếu đã có 1 phòng được chọn từ Feature1 */}
               {rental?.initialRoom && (
                 <input
@@ -431,30 +430,30 @@ function RentalForm({ rental, onClose, onSuccess }) {
               {showAvailableRoomsDropdown && (
                 <>
                   {availableRooms.length === 0 ? (
-                    <div className="no-rooms-message">Không có phòng trống</div>
+                    <div className="no-rooms-message">Không có phòng trống!</div>
                   ) : (
-                    <select
-                      value={formData.room}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          room: e.target.value,
-                          roomType: e.target.value
-                            ? e.target.value.charAt(0)
-                            : "",
-                        })
-                      }
-                      required
-                    >
-                      <option value="">Chọn phòng</option>
-                      {availableRooms.map((room) => (
-                        <option key={room.roomNumber} value={room.roomNumber}>
-                          {room.roomNumber} - Loại {room.type}- Sức chứa:{" "}
-                          {room.capacity || "?"} người
-                        </option>
-                      ))}
-                    </select>
-                  )}
+                  <select
+                    value={formData.room}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        room: e.target.value,
+                        roomType: e.target.value
+                          ? e.target.value.charAt(0)
+                          : "",
+                      })
+                    }
+                    required
+                  >
+                    <option value="">Chọn phòng</option>
+                    {availableRooms.map((room) => (
+                      <option key={room.roomNumber} value={room.roomNumber}>
+                        {room.roomNumber} - Loại {room.type} - Sức chứa:{" "}
+                        {room.capacity || "?"} người
+                      </option>
+                    ))}
+                  </select>
+                )}
                 </>
               )}
 
@@ -480,10 +479,9 @@ function RentalForm({ rental, onClose, onSuccess }) {
                   ))}
                 </select>
               )} */}
-            </div>
 
             <div className="form-group">
-              <label>Ngày bắt đầu thuê:</label>
+              <label>Ngày bắt đầu thuê</label>
               <input
                 type="text"
                 value={formData.checkInDate}

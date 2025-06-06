@@ -224,11 +224,6 @@
         right: 0.5rem;
     }
 }
-.error-message {
-    color: red;
-    margin-bottom: 1em;
-    font-size: 0.9rem;
-}
 
 .action-button.small {
     padding: 4px 10px;

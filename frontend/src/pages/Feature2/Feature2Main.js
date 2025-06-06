@@ -7,6 +7,7 @@ import { formatDateForUI } from "../../services/bookings";
 import "./Feature2.css";
 
 function Feature2Main() {
+  const navigate = useNavigate();
   const { rentals, fetchRentals, deleteRentals, loading, error } = useRentals();
   const [selectedRentals, setSelectedRentals] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -14,7 +15,6 @@ function Feature2Main() {
   const [successMessage, setSuccessMessage] = useState("");
   const { fetchRooms, rooms, syncRoomStatusWithBookings } = useRooms();
   const location = useLocation();
-  const navigate = useNavigate();
 
   // Lấy danh sách phòng rồi truyền qua feature4
   const handleCreateInvoice = () => {
@@ -56,13 +56,12 @@ function Feature2Main() {
     // Thiết lập một interval để cập nhật theo lịch trình
     const intervalId = setInterval(() => {
       const now = Date.now();
-      if (now - lastFetchTime > 10000) {
-        // 10 giây
+      if (now - lastFetchTime > 300000) {
+        // 5 phút
         console.log("Scheduled refresh - updating rentals...");
         fetchRentals();
-        setLastFetchTime(now);
       }
-    }, 10000); // Kiểm tra mỗi 10 giây
+    }, 300000); // Kiểm tra mỗi 5 phút
 
     // Cleanup khi component unmount
     return () => {
@@ -346,7 +345,7 @@ function Feature2Main() {
         <h4>Lọc phiếu thuê</h4>
         <div className="filter-controls">
           <div className="filter-group">
-            <label>Phòng:</label>
+            <label id="label-1">Phòng</label>
             <select
               name="room"
               value={filters.room}
@@ -363,7 +362,7 @@ function Feature2Main() {
 
           {/* Thêm trường ngày nhận phòng */}
           <div className="filter-group">
-            <label>Ngày nhận phòng:</label>
+            <label id="label-2">Ngày nhận phòng</label>
             <input
               type="date"
               name="checkInDate"
@@ -415,15 +414,15 @@ function Feature2Main() {
                   />
                   <span className="rental-id">ID: {rental.id}</span>
                 </div>
-                <span>Email: {rental.email}</span>
+                <span className="rental-email">Email: {rental.email}</span>
               </div>
 
               <div className="rental-details">
-                <div className="rental-info-row">
+                <div className="rental-info-row" id="rental-info-row-1">
                   <div className="rental-info-item">
                     <strong>Phòng:</strong> {rental.room}
                   </div>
-                  <div className="rental-info-item">
+                  <div className="rental-info-item" id="rental-info-item-after-1">
                     <strong>Ngày bắt đầu thuê:</strong>{" "}
                     {formatDateForUI(rental.checkInDate)}
                   </div>
@@ -433,7 +432,7 @@ function Feature2Main() {
                   <div className="rental-info-item">
                     <strong>Email:</strong> {rental.email}
                   </div>
-                  <div className="rental-info-item">
+                  <div className="rental-info-item" id="rental-info-item-after-2">
                     <strong>Trạng thái: </strong>
                     {rental.status}
                   </div>
@@ -509,13 +508,6 @@ function Feature2Main() {
         </button>
 
         <button
-          className="action-button add clickable"
-          onClick={handleCreateInvoice}
-        >
-          Lập Hóa đơn
-        </button>
-
-        <button
           className="action-button refresh clickable"
           onClick={() => {
             const now = Date.now();
@@ -530,6 +522,13 @@ function Feature2Main() {
           disabled={loading}
         >
           Làm mới
+        </button>
+
+        <button
+          className="action-button add clickable" id="invoice-button"
+          onClick={handleCreateInvoice}
+        >
+          Lập Hóa đơn
         </button>
       </div>
 
