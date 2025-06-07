@@ -96,7 +96,7 @@
 }
 
 /* Form elements styles */
-.form-group {
+/*.form-group {
     margin-bottom: 1.5rem;
     display: flex;
     flex-direction: column;
@@ -136,7 +136,8 @@
     outline: none;
     border-color: #4CAF50;
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
-}
+}*/
+
 .form-actions {
     display: flex;
     justify-content: flex-end;

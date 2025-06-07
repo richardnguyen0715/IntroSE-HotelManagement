@@ -159,7 +159,7 @@
 .modal-content {
     padding: 30px;
     width: 600px; 
-    height: 557px;
+    height: 535px;
     border-radius: 8px;
     box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.1);
     border: 2px solid #e6e6e6;
@@ -198,6 +198,7 @@
     margin-left: 25px;
     margin-top: 5px;
     font-size: 20px;
+    margin-bottom: 10px;
     font-family: "Inter", sans-serif;
 }
 
@@ -210,14 +211,13 @@
     outline: none;
     font-size: 20px;
     font-family: "Inter", sans-serif;
-    margin-top: 0px;
+    margin-bottom: 10px;
     height: 30px;
     margin-left: 20px;
     width: 90%;
 }
 
 .form-group input[type="email"]:focus,
-.form-group input[type="email"],
 .form-group input[type="text"]:focus,
 .form-group input[type="number"]:focus,
 .form-group select:focus {
@@ -226,14 +226,14 @@
 }
 
 .form-group select {
+    width: 91.8%;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
     outline: none;
     font-size: 20px;
     margin-left: 20px;
-    margin-right: 48px;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
     height: 50px;
     font-size: 20px;
     transition: all 0.3s ease;

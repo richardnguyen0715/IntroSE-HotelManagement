@@ -169,7 +169,7 @@
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.form-group {
+/*.form-group {
     margin-bottom: 1.5rem;
 }
 
@@ -191,7 +191,7 @@
 .form-group input:disabled {
     background-color: #f8f9fa;
     cursor: not-allowed;
-}
+}*/
 
 .form-actions {
     display: flex;

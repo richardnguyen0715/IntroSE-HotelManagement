@@ -220,7 +220,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
   const handleRemoveCustomer = (index) => {
     if (formData.customers.length <= 1) {
-      setError("Phải có ít nhất một khách hàng.");
+      setError("Phải có ít nhất một khách hàng");
       return;
     }
 
@@ -379,7 +379,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group" id="rental-form-group-1">
+          <div className="form-group">
             <label>Email liên hệ</label>
             <input
               type="email"
@@ -392,7 +392,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
             />
           </div>
 
-            <div className="form-group" id="rental-form-group-2">
+            <div className="form-group">
               <label>Phòng</label>
               {/* Nếu đã có 1 phòng được chọn từ Feature1 */}
               {rental?.initialRoom && (
@@ -480,7 +480,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
                 </select>
               )} */}
 
-            <div className="form-group" id="rental-form-group-3">
+            <div className="form-group">
               <label>Ngày bắt đầu thuê</label>
               <input
                 type="text"
@@ -613,10 +613,10 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
           <div className="form-buttons">
             <button type="submit" className="save-button">
-              {isEditMode ? "Cập nhật" : "Tạo phiếu thuê"}
+              {isEditMode ? "Cập nhật" : "TẠO PHIẾU THUÊ"}
             </button>
-            <button type="button" onClick={onClose} className="cancel-button">
-              Hủy
+            <button type="button" onClick={onClose} className="cancel-button-rental">
+              HỦY
             </button>
           </div>
         </form>
