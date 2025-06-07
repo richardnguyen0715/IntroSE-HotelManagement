@@ -56,10 +56,10 @@ function Feature2Main() {
     // Thiết lập một interval để cập nhật theo lịch trình
     const intervalId = setInterval(() => {
       const now = Date.now();
-      if (now - lastFetchTime > 300000) {
-        // 5 phút
+      if (now - lastFetchTime > 300000) { // 5 phút = 300000ms
         console.log("Scheduled refresh - updating rentals...");
         fetchRentals();
+        setLastFetchTime(now);
       }
     }, 300000); // Kiểm tra mỗi 5 phút
 

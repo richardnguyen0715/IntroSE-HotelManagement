@@ -372,14 +372,14 @@ function RentalForm({ rental, onClose, onSuccess }) {
     <div className="modal">
       <div className="modal-content" id="rental-form">
         <h3>
-          {isEditMode ? "Chỉnh sửa phiếu thuê phòng" : "Tạo phiếu thuê phòng"}
+          {isEditMode ? "Chỉnh sửa phiếu thuê phòng" : "TẠO PHIẾU THUÊ PHÒNG"}
         </h3>
 
         {/* Hiển thị lỗi nếu có */}
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
+          <div className="form-group" id="rental-form-group-1">
             <label>Email liên hệ</label>
             <input
               type="email"
@@ -392,7 +392,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
             />
           </div>
 
-            <div className="form-group">
+            <div className="form-group" id="rental-form-group-2">
               <label>Phòng</label>
               {/* Nếu đã có 1 phòng được chọn từ Feature1 */}
               {rental?.initialRoom && (
@@ -480,7 +480,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
                 </select>
               )} */}
 
-            <div className="form-group">
+            <div className="form-group" id="rental-form-group-3">
               <label>Ngày bắt đầu thuê</label>
               <input
                 type="text"
@@ -488,7 +488,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
                 onChange={(e) =>
                   setFormData({ ...formData, checkInDate: e.target.value })
                 }
-                placeholder="DD/MM/YYYY"
+                placeholder="dd/mm/yyyy"
                 required
               />
             </div>
@@ -513,6 +513,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
                 </button>
               )}
             </div>
+            
             <table className="customer-form-table">
               <thead>
                 <tr>

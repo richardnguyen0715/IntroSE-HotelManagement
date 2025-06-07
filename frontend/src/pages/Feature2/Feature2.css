@@ -178,7 +178,7 @@
 
 input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
-  font-size: 20px; /* Tăng kích thước biểu tượng, tuy nhiên không phải trình duyệt nào cũng cho phép thay đổi */
+  font-size: 20px; 
 }
 
 .filter-group input:focus,
@@ -304,7 +304,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 #rental-form {
-  height: 700px;
+  height: 750px;
   width: 1200px;
 }
 
@@ -317,40 +317,41 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   margin-bottom: 10px;
 }
 
+.customers-section {
+  margin-top: -10px;
+}
+
 .customers-section h4 {
-  margin-left: 20px;
+  margin-left: 25px;
 }
 
 .customer-form-table {
   width: 97%;
-  border-collapse: collapse;
   margin-bottom: 15px;
-  background: #fff;
-  border-radius: 6px;
   overflow: hidden;
   margin-top: 20px;
   margin-left: 20px;
+  border-collapse: collapse;
+  border: 1px solid #333;
 }
 
 .customer-form-table th,
 .customer-form-table td {
-  border: 1px solid #bbb;
   padding: 8px;
-  text-align: left;
+  text-align: center;
   font-size: 18px;
-  font-family: "Inter", sans-serif;
+  border: 1px solid #333;
 }
 
 .customer-form-table th {
-  background-color: #f5f5f5;
-  font-weight: 600;
-  text-align: center;
+  background-color: #c8c8c8;
+  font-weight: bold; 
 }
 
 .customer-form-table input[type="text"],
 .customer-form-table select {
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #c8c8c8;
   border-radius: 4px;
   outline: none;
   font-size: 20px;
@@ -377,7 +378,6 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 17px;
   font-family: "Inter", sans-serif;
   width: 150px;
-  margin-top: 10px;
   transition: all 0.3s ease;
   box-shadow: 5px 5px rgba(0,0,0,0.2);
 }
@@ -386,6 +386,9 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   background: #46b74a;
   color: #fff;
   margin-right: 20px;
+  margin-top: 10px;
+  width: 180px;
+  margin-left: 20px;
 }
 .add-customer-button:disabled {
   background: #aaa;
@@ -400,14 +403,21 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .remove-button {
   background: #d81f19;
   color: #fff;
-  width: 40px;
   padding: 0 0;
-  margin: 0;
   font-size: 18px;
+  width: 40px;
+  height: 40px;
+  margin-top: -3px;
 }
+
 .remove-button:hover {
   background: #e0e0e0;
   color: #333;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: center;
 }
 
 .save-button, .cancel-button {
@@ -417,8 +427,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   font-size: 17px;
   font-family: "Inter", sans-serif;
-  width: 150px;
-  margin-top: 10px;
+  width: 175px;
+  margin-top: 20px;
   transition: all 0.3s ease;
   box-shadow: 5px 5px rgba(0,0,0,0.2);
 }
@@ -442,4 +452,26 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .cancel-button:hover {
   background: #e0e0e0;
   color: #333;
+}
+
+#rental-form-group-1 {
+  width: 50%;
+}
+
+#rental-form-group-2 {
+  width: 52.7%;
+
+}
+#rental-form-group-3 {
+  width: 94.9%;
+}
+
+.empty-message {
+  margin-left: 20px;
+  margin-top: 30px;
+  margin-bottom: 10px;
+  font-size: 32px;
+  font-family: "Inter", sans-serif;
+  color: #333;
+  margin-left: 67px;
 }

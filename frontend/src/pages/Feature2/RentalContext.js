@@ -19,7 +19,7 @@ export function RentalProvider({ children }) {
   // Fetch rentals when component mounts
   useEffect(() => {
     let lastFocusTime = 0;
-    const focusInterval = 5000; // 5 giây
+    const focusInterval = 300000; // 5 phút = 300000ms
 
     const handleFocus = () => {
       const now = Date.now();
