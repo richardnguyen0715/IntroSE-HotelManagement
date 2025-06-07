@@ -4,7 +4,7 @@ import { useRooms } from "./RoomContext";
 import "./Feature1.css";
 
 function RoomForm({ room, onClose }) {
-  const { addRoom, editRoom } = useRooms();
+  const { addRoom, editRoom, rooms } = useRooms();
   const [maxCustomers, setMaxCustomers] = useState(4);
   const [formData, setFormData] = useState({
     roomNumber: "",
@@ -89,15 +89,19 @@ function RoomForm({ room, onClose }) {
 
           <div className="form-group">
             <label>Loại phòng <span className="required">*</span></label>
-            <input
-              type="text"
+            <select
               name="type"
               value={formData.type}
               onChange={handleChange}
-              placeholder="Nhập loại phòng"
-              pattern="A|B|C"
               required
-            />
+            >
+              <option value="">Chọn loại phòng</option>
+              {[...new Set(rooms.map(room => room.type))].map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* <div className="form-group">

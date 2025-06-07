@@ -226,18 +226,17 @@
 }
 
 .form-group select {
-    width: 91.8%;
+    width: 93.7%;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
     outline: none;
     font-size: 20px;
     margin-left: 20px;
-    margin-bottom: 25px;
+    margin-bottom: 10px;
     height: 50px;
     font-size: 20px;
     transition: all 0.3s ease;
-    background-color: #fff;
     font-family: "Inter", sans-serif;
 }
 

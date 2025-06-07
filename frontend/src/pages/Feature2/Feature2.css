@@ -465,5 +465,11 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .readonly-input {
+  width: 90% !important;
+  margin-bottom: 25px !important;
+}
+
+.room-type-select {
+  width: 91.9% !important;
   margin-bottom: 25px !important;
 }

@@ -406,7 +406,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
               {/* Nếu có nhiều phòng được chọn từ Feature1 */}
               {hasMultipleRoomsOption && (
-                <select
+                <select className="room-type-select"
                   value={formData.room}
                   onChange={(e) =>
                     setFormData({
@@ -432,7 +432,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
                   {availableRooms.length === 0 ? (
                     <div className="no-rooms-message">Không có phòng trống!</div>
                   ) : (
-                  <select
+                  <select className="room-type-select"
                     value={formData.room}
                     onChange={(e) =>
                       setFormData({

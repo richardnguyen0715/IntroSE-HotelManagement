@@ -138,7 +138,7 @@ function Feature1Main() {
               <th>STT</th>
               <th>Phòng</th>
               <th>Loại phòng</th>
-              <th>Đơn giá</th>
+              <th>Đơn giá (VNĐ)</th>
               <th>Số người</th>
               <th>Ghi chú</th>
             </tr>
