@@ -220,7 +220,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
   const handleRemoveCustomer = (index) => {
     if (formData.customers.length <= 1) {
-      setError("Phải có ít nhất một khách hàng");
+      setError("Phải có ít nhất một khách hàng!");
       return;
     }
 
@@ -379,19 +379,6 @@ function RentalForm({ rental, onClose, onSuccess }) {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email liên hệ</label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              placeholder="email@example.com"
-              required
-            />
-          </div>
-
             <div className="form-group">
               <label>Phòng</label>
               {/* Nếu đã có 1 phòng được chọn từ Feature1 */}

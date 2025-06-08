@@ -414,7 +414,6 @@ function Feature2Main() {
                   />
                   <span className="rental-id">ID: {rental.id}</span>
                 </div>
-                <span className="rental-email">Email: {rental.email}</span>
               </div>
 
               <div className="rental-details">
@@ -430,16 +429,11 @@ function Feature2Main() {
 
                 <div className="rental-info-row">
                   <div className="rental-info-item">
-                    <strong>Email:</strong> {rental.email}
-                  </div>
-                  <div className="rental-info-item" id="rental-info-item-after-2">
                     <strong>Trạng thái: </strong>
                     {rental.status}
                   </div>
-                </div>
 
-                <div className="rental-info-row">
-                  <div className="rental-info-item">
+                  <div className="rental-info-item" id="rental-info-item-after-2">
                     <strong>Ngày tạo:</strong>{" "}
                     {formatDateForUI(rental.createdAt)}
                   </div>

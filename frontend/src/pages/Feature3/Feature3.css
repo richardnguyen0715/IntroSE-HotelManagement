@@ -99,13 +99,6 @@
     background-color: #3da341;
 }
 
-.error-message {
-    color: #d81f19;
-    margin-left: 70px;
-    margin-bottom: 20px;
-    font-size: 18px;
-}
-
 /* Room status styles */
 .status-available {
     color: #2ecc71;
