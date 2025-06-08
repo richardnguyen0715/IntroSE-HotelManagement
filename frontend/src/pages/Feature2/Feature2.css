@@ -480,3 +480,28 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   font-size: 18px;
   text-align: center;
 }
+
+/* Success message */
+.success-message {
+  background-color: #e8f5e9;
+  color: #388e3c;
+  padding: 12px;
+  margin-bottom: 40px;
+  border-radius: 4px;
+  margin-left: 67px;
+  border-left: 4px solid #4caf50;
+  width: 88.5%;
+  font-size: 36px;
+}
+
+.error-message-feature2 {
+  background-color: #ffdcdc;
+  color: red;
+  padding: 12px;
+  margin-bottom: 40px;
+  border-radius: 4px;
+  margin-left: 67px;
+  border-left: 4px solid #ff3636;
+  width: 88.5%;
+  font-size: 36px;
+}

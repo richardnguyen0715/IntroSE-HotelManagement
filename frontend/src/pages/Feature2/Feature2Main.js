@@ -8,11 +8,12 @@ import "./Feature2.css";
 
 function Feature2Main() {
   const navigate = useNavigate();
-  const { rentals, fetchRentals, deleteRentals, loading, error } = useRentals();
+  const { rentals, fetchRentals, deleteRentals, loading } = useRentals();
   const [selectedRentals, setSelectedRentals] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [editingRental, setEditingRental] = useState(null);
   const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const { fetchRooms, rooms, syncRoomStatusWithBookings } = useRooms();
   const location = useLocation();
 
@@ -248,6 +249,16 @@ function Feature2Main() {
     }
   }, [successMessage]);
 
+   // Hiển thị thông báo thành công trong 3 giây
+   useEffect(() => {
+    if (errorMessage) {
+      const timer = setTimeout(() => {
+        setErrorMessage("");
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [errorMessage]);
+
   // Xử lý khi chỉ có 1 phòng được chuyển từ Feature1
   const handleAddWithRoom = (roomData) => {
     setEditingRental({
@@ -313,7 +324,7 @@ function Feature2Main() {
           fetchAllRooms();
         }, 1000);
       } else {
-        setSuccessMessage("Có lỗi xảy ra khi xóa phiếu thuê!");
+        setErrorMessage("Có lỗi xảy ra khi xóa phiếu thuê!");
       }
     }
   };
@@ -338,7 +349,7 @@ function Feature2Main() {
       {successMessage && (
         <div className="success-message">{successMessage}</div>
       )}
-      {error && <div className="error-message">{error}</div>}
+      {errorMessage && <div className="error-message-feature2">{errorMessage}</div>}
 
       {/* Phần bộ lọc */}
       <div className="filter-section">

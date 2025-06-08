@@ -435,13 +435,3 @@ input[type="checkbox"] {
 #invoice-button {
     background-color: #2196F3;
 }
-
-/* Success message */
-.success-message {
-    background-color: #e8f5e9;
-    color: #388e3c;
-    padding: 12px;
-    margin-bottom: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #4caf50;
-}
