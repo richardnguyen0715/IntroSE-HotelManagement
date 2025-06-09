@@ -294,6 +294,10 @@ const Feature4Main = () => {
     );
   };
 
+  const selectedUnpaidBills = bills.filter(
+    bill => selectedBills.some(selected => selected._id === bill._id) && bill.status !== 'paid'
+  );
+
   return (
     <div className="app">
       <header className="app-header">
@@ -430,9 +434,13 @@ const Feature4Main = () => {
             <button className={`action-button delete ${selectedBills.length > 0 ? "clickable" : ""}`}
               disabled={selectedBills.length === 0} 
               onClick={handleDelete}>Xóa</button>
-            <button className={`action-button booking ${selectedBills.length > 0 ? "clickable" : ""}`}
-              disabled={selectedBills.length === 0} 
-              onClick={handlePay}>Thanh toán</button>
+            <button
+              className={`action-button booking ${selectedUnpaidBills.length > 0 ? "clickable" : ""}`}
+              disabled={selectedUnpaidBills.length === 0}
+              onClick={handlePay}
+            >
+              Thanh toán
+            </button>
           </div>
       </div>
 
