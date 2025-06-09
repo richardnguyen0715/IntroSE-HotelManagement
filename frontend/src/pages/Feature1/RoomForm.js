@@ -3,8 +3,8 @@ import { useRooms } from "./RoomContext";
 //import { useRegulation } from "../Feature6/RegulationContext";
 import "./Feature1.css";
 
-function RoomForm({ room, onClose }) {
-  const { addRoom, editRoom, rooms } = useRooms();
+function RoomForm({ room, onClose, roomTypes }) {
+  const { addRoom, editRoom } = useRooms();
   const [maxCustomers, setMaxCustomers] = useState(4);
   const [formData, setFormData] = useState({
     roomNumber: "",
@@ -96,9 +96,9 @@ function RoomForm({ room, onClose }) {
               required
             >
               <option value="">Chọn loại phòng</option>
-              {[...new Set(rooms.map(room => room.type))].map((type) => (
-                <option key={type} value={type}>
-                  {type}
+              {roomTypes && roomTypes.map((roomType) => (
+                <option key={roomType._id} value={roomType.type}>
+                  {roomType.type}
                 </option>
               ))}
             </select>

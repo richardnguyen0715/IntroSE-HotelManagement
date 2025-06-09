@@ -1,51 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { RoomProvider, useRooms } from "../Feature1/RoomContext";
+import { getRoomPrice, getRoomTypes } from "../../services/rooms";
+import { useAuth } from "../AuthContext";
 import "../App.css";
 import "./Feature3.css";
-import { getRoomPrice, getRoomTypes } from "../../services/rooms";
 
 // Separate inner component to use context
 function Feature3Content() {
-  const navigate = useNavigate();
   const [searchRoom, setSearchRoom] = useState("");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
+  const { userInfo, logout } = useAuth();
   const { rooms, loading, error, syncRoomStatusWithBookings } = useRooms();
   const [searchResults, setSearchResults] = useState(null);
   const [roomTypes, setRoomTypes] = useState([]); // Thêm state để lưu roomTypes
-
-  useEffect(() => {
-    // Kiểm tra token theo thứ tự ưu tiên
-    let token = localStorage.getItem("token");
-    let savedUserInfo = localStorage.getItem("userInfo");
-  
-    // Nếu không có trong localStorage, kiểm tra sessionStorage
-    if (!token) {
-      token = sessionStorage.getItem("token");
-      savedUserInfo = sessionStorage.getItem("userInfo");
-    }
-  
-    if (!token) {
-      // Nếu không có token ở cả 2 nơi -> chuyển về login
-      navigate("/login", { replace: true });
-      return;
-    }
-  
-    if (savedUserInfo) {
-      setUserInfo(JSON.parse(savedUserInfo));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]);
-  
-  const handleLogout = () => {
-    // Xóa token và userInfo ở cả localStorage và sessionStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userInfo");
-    navigate("/login", { replace: true });
-  };
 
   // Tải danh sách loại phòng KHI COMPONENT MOUNT (chỉ một lần)
   useEffect(() => {
@@ -91,7 +59,9 @@ function Feature3Content() {
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <h1>HotelManager</h1>
+          <Link to="/HomePage">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
 
         <div className="header-right">
@@ -117,7 +87,7 @@ function Feature3Content() {
                   <p>Email: {userInfo?.email}</p>
                   <p>Vai trò: {userInfo?.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>
+                <button className="logout-button" onClick={logout}>
                   Đăng xuất
                 </button>
               </div>

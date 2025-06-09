@@ -190,7 +190,7 @@ function Feature1Main() {
         </button>
       </div>
 
-      {showForm && <RoomForm room={editingRoom} onClose={handleCloseForm} />}
+      {showForm && <RoomForm room={editingRoom} onClose={handleCloseForm} roomTypes={roomTypes} />}
     </div>
   );
 }

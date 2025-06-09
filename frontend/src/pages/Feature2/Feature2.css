@@ -385,16 +385,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .add-customer-button {
   background: #46b74a;
   color: #fff;
-  margin-right: 20px;
+  margin-right: 40px;
   margin-top: 10px;
   width: 180px;
   margin-left: 20px;
 }
+
 .add-customer-button:disabled {
   background: #aaa;
   color: #fff;
   cursor: not-allowed;
 }
+
 .add-customer-button:hover:enabled {
   background: #d3f8b4;
   color: #333;
@@ -427,7 +429,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   cursor: pointer;
   font-size: 17px;
   font-family: "Inter", sans-serif;
-  width: 200px;
+  width: 190px;
   margin-top: 20px;
   transition: all 0.3s ease;
   box-shadow: 5px 5px rgba(0,0,0,0.2);
@@ -436,7 +438,8 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 .save-button {
   background: #46b74a;
   color: #fff;
-  margin-right: 20px;
+  margin-right: 35px;
+
 }
 
 .save-button:hover {

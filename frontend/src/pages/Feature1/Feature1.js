@@ -6,7 +6,6 @@ import Feature1Main from "./Feature1Main";
 import "../App.css";
 import "./Feature1.css";
 
-
 function Feature1() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { userInfo, logout } = useAuth();

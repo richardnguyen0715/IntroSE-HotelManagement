@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useAuth } from '../AuthContext';
 import AddForm from './AddForm';
 import './Feature4.css';
 
@@ -20,32 +21,8 @@ const Feature4Main = () => {
   const [filterEndDate, setFilterEndDate] = useState('');
 
   // Kiểm tra người dùng đã đăng nhập
-  const navigate = useNavigate();
-  const [userInfo, setUserInfo] = useState(null);
+  const { userInfo, logout } = useAuth();
   const [showUserDropdown, setShowUserDropdown] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-    const savedUserInfo = localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
-
-    if (!token) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
-    if (savedUserInfo) {
-      setUserInfo(JSON.parse(savedUserInfo));
-    }
-  }, [navigate]);
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userInfo");
-    setUserInfo(null);
-    navigate("/login");
-  };
 
   // Lấy thông tin về các phòng đã chọn từ Feature2
   const location = useLocation();
@@ -337,7 +314,7 @@ const Feature4Main = () => {
                   <p>Email: {userInfo.email}</p>
                   <p>Vai trò: {userInfo.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>Đăng xuất</button>
+                <button className="logout-button" onClick={logout}>Đăng xuất</button>
               </div>
             )}
           </div>
