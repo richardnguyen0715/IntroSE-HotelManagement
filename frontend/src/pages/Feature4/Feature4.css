@@ -1,125 +1,3 @@
-.bills-container {
-    background: white;
-    border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.bills-container h3 {
-    margin-top: 0;
-    color: #333;
-    margin-bottom: 2rem;
-}
-
-.bill-section {
-    border: 2px solid transparent;
-    cursor: pointer;
-}
-
-.bill-section:hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.bill-section.selected {
-    border: 2px solid #4CAF50;
-    background-color: rgba(76, 175, 80, 0.1);
-    transition: all 0.3s ease;
-}
-
-.bill-status {
-    padding: 1rem;
-}
-
-.bill-status.paid {
-    background-color: #E8F5E9;
-}
-
-.bill-status.unpaid {
-    background-color: #FFEBEE;
-}
-
-.status-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.status-header h3 {
-    margin: 0;
-    font-size: 2rem;
-    color: #333;
-}
-
-.status-text {
-    font-size: 2rem;
-    font-weight: bold;
-}
-
-.paid .status-text {
-    color: #2E7D32;
-}
-
-.unpaid .status-text {
-    color: #C62828;
-}
-
-.bill-info {
-    padding: 1.5rem;
-}
-
-.customer-info {
-    margin-bottom: 1.5rem;
-}
-
-.info-row {
-    margin-bottom: 0.5rem;
-}
-
-.info-row .label {
-    margin-right: 0.5rem;
-    width: 180px;
-    color: #666;
-    display: inline-block;
-}
-
-.info-row .value {
-    font-weight: 500;
-    color: #333;
-}
-
-.bill-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 1rem;
-}
-
-.bill-table th,
-.bill-table td {
-    padding: 0.75rem;
-    text-align: center;
-    border: 1px solid #ddd;
-}
-
-.bill-table th {
-    background-color: #f5f5f5;
-    text-align: center;
-    font-weight: 500;
-    color: #333;
-}
-
-.bill-table tr:nth-child(even) {
-    background-color: #FFFFE0;
-}
-
-.actions-container {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 2rem;
-    border-top: 1px solid #ddd;
-    padding-top: 2rem;
-}
-
 /* --- Room Section Styles --- */
 .rooms-section {
     background-color: #f8f9fa;
@@ -171,85 +49,15 @@
     background-color: #d32f2f;
 }
 
-/* --- Responsive Styles --- */
-@media (max-width: 768px) {
-    .app-header {
-        padding: 1rem;
-    }
-
-    .header-right {
-        gap: 1rem;
-    }
-
-    .main-content {
-        padding: 1rem;
-    }
-
-    .bills-container {
-        padding: 1rem;
-    }
-
-    .info-row {
-        flex-direction: column;
-    }
-
-    .info-row .label {
-        width: 100%;
-        margin-bottom: 0.25rem;
-    }
-
-    .actions-container {
-        flex-wrap: wrap;
-    }
-
-    .action-button {
-        width: 100%;
-    }
-
-    .form-container {
-        padding: 1rem;
-    }
-
-    .rooms-section {
-        padding: 1rem;
-    }
-
-    .room-inputs {
-        padding: 1rem;
-        padding-top: 3rem;
-    }
-
-    .remove-room {
-        top: 0.5rem;
-        right: 0.5rem;
-    }
-}
-
-.action-button.small {
-    padding: 4px 10px;
-    font-size: 0.85rem;
-    min-width: 60px;
-    height: 40px;
-}
-
-.filter-container {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-    align-items: center;
-}
-
 /* Filter */
-
 .filter-title {
-    font-size: 1.3rem;
+    font-size: 20px;
     font-weight: 700;
     margin-bottom: 0.5rem;
     color: #4B6F44;
-    border-bottom: 2px solid #4B6F44;
     padding-bottom: 0.25rem;
-    width: fit-content;
+    width: 100%;
+    text-align: center;
 }
 
 /* Viền và bóng cho phần filter */
@@ -257,13 +65,18 @@
     display: flex;
     flex-wrap: wrap;
     gap: 1.5rem 2rem;
-    margin-bottom: 1.5rem;
-    padding: 1rem 1.5rem;
+    margin-bottom: 10px;
     border: 3px solid #c0d6b3;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgba(75, 111, 68, 0.2);
     background-color: #fff;
     justify-content: flex-start;
+    align-items: center;
+    background-color: #fafaf5;
+    padding-top: 20px;
+    padding-bottom: 30px;
+    margin-left: 10px;
+    margin-right: 10px;
 }
 
 .filter-item {
@@ -275,43 +88,55 @@
 
 .filter-item label {
     font-weight: 600;
-    margin-bottom: 0.25rem;
+    margin-bottom: 8px;
+    margin-left: 23px;
     color: #333;
     font-size: 1.05rem;
 }
 
 .filter-item input,
 .filter-item select {
-    padding: 0.5rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
+    width: 350px;
+    padding-top: 12px;
+    padding-bottom: 12px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    background-color: #fff;
+    font-family: "Inter", sans-serif;
     box-sizing: border-box;
-    outline-offset: 2px;
-    transition: border-color 0.2s ease;
+    margin-left: auto;
+    margin-right: auto;
+
 }
 
 .filter-item input:focus,
 .filter-item select:focus {
-    border-color: #4B6F44;
-    box-shadow: 0 0 5px rgba(75, 111, 68, 0.5);
+    border-color: #426b1f;
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
     outline: none;
 }
 
-.actions-container {
-    position: sticky;
-    bottom: 0;
-    background: rgba(255, 255, 255, 1);
-    border-radius: 5px;
-    padding: 10px 10px;
-
-    display: inline-flex;       /* inline-flex để kích thước bao vừa đủ nội dung */
-    justify-content: center;
-    align-items: center;
-    /* box-shadow: 0 0 8px rgba(0,0,0,0.1); */
-
-    border: none !important;
+.filter-item input:hover,
+.filter-item select:hover {
+    border-color: #426b1f;
 }
 
+.rental-status {
+    font-size: 32px;
+}
+
+.bill-status.paid {
+    background-color: #d3f8b4 !important;
+    color: #426b1f !important;
+}
+
+.bill-status.unpaid {
+    background-color: #fbdedc !important;
+    color: red !important;
+}
 
 

@@ -428,11 +428,11 @@ function Feature2Main() {
               </div>
 
               <div className="rental-details">
-                <div className="rental-info-row" id="rental-info-row-1">
+                <div className="rental-info-row rental-info-row-first">
                   <div className="rental-info-item">
                     <strong>Phòng:</strong> {rental.room}
                   </div>
-                  <div className="rental-info-item" id="rental-info-item-after-1">
+                  <div className="rental-info-item rental-info-item-after">
                     <strong>Ngày bắt đầu thuê:</strong>{" "}
                     {formatDateForUI(rental.checkInDate)}
                   </div>
@@ -444,7 +444,7 @@ function Feature2Main() {
                     {rental.status}
                   </div>
 
-                  <div className="rental-info-item" id="rental-info-item-after-2">
+                  <div className="rental-info-item rental-info-item-after">
                     <strong>Ngày tạo:</strong>{" "}
                     {formatDateForUI(rental.createdAt)}
                   </div>

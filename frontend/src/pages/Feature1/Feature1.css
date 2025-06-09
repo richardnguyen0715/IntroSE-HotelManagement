@@ -411,20 +411,6 @@ input[type="checkbox"] {
     color: #333;
 }
 
-.actions-container {
-    display: flex;
-    justify-content: flex-start;
-    margin-bottom: 20px;
-}
-
-.actions-container .action-button.add {
-    text-transform: uppercase;
-    background-color: #4CAF50;
-    color: white;
-    font-weight: 500;
-    padding: 10px 20px;
-}
-
 /* Styles cho refresh button */
 .action-button.refresh {
     background-color: #fb9510;
