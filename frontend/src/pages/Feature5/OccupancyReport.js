@@ -1,45 +1,25 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useReports } from "./ReportContext";
-import { getRoomTypes, getRoomPrice } from "../../services/rooms";
+import { getRoomTypes } from "../../services/rooms";
+import { useAuth } from "../AuthContext";
 import "./Feature5.css";
 
 function OccupancyReport() {
-  const navigate = useNavigate();
-  const [roomTypes, setRoomTypes] = useState({});
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const { occupancyReport, loading, error, fetchOccupancyReport } =
-    useReports();
+  const { userInfo, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const { occupancyReport, loading, error, fetchOccupancyReport } = useReports();
+  const [, setRoomTypes] = useState({});
   const [yearMonth, setYearMonth] = useState({
     year: new Date().getFullYear(),
     month: new Date().getMonth() + 1,
   });
 
-  // Kiểm tra đăng nhập khi component mount
-  useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    const userInfo =
-      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
 
-    if (token && userInfo) {
-      setIsLoggedIn(true);
-    } else {
-      setIsLoggedIn(false);
-      // Redirect to login if not logged in
-      navigate("/login");
-    }
-  }, [navigate]);
   // Fetch report when component mounts or year/month changes
   useEffect(() => {
-    if (isLoggedIn) {
       fetchOccupancyReport(yearMonth.year, yearMonth.month);
-    }
-  }, [yearMonth, isLoggedIn]);
-
-  const handleGoBack = () => {
-    navigate("/feature5");
-  };
+  }, [yearMonth, fetchOccupancyReport]);
 
   const handleMonthChange = (e) => {
     setYearMonth((prev) => ({ ...prev, month: parseInt(e.target.value) }));
@@ -47,14 +27,6 @@ function OccupancyReport() {
 
   const handleYearChange = (e) => {
     setYearMonth((prev) => ({ ...prev, year: parseInt(e.target.value) }));
-  };
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userInfo");
-    setIsLoggedIn(false);
-    navigate("/login");
   };
 
   // Generate month options
@@ -181,43 +153,56 @@ function OccupancyReport() {
   }
 
   if (error) {
-    return <div className="error">Lỗi: {error}</div>;
+    return <div className="error-message">{error}</div>;
   }
 
   if (!occupancyReport) {
-    return <div className="no-data">Không có dữ liệu báo cáo</div>;
+    return (
+      <div className="no-data">
+        <p>Không có dữ liệu báo cáo cho thời gian đã chọn.</p>
+      </div>
+    );
   }
 
   return (
     <div className="app">
-      {/* Header */}
-      <header className="app-header">
+     <header className="app-header">
         <div className="header-left">
-          <h1>HotelManager</h1>
+          <Link to="/HomePage">
+            <h1>HotelManager</h1>
+          </Link>
         </div>
 
-        <nav className="header-right">
+        <div className="header-right">
           <Link to="/about">Về chúng tôi</Link>
           <img
             src="/icons/VietnamFlag.png"
             alt="Vietnam Flag"
             className="flag"
           />
-          {!isLoggedIn ? (
-            <>
-              <Link to="/register">
-                <button className="button-reg">Đăng ký</button>
-              </Link>
-              <Link to="/login">
-                <button className="button-log">Đăng nhập</button>
-              </Link>
-            </>
-          ) : (
-            <button className="button-log" onClick={handleLogout}>
-              Đăng xuất
-            </button>
-          )}
-        </nav>
+          <div className="user-menu">
+            <div
+              className="user-avatar"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              <img src="/icons/User.png" alt="User" />
+            </div>
+
+            {isDropdownOpen && (
+              <div className="user-dropdown">
+                <div className="user-info">
+                  <h3>Thông tin người dùng</h3>
+                  <p>Họ tên: {userInfo?.name}</p>
+                  <p>Email: {userInfo?.email}</p>
+                  <p>Vai trò: {userInfo?.role}</p>
+                </div>
+                <button className="logout-button" onClick={logout}>
+                  Đăng xuất
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
       </header>
 
       {/* Main Content */}
@@ -228,81 +213,85 @@ function OccupancyReport() {
             <img src="/icons/Navigate.png" alt="Back" />
           </Link>
         </div>
-        <div className="filter-container">
-          <div className="filter-group">
-            <label>Tháng:</label>
-            <select value={yearMonth.month} onChange={handleMonthChange}>
-              {monthOptions}
-            </select>
+        
+        <div className="feature-content">
+          <h3>Danh sách báo cáo</h3>
+          <div className="filter-container-2">
+            <div className="filter-group-2">
+              <label>Tháng:</label>
+              <select value={yearMonth.month} onChange={handleMonthChange}>
+                {monthOptions}
+              </select>
+            </div>
+            <div className="filter-group-2">
+              <label>Năm:</label>
+              <select value={yearMonth.year} onChange={handleYearChange}>
+                {yearOptions}
+              </select>
+            </div>
           </div>
-          <div className="filter-group">
-            <label>Năm:</label>
-            <select value={yearMonth.year} onChange={handleYearChange}>
-              {yearOptions}
-            </select>
-          </div>
-        </div>
-        <div className="report-container">
-          <div className="report-info">
-            <p>
-              <strong>Tháng:</strong> {occupancyReport.month}/
-              {occupancyReport.year}
-            </p>
-            <p>
-              <strong>Mã báo cáo:</strong> {occupancyReport.reportCode}
-            </p>
-          </div>
+          <div className="report-container">
+              <div className="report-info">
+                <p>
+                  <strong>Tháng:</strong> {occupancyReport.month}/
+                  {occupancyReport.year}
+                </p>
+                <p>
+                  <strong>Mã báo cáo:</strong> {occupancyReport.reportCode}
+                </p>
+              </div>
 
-          <table className="report-table">
-            <thead>
-              <tr>
-                <th>Loại phòng</th>
-                <th>Số lượng phòng</th>
-                <th>Số ngày đã thuê</th>
-                <th>Tổng số ngày</th>
-                <th>Tỷ lệ sử dụng (%)</th>
-              </tr>
-            </thead>
-            <tbody>
-              {groupedData.length > 0 ? (
-                groupedData.map((item, index) => (
-                  <tr key={index}>
-                    <td>{item.roomType}</td>
-                    <td>{item.roomCount}</td>
-                    <td>{item.occupiedDays}</td>
-                    <td>{item.totalDays}</td>
-                    <td>{item.occupancyRate}%</td>
+              <table className="report-table">
+                <thead>
+                  <tr>
+                    <th>Loại phòng</th>
+                    <th>Số lượng phòng</th>
+                    <th>Số ngày được thuê</th>
+                    <th>Tổng số ngày có thể sử dụng</th>
+                    <th>Tỷ lệ sử dụng (%)</th>
                   </tr>
-                ))
-              ) : (
-                <tr>
-                  <td
-                    colSpan="5"
-                    style={{ textAlign: "center", padding: "15px" }}
-                  >
-                    Không có dữ liệu cho các loại phòng
-                  </td>
-                </tr>
-              )}
-              <tr className="total-row">
-                <td>
-                  <strong>Tổng cộng</strong>
-                </td>
-                <td>
-                  <strong>{stats.totalRooms}</strong>
-                </td>
-                <td>
-                  <strong>{stats.totalOccupiedDays}</strong>
-                </td>
-                <td>
-                  <strong>{stats.totalDays}</strong>
-                </td>
-                <td>
-                  <strong>{stats.overallOccupancyRate}%</strong>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                </thead>
+                <tbody>
+                  {groupedData.length > 0 ? (
+                    groupedData.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.roomType}</td>
+                        <td>{item.roomCount}</td>
+                        <td>{item.occupiedDays}</td>
+                        <td>{item.totalDays}</td>
+                        <td>{item.occupancyRate}%</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        style={{ textAlign: "center", padding: "15px" }}
+                      >
+                        Không có dữ liệu cho các loại phòng
+                      </td>
+                    </tr>
+                  )}
+                  <tr>
+                    <td>
+                      <strong>Tổng cộng</strong>
+                    </td>
+                    <td>
+                      <strong>{stats.totalRooms}</strong>
+                    </td>
+                    <td>
+                      <strong>{stats.totalOccupiedDays}</strong>
+                    </td>
+                    <td>
+                      <strong>{stats.totalDays}</strong>
+                    </td>
+                    <td>
+                      <strong>{stats.overallOccupancyRate}%</strong>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+          </div>
         </div>
       </main>
     </div>

@@ -14,9 +14,7 @@ import Feature4Main from "./pages/Feature4/Feature4Main";
 // Import Feature5 components directly
 import Feature5Main from "./pages/Feature5/Feature5Main";
 import RevenueReport from "./pages/Feature5/RevenueReport";
-import RevenueReportForm from "./pages/Feature5/RevenueReportForm";
 import OccupancyReport from "./pages/Feature5/OccupancyReport";
-import OccupancyReportForm from "./pages/Feature5/OccupancyReportForm";
 import { ReportProvider } from "./pages/Feature5/ReportContext";
 
 import Regulation1 from "./pages/Feature6/Regulation1";
@@ -52,11 +50,8 @@ function App() {
                 {/* Feature 5 */}
                 <Route path="/feature5" element={<Feature5Main />} />
                 <Route path="/feature5/revenue" element={<RevenueReport />} />
-                <Route path="/feature5/revenue/add" element={<RevenueReportForm />} />
-                <Route path="/feature5/revenue/edit" element={<RevenueReportForm />} />
                 <Route path="/feature5/occupancy" element={<OccupancyReport />} />
-                <Route path="/feature5/occupancy/add" element={<OccupancyReportForm />} />
-                <Route path="/feature5/occupancy/edit" element={<OccupancyReportForm />} />
+
 
                 {/* Feature 6 */}
                 <Route path="/feature6" element={<Feature6Main />} />

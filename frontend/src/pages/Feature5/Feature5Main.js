@@ -1,45 +1,13 @@
 import React from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useAuth } from "../AuthContext";
 import "../App.css";
 import "./Feature5.css";
 
 function Feature5Main() {
-  const navigate = useNavigate(); 
+  const { userInfo, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [userInfo, setUserInfo] = useState(null);
-
-  useEffect(() => {
-    // Kiểm tra token theo thứ tự ưu tiên
-    let token = localStorage.getItem("token");
-    let savedUserInfo = localStorage.getItem("userInfo");
-  
-    // Nếu không có trong localStorage, kiểm tra sessionStorage
-    if (!token) {
-      token = sessionStorage.getItem("token");
-      savedUserInfo = sessionStorage.getItem("userInfo");
-    }
-  
-    if (!token) {
-      // Nếu không có token ở cả 2 nơi -> chuyển về login
-      navigate("/login", { replace: true });
-      return;
-    }
-  
-    if (savedUserInfo) {
-      setUserInfo(JSON.parse(savedUserInfo));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [navigate]);
-  
-  const handleLogout = () => {
-    // Xóa token và userInfo ở cả localStorage và sessionStorage
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userInfo");
-    navigate("/login", { replace: true });
-  };
 
   return (
     <div className="app">
@@ -71,7 +39,7 @@ function Feature5Main() {
                   <p>Email: {userInfo?.email}</p>
                   <p>Vai trò: {userInfo?.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>
+                <button className="logout-button" onClick={logout}>
                   Đăng xuất
                 </button>
               </div>
@@ -91,12 +59,12 @@ function Feature5Main() {
 
         <div className="function-grid_2">
   
-          <Link to="revenue" className="function-item">
+          <Link to="/feature5/revenue" className="function-item">
             <img src="/icons/Money.png" alt="Báo cáo doanh thu theo loại phòng" />
             <p>BÁO CÁO DOANH THU<br></br>THEO LOẠI PHÒNG</p>
           </Link>
 
-          <Link to="occupancy" className="function-item">
+          <Link to="/feature5/occupancy" className="function-item">
             <img src="/icons/Clock.png" alt="Báo cáo mật độ sử dụng phòng" />
             <p>BÁO CÁO MẬT ĐỘ<br></br>SỬ DỤNG PHÒNG</p>
           </Link>

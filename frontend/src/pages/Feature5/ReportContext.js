@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from "react";
+import React, { createContext, useContext, useState, useCallback } from "react";
 import { getRevenueReports, getOccupancyReports } from "../../services/reports";
 
 const ReportContext = createContext();
@@ -10,7 +10,7 @@ export function ReportProvider({ children }) {
   const [error, setError] = useState(null);
 
   // Lấy báo cáo doanh thu theo năm và tháng
-  const fetchRevenueReport = async (year, month) => {
+  const fetchRevenueReport = useCallback(async (year, month) => {
     try {
       setLoading(true);
       setError(null);
@@ -30,10 +30,10 @@ export function ReportProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Empty dependency array since it doesn't depend on any props or state
 
   // Lấy báo cáo mật độ sử dụng theo năm và tháng
-  const fetchOccupancyReport = async (year, month) => {
+  const fetchOccupancyReport = useCallback(async (year, month) => {
     try {
       setLoading(true);
       setError(null);
@@ -53,7 +53,7 @@ export function ReportProvider({ children }) {
     } finally {
       setLoading(false);
     }
-  };
+  }, []); // Empty dependency array since it doesn't depend on any props or state
 
   return (
     <ReportContext.Provider

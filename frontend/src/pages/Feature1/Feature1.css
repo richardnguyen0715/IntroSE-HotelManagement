@@ -56,14 +56,6 @@
     background-color: #f5f5f5;
 }
 
-.data-table td input[type="checkbox"] {
-    margin-top: 5px;
-    margin-left: 45px;
-    margin-right: 10px;
-    width: 20px;
-    height: 20px;
-}
-
 .checkbox-column {
     text-align: left; /* căn nội dung bên trong về bên trái */
     width: 140px;
