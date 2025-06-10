@@ -10,6 +10,7 @@ const Feature4Main = () => {
   const [selectedBills, setSelectedBills] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [resetCheckboxes, setResetCheckboxes] = useState(0);
   const API_URL = 'http://localhost:5000/api';
 
   // Các state bộ lọc
@@ -122,9 +123,10 @@ const Feature4Main = () => {
 
   // Xử lý thanh toán hóa đơn
   const handlePay = async () => {
-    if (selectedBills.length === 0) return;
+    if (selectedUnpaidBills.length === 0) return;
 
-    if (!window.confirm(`Bạn có chắc chắn muốn thanh toán ${selectedBills.length} hóa đơn đã chọn không?`)) {
+    let token = userInfo.token;
+    if (!window.confirm(`Bạn có chắc chắn muốn thanh toán ${selectedUnpaidBills.length} hóa đơn đã chọn không?`)) {
       return;
     }
 
@@ -135,52 +137,51 @@ const Feature4Main = () => {
     // Sao chép bills để cập nhật trạng thái
     let updatedBills = [...bills];
 
-    for (const billToPay of selectedBills) {
-      try {
-        const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-        if (!token) {
-          setError("Bạn cần đăng nhập để thực hiện thanh toán");
-          return;
-        }
+    try {
+      for (const billToPay of selectedUnpaidBills) {  
+        try {
+          const response = await fetch(`${API_URL}/invoices/${billToPay._id}/confirm-payment`, {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` 
+            },
+          });
 
-        const response = await fetch(`${API_URL}/invoices/${billToPay._id}/confirm-payment`, {
-          method: 'POST',
-          headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
-          },
-        });
+          const result = await response.json();
 
-        const result = await response.json();
+          if (!response.ok || !result.success) {
+            failCount++;
+            failMessages.push(`Hoá đơn của khách hàng ${billToPay.customer}: ${result.message || 'Lỗi thanh toán'}`);
+            continue;
+          }
 
-        if (!response.ok || !result.success) {
+          successCount++;
+
+          // Cập nhật hóa đơn trong danh sách bills
+          const updatedBill = result.data;
+          updatedBills = updatedBills.map(bill => bill._id === updatedBill._id ? updatedBill : bill);
+
+        } catch (error) {
           failCount++;
-          failMessages.push(`Hoá đơn của khách hàng ${billToPay.customer}: ${result.message || 'Lỗi thanh toán'}`);
-          continue;
+          failMessages.push(`${billToPay.customer}: ${error.message}`);
         }
-
-        successCount++;
-
-        // Cập nhật hóa đơn trong danh sách bills
-        const updatedBill = result.data;
-        updatedBills = updatedBills.map(bill => bill._id === updatedBill._id ? updatedBill : bill);
-
-      } catch (error) {
-        failCount++;
-        failMessages.push(`${billToPay.customer}: ${error.message}`);
       }
-    }
 
-    // Cập nhật lại danh sách bills state
-    setBills(updatedBills);
-    setSelectedBills([]);
+      // Cập nhật lại danh sách bills state
+      setBills(updatedBills);
 
-    // Thông báo kết quả
-    let alertMessage = `Thanh toán thành công ${successCount} hóa đơn.`;
-    if (failCount > 0) {
-      alertMessage += `\n${failCount} hóa đơn lỗi\n` + failMessages.join('\n');
+      // Thông báo kết quả
+      let alertMessage = `Thanh toán thành công ${successCount} hóa đơn.`;
+      if (failCount > 0) {
+        alertMessage += `\n${failCount} hóa đơn lỗi\n` + failMessages.join('\n');
+      }
+      alert(alertMessage);
+    } finally {
+      // Reset selectedBills và force re-render checkboxes
+      setSelectedBills([]);
+      setResetCheckboxes(prev => prev + 1);
     }
-    alert(alertMessage);
   };
 
   // Xử lý xóa hóa đơn
@@ -216,11 +217,14 @@ const Feature4Main = () => {
 
       // Nếu xóa thành công tất cả
       setBills(prev => prev.filter(bill => !selectedBills.some(sb => sb._id === bill._id)));
-      setSelectedBills([]);
       alert('Xóa hóa đơn thành công!');
 
     } catch (error) {
       alert(`Lỗi khi xóa: ${error.message}`);
+    } finally {
+      // Reset selectedBills và force re-render checkboxes
+      setSelectedBills([]);
+      setResetCheckboxes(prev => prev + 1);
     }
   };
 
@@ -232,6 +236,7 @@ const Feature4Main = () => {
           <div className="rental-checkbox">
             <input
               type="checkbox"
+              key={`checkbox-${bill._id}-${resetCheckboxes}`}
               onChange={e => {
                 e.stopPropagation();
                 handleBillSelection(bill);
