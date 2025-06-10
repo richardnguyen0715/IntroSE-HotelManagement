@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 import "../Feature6/Feature6.css";
 
 const API_URL = "http://localhost:5000/api";
@@ -17,95 +18,66 @@ const Regulation2 = () => {
     coefficient: "1",
   });
   const [selectedCustomerTypes, setSelectedCustomerTypes] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [customerTypeMap, setCustomerTypeMap] = useState({}); // map từ API
-
-  // Kiểm tra đăng nhập
-  const [userInfo, setUserInfo] = useState(null);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const navigate = useNavigate();
-
-  // Kiểm tra token và thông tin người dùng khi component được mount
-  useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    const savedUserInfo =
-      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
-
-    if (!token) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
-    if (savedUserInfo) {
-      setUserInfo(JSON.parse(savedUserInfo));
-    }
-  }, [navigate]);
-
-  // Hàm xử lý đăng xuất
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userInfo");
-    setUserInfo(null);
-    navigate("/login");
-  };
+  const [customerTypeMap, setCustomerTypeMap] = useState({});
+  const { userInfo, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Fetch mapping
-  useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) {
-      alert("Bạn cần đăng nhập để tiếp tục");
-      return;
+  const fetchCustomerTypeMap = useCallback(async () => {
+    try {
+      const token = userInfo.token;
+      const res = await fetch(`${API_URL}/mapper`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Không thể tải dữ liệu mapper");
+      const data = await res.json();
+      setCustomerTypeMap(data);
+    } catch (err) {
+      setError(err.message);
     }
-
-    fetch(`${API_URL}/mapper`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Thêm token vào header
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Không thể tải dữ liệu mapper");
-        return res.json();
-      })
-      .then((data) => {
-        setCustomerTypeMap(data);
-      })
-      .catch((err) => setError(err.message));
-  }, []);
+  }, [userInfo.token]);
 
   // Fetch policy sau khi có mapper
-  useEffect(() => {
+  const fetchPolicy = useCallback(async () => {
     if (Object.keys(customerTypeMap).length === 0) return;
 
-    fetch(`${API_URL}/policy`)
-      .then((res) => {
-        if (!res.ok) throw new Error("Không thể tải dữ liệu quy định");
-        return res.json();
-      })
-      .then((data) => {
-        setMaxCustomersValue(data.maxCapacity);
-        setInitialMaxCapacity(data.maxCapacity);
-        // Tạo map các loại khách từ dữ liệu trả về
-        const types = Object.entries(data)
-          .filter(
-            ([key]) => key.endsWith("Policy") && key !== "surchargePolicy"
-          )
-          .map(([key, coefficient]) => ({
-            id: key,
-            type: customerTypeMap[key] || key,
-            coefficient: coefficient.toString(),
-          }));
-        setEditingCustomerTypes(types);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, [customerTypeMap]);
+    try {
+      const token = userInfo.token;
+      const res = await fetch(`${API_URL}/policy`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Không thể tải dữ liệu quy định");
+      const data = await res.json();
+      
+      setMaxCustomersValue(data.maxCapacity);
+      setInitialMaxCapacity(data.maxCapacity);
+      const types = Object.entries(data)
+        .filter(([key]) => key.endsWith("Policy") && key !== "surchargePolicy")
+        .map(([key, coefficient]) => ({
+          id: key,
+          type: customerTypeMap[key] || key,
+          coefficient: coefficient.toString(),
+        }));
+      setEditingCustomerTypes(types);
+    } catch (err) {
+      setError(err.message);
+    }
+  }, [customerTypeMap, userInfo.token]);
+
+  useEffect(() => {
+    fetchCustomerTypeMap();
+  }, [fetchCustomerTypeMap]);
+
+  useEffect(() => {
+    fetchPolicy();
+  }, [fetchPolicy]);
 
   // Hàm xử lý thay đổi số lượng khách tối đa
   const handleMaxCustomersChange = (e) => {
@@ -115,13 +87,7 @@ const Regulation2 = () => {
   // Hàm xử lý đăng ký loại khách
   const handleDelete = async () => {
     if (!window.confirm("Bạn có chắc chắn muốn xoá loại khách này?")) return;
-    // Kiểm tra token login trước khi xoá
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) {
-      alert("Bạn cần đăng nhập để tiếp tục");
-      return;
-    }
+    const token = userInfo.token;
 
     try {
       for (const id of selectedCustomerTypes) {
@@ -129,13 +95,12 @@ const Regulation2 = () => {
           method: "DELETE",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`, // Thêm token vào headers
+            Authorization: `Bearer ${token}`,
           },
         });
         if (!res.ok) throw new Error(`Xoá thất bại: ${id}`);
       }
 
-      // Cập nhật lại danh sách
       setEditingCustomerTypes((prev) =>
         prev.filter((ct) => !selectedCustomerTypes.includes(ct.id))
       );
@@ -147,12 +112,7 @@ const Regulation2 = () => {
 
   // Hàm lưu số lượng khách tối đa
   const saveMaxCustomers = async () => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) {
-      alert("Bạn cần đăng nhập để tiếp tục");
-      return;
-    }
+    const token = userInfo.token;
     try {
       const res = await fetch(`${API_URL}/policy/field/maxCapacity`, {
         method: "PUT",
@@ -210,13 +170,8 @@ const Regulation2 = () => {
   // Hàm xử lý gửi form trong modal
   const handleModalSubmit = async (e) => {
     e.preventDefault();
+    const token = userInfo.token;
 
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) {
-      alert("Bạn cần đăng nhập để tiếp tục");
-      return;
-    }
     try {
       const vietnameseName = editForm.type;
       const englishKey = convertVietnameseToKey(vietnameseName);
@@ -228,7 +183,6 @@ const Regulation2 = () => {
       }
 
       if (isEditing) {
-        // CHỈ sửa hệ số
         const updates = {};
         editingCustomerTypes.forEach((ct) => {
           if (ct.id === editForm.id) {
@@ -290,48 +244,47 @@ const Regulation2 = () => {
     }
   };
 
-  if (loading) return <div className="loading">Đang tải dữ liệu...</div>;
   if (error) return <div className="error">Lỗi: {error}</div>;
 
   return (
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <Link to="/">
+          <Link to="/HomePage">
             <h1>HotelManager</h1>
           </Link>
         </div>
-        <nav className="header-right">
+
+        <div className="header-right">
           <Link to="/about">Về chúng tôi</Link>
           <img
             src="/icons/VietnamFlag.png"
             alt="Vietnam Flag"
             className="flag"
           />
-
           <div className="user-menu">
             <div
               className="user-avatar"
-              onClick={() => setShowUserDropdown((prev) => !prev)}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
               <img src="/icons/User.png" alt="User" />
             </div>
 
-            {showUserDropdown && userInfo && (
+            {isDropdownOpen && (
               <div className="user-dropdown">
                 <div className="user-info">
                   <h3>Thông tin người dùng</h3>
-                  <p>Họ tên: {userInfo.name}</p>
-                  <p>Email: {userInfo.email}</p>
-                  <p>Vai trò: {userInfo.role}</p>
+                  <p>Họ tên: {userInfo?.name}</p>
+                  <p>Email: {userInfo?.email}</p>
+                  <p>Vai trò: {userInfo?.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>
+                <button className="logout-button" onClick={logout}>
                   Đăng xuất
                 </button>
               </div>
             )}
           </div>
-        </nav>
+        </div>
       </header>
 
       <main className="main-content">

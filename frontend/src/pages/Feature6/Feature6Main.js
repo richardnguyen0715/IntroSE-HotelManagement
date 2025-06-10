@@ -1,80 +1,51 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link  } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 import "./Feature6.css";
 
 const Feature6Main = () => {
-  // State lưu trữ thông tin người dùng và trạng thái hiển thị dropdown
-  const [userInfo, setUserInfo] = useState(null);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const navigate = useNavigate();
-
-  // Kiểm tra token và thông tin người dùng khi component được mount
-  useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    const savedUserInfo =
-      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
-
-    if (!token) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
-    if (savedUserInfo) {
-      setUserInfo(JSON.parse(savedUserInfo));
-    }
-  }, [navigate]);
-
-  // Hàm xử lý đăng xuất
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userInfo");
-    setUserInfo(null);
-    navigate("/login");
-  };
+  const { userInfo, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   return (
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <Link to="/">
+          <Link to="/HomePage">
             <h1>HotelManager</h1>
           </Link>
         </div>
 
-        <nav className="header-right">
+        <div className="header-right">
           <Link to="/about">Về chúng tôi</Link>
           <img
             src="/icons/VietnamFlag.png"
             alt="Vietnam Flag"
             className="flag"
           />
-
           <div className="user-menu">
             <div
               className="user-avatar"
-              onClick={() => setShowUserDropdown((prev) => !prev)}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
               <img src="/icons/User.png" alt="User" />
             </div>
 
-            {showUserDropdown && userInfo && (
+            {isDropdownOpen && (
               <div className="user-dropdown">
                 <div className="user-info">
                   <h3>Thông tin người dùng</h3>
-                  <p>Họ tên: {userInfo.name}</p>
-                  <p>Email: {userInfo.email}</p>
-                  <p>Vai trò: {userInfo.role}</p>
+                  <p>Họ tên: {userInfo?.name}</p>
+                  <p>Email: {userInfo?.email}</p>
+                  <p>Vai trò: {userInfo?.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>
+                <button className="logout-button" onClick={logout}>
                   Đăng xuất
                 </button>
               </div>
             )}
           </div>
-        </nav>
+        </div>
       </header>
 
       <main className="main-content">

@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 import RoomTypeModal from "./RoomTypeModal";
 import "./Feature6.css";
 
@@ -11,51 +12,19 @@ const Regulation1 = () => {
   const [showForm, setShowForm] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({ id: null, type: "", price: 0 });
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   // Các state để quản lý thông tin người dùng và trạng thái hiển thị dropdown
-  const [userInfo, setUserInfo] = useState(null);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const navigate = useNavigate();
+  const { userInfo, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Kiểm tra token và thông tin người dùng khi component được mount
-  useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    const savedUserInfo =
-      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
-
-    if (!token) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
-    if (savedUserInfo) {
-      setUserInfo(JSON.parse(savedUserInfo));
-    }
-  }, [navigate]);
-
-  // Hàm xử lý đăng xuất
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userInfo");
-    setUserInfo(null);
-    navigate("/login");
-  };
-
-  // Hàm lấy danh sách loại phòng từ API
-  const fetchRoomTypes = async () => {
+  const fetchRoomTypes = useCallback(async () => {
     try {
-      const token =
-        localStorage.getItem("token") || sessionStorage.getItem("token");
-      if (!token) throw new Error("Chưa đăng nhập");
+      const token = userInfo.token;
 
       const res = await fetch(`${API_URL}/roomtypes`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Thêm token vào headers
+          Authorization: `Bearer ${token}`,
         },
       });
       if (!res.ok) throw new Error("Không thể tải dữ liệu loại phòng");
@@ -63,13 +32,12 @@ const Regulation1 = () => {
       setRoomTypes(data);
     } catch (err) {
       setError(err.message);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [userInfo?.token, setError, setRoomTypes]);
+
   useEffect(() => {
     fetchRoomTypes();
-  }, []);
+  }, [fetchRoomTypes]);
 
   // Hàm xử lý chọn loại phòng
   const handleRoomTypeSelection = (roomTypeId) => {
@@ -108,12 +76,7 @@ const Regulation1 = () => {
       window.confirm("Bạn có chắc chắn muốn xóa các loại phòng đã chọn?")
     ) {
       // Kiểm tra token trước khi thực hiện xóa
-      const token =
-        localStorage.getItem("token") || sessionStorage.getItem("token");
-      if (!token) {
-        alert("Bạn cần đăng nhập để tiếp tục");
-        return;
-      }
+      const token = userInfo.token;
 
       let errorMessages = []; // Danh sách các lỗi nếu có
 
@@ -172,12 +135,7 @@ const Regulation1 = () => {
       return;
     }
 
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) {
-      alert("Bạn cần đăng nhập để tiếp tục");
-      return;
-    }
+    const token = userInfo.token;
 
     if (isEditing) {
       await fetch(`${API_URL}/roomtypes/${formData.type}`, {
@@ -203,48 +161,47 @@ const Regulation1 = () => {
     await fetchRoomTypes();
   };
 
-  if (loading) return <div className="loading">Đang tải dữ liệu...</div>;
   if (error) return <div className="error">Lỗi: {error}</div>;
 
   return (
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <Link to="/">
+          <Link to="/HomePage">
             <h1>HotelManager</h1>
           </Link>
         </div>
-        <nav className="header-right">
+
+        <div className="header-right">
           <Link to="/about">Về chúng tôi</Link>
           <img
             src="/icons/VietnamFlag.png"
             alt="Vietnam Flag"
             className="flag"
           />
-
           <div className="user-menu">
             <div
               className="user-avatar"
-              onClick={() => setShowUserDropdown((prev) => !prev)}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
               <img src="/icons/User.png" alt="User" />
             </div>
 
-            {showUserDropdown && userInfo && (
+            {isDropdownOpen && (
               <div className="user-dropdown">
                 <div className="user-info">
                   <h3>Thông tin người dùng</h3>
-                  <p>Họ tên: {userInfo.name}</p>
-                  <p>Email: {userInfo.email}</p>
-                  <p>Vai trò: {userInfo.role}</p>
+                  <p>Họ tên: {userInfo?.name}</p>
+                  <p>Email: {userInfo?.email}</p>
+                  <p>Vai trò: {userInfo?.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>
+                <button className="logout-button" onClick={logout}>
                   Đăng xuất
                 </button>
               </div>
             )}
           </div>
-        </nav>
+        </div>
       </header>
 
       <main className="main-content">

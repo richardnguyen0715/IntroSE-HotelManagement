@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "../AuthContext";
 import "../Feature6/Feature6.css";
 
 const API_URL = "http://localhost:5000/api";
@@ -8,74 +9,40 @@ const Regulation4 = () => {
   const [formData, setFormData] = useState({ extraGuestSurcharge: "25.0" });
   const [foreignGuestCoefficient, setForeignGuestCoefficient] = useState(1.5);
   const [editMode, setEditMode] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [initialFormData, setInitialFormData] = useState({
     extraGuestSurcharge: "25.0",
   });
-  // Các state để quản lý thông tin người dùng và trạng thái hiển thị dropdown
-  const [userInfo, setUserInfo] = useState(null);
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const navigate = useNavigate();
-
-  // Kiểm tra token và thông tin người dùng khi component được mount
-  useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    const savedUserInfo =
-      localStorage.getItem("userInfo") || sessionStorage.getItem("userInfo");
-
-    if (!token) {
-      navigate("/login", { replace: true });
-      return;
-    }
-
-    if (savedUserInfo) {
-      setUserInfo(JSON.parse(savedUserInfo));
-    }
-  }, [navigate]);
-
-  // Hàm xử lý đăng xuất
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userInfo");
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("userInfo");
-    setUserInfo(null);
-    navigate("/login");
-  };
+  const { userInfo, logout } = useAuth();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   // Lấy dữ liệu quy định khi component được mount
-  useEffect(() => {
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) {
-      alert("Bạn cần đăng nhập để tiếp tục");
-      return;
+  const fetchPolicy = useCallback(async () => {
+    try {
+      const token = userInfo.token;
+      const res = await fetch(`${API_URL}/policy`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if (!res.ok) throw new Error("Không thể tải dữ liệu quy định");
+      const data = await res.json();
+      
+      const surcharge = (data.surchargePolicy * 100).toFixed(1);
+      setFormData({
+        extraGuestSurcharge: surcharge,
+      });
+      setInitialFormData({ extraGuestSurcharge: surcharge });
+      setForeignGuestCoefficient(data.foreignPolicy || 1.5);
+    } catch (err) {
+      setError(err.message);
     }
+  }, [userInfo.token]);
 
-    // fetch(`${API_URL}/policy`)
-    fetch(`${API_URL}/policy`, {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`, // Thêm token vào header
-      },
-    })
-      .then((res) => {
-        if (!res.ok) throw new Error("Không thể tải dữ liệu quy định");
-        return res.json();
-      })
-      .then((data) => {
-        const surcharge = (data.surchargePolicy * 100).toFixed(1);
-        setFormData({
-          extraGuestSurcharge: (data.surchargePolicy * 100).toFixed(1),
-        });
-        setInitialFormData({ extraGuestSurcharge: surcharge });
-        setForeignGuestCoefficient(data.foreignPolicy || 1.5);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  }, []);
+  useEffect(() => {
+    fetchPolicy();
+  }, [fetchPolicy]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -90,19 +57,13 @@ const Regulation4 = () => {
       return;
     }
 
-    const token =
-      localStorage.getItem("token") || sessionStorage.getItem("token");
-    if (!token) {
-      alert("Bạn cần đăng nhập để tiếp tục");
-      return;
-    }
-
+    const token = userInfo.token;
     try {
       await fetch(`${API_URL}/policy/field/surchargePolicy`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Thêm token vào header
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ fieldValue: parsed / 100 }),
       });
@@ -120,53 +81,53 @@ const Regulation4 = () => {
     setEditMode(false);
   };
 
-  if (loading) return <div className="loading">Đang tải dữ liệu...</div>;
+
   if (error) return <div className="error">Lỗi: {error}</div>;
 
   return (
     <div className="app">
       <header className="app-header">
         <div className="header-left">
-          <Link to="/">
+          <Link to="/HomePage">
             <h1>HotelManager</h1>
           </Link>
         </div>
-        <nav className="header-right">
+
+        <div className="header-right">
           <Link to="/about">Về chúng tôi</Link>
           <img
             src="/icons/VietnamFlag.png"
             alt="Vietnam Flag"
             className="flag"
           />
-
           <div className="user-menu">
             <div
               className="user-avatar"
-              onClick={() => setShowUserDropdown((prev) => !prev)}
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             >
               <img src="/icons/User.png" alt="User" />
             </div>
 
-            {showUserDropdown && userInfo && (
+            {isDropdownOpen && (
               <div className="user-dropdown">
                 <div className="user-info">
                   <h3>Thông tin người dùng</h3>
-                  <p>Họ tên: {userInfo.name}</p>
-                  <p>Email: {userInfo.email}</p>
-                  <p>Vai trò: {userInfo.role}</p>
+                  <p>Họ tên: {userInfo?.name}</p>
+                  <p>Email: {userInfo?.email}</p>
+                  <p>Vai trò: {userInfo?.role}</p>
                 </div>
-                <button className="logout-button" onClick={handleLogout}>
+                <button className="logout-button" onClick={logout}>
                   Đăng xuất
                 </button>
               </div>
             )}
           </div>
-        </nav>
+        </div>
       </header>
 
       <main className="main-content">
         <div className="header-container">
-          <h2>Quy định về phụ thu</h2>
+          <h2>Quy định 4</h2>
           <Link to="/feature6" className="back-button">
             <img src="/icons/Navigate.png" alt="Back" />
           </Link>
