@@ -1,13 +1,16 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import { RoomProvider } from '../Feature1/RoomContext';
 import AddForm from './AddForm';
 import './Feature4.css';
 
-const Feature4Main = () => {
+// Separate inner component to use context
+function Feature4Content() {
   const [showAddPopup, setShowAddPopup] = useState(false);
   const [bills, setBills] = useState([]);
   const [selectedBills, setSelectedBills] = useState([]);
+  const [selectedRooms, setSelectedRooms] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [resetCheckboxes, setResetCheckboxes] = useState(0);
@@ -37,6 +40,13 @@ const Feature4Main = () => {
       setShowAddPopup(true);
     }
   }, [selectedRoomsFromFeature2]);
+
+  // Update selectedRooms when location.state changes
+  useEffect(() => {
+    if (location.state?.selectedRooms) {
+      setSelectedRooms(location.state.selectedRooms);
+    }
+  }, [location.state]);
 
   // Gọi API để lấy danh sách hóa đơn
   const fetchBills = async () => {
@@ -464,17 +474,29 @@ const Feature4Main = () => {
           
         {showAddPopup && (
         <AddForm
-          onClose={() => setShowAddPopup(false)}
+          onClose={() => {
+            setShowAddPopup(false);
+            setSelectedRooms([]); // Reset selected rooms when closing
+          }}
           onSave={(newInvoice) => {
             setBills(prev => [...prev, newInvoice]);
             setShowAddPopup(false);
           }}
-          initialRooms={selectedRoomsFromFeature2} // truyền mảng số phòng cho AddForm
+          initialRooms={selectedRooms}
         />
         )}
       </main>
     </div>
   );
-};
+}
+
+// Wrapper component that provides the RoomContext
+function Feature4Main() {
+  return (
+    <RoomProvider>
+      <Feature4Content />
+    </RoomProvider>
+  );
+}
 
 export default Feature4Main; 

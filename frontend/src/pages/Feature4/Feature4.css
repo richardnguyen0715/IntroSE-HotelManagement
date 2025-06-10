@@ -70,7 +70,7 @@
     box-sizing: border-box;
     margin-left: auto;
     margin-right: auto;
-    height: 50px;
+    height: 53px;
 }
 
 .filter-item input:focus,
@@ -107,4 +107,8 @@
 #invoice-form {
     height: 610px;
     width: 900px;
+}
+
+.second-column {
+    width: 350px;
 }

@@ -1,14 +1,15 @@
 import React, { useState } from 'react';
 import { useAuth } from '../AuthContext';
+import { useRooms } from '../Feature1/RoomContext';
 
 const API_URL = 'http://localhost:5000/api';
 
 const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
   const { userInfo } = useAuth();
+  const { rooms } = useRooms();
   const [formData, setFormData] = useState({
     customer: '',
     address: '',
-    // rentals: [{ roomNumber: '', numberOfDays: '' }]
     rentals: initialRooms.length > 0
       ? initialRooms.map(roomNumber => ({ roomNumber, numberOfDays: '' }))
       : [{ roomNumber: '', numberOfDays: '' }]
@@ -112,8 +113,6 @@ const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
             />
           </div>
 
-          {/* {errorMsg && <p style={{ color: 'red', marginBottom: '1em' }}>{errorMsg}</p>} */}
-
           <div className="customers-section">
             <div
                 style={{
@@ -138,15 +137,31 @@ const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
                 {formData.rentals.map((rental, index) => (
                   <tr key={index} className="customer-form-row">
                     <td>{index + 1}</td>
-                    <td>
-                      <input
-                        type="text"
-                        name="roomNumber"
-                        value={rental.roomNumber}
-                        onChange={e => handleInputChange(e, index)}
-                        required
-                        disabled={loading}
-                      />
+                    <td className="second-column">
+                      {initialRooms.length > 0 ? (
+                        <input
+                          type="text"
+                          name="roomNumber"
+                          value={rental.roomNumber}
+                          readOnly
+                        />
+                      ) : (
+                        <select
+                          name="roomNumber"
+                          value={rental.roomNumber}
+                          onChange={e => handleInputChange(e, index)}
+                          required
+                          disabled={loading}
+                          className="room-type-select-2"
+                        >
+                          <option value="">Chọn phòng</option>
+                          {[...rooms].sort((a, b) => a.roomNumber.localeCompare(b.roomNumber, undefined, {numeric: true})).map(room => (
+                            <option key={room.roomNumber} value={room.roomNumber}>
+                              {room.roomNumber}
+                            </option>
+                          ))}
+                        </select>
+                      )}
                     </td>
 
                     <td>
