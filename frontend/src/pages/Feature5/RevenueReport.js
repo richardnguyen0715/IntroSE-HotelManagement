@@ -11,7 +11,7 @@ function RevenueReport() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const [roomTypes, setRoomTypes] = useState([]);
-  const { revenueReport, loading, error, fetchRevenueReport } = useReports();
+  const { revenueReport, fetchRevenueReport } = useReports();
 
   const [yearMonth, setYearMonth] = useState({
     year: new Date().getFullYear(),
@@ -138,56 +138,46 @@ function RevenueReport() {
           </div>
 
           <div className="report-container">
-            {error && <div className="error-message">{error}</div>}
-
-            {!loading && !revenueReport ? (
-              <div className="no-data">
-                <p>Không có dữ liệu báo cáo cho thời gian đã chọn.</p>
-              </div>
-            ) : !loading && revenueReport ? (
-              <>
-                <div className="report-info">
-                  <p>
-                    <strong>Tháng:</strong> {revenueReport.month}/
-                    {revenueReport.year}
-                  </p>
-                  <p>
-                    <strong>Mã báo cáo:</strong> {revenueReport.reportCode}
-                  </p>
-                </div>
-                <table className="report-table">
-                  <thead>
-                    <tr>
-                      <th>Loại phòng</th>
-                      <th>Giá cơ bản</th>
-                      <th>Doanh thu</th>
-                      <th>Tỷ lệ doanh thu (%)</th>
+            <div className="report-info">
+              <p>
+                <strong>Tháng:</strong> {revenueReport.month}/
+                {revenueReport.year}
+              </p>
+              <p>
+                <strong>Mã báo cáo:</strong> {revenueReport.reportCode}
+              </p>
+            </div>
+            <table className="report-table">
+              <thead>
+                <tr>
+                  <th>Loại phòng</th>
+                  <th>Giá cơ bản</th>
+                  <th>Doanh thu</th>
+                  <th>Tỷ lệ doanh thu</th>
+                </tr>
+              </thead>
+              <tbody>
+                {revenueReport?.data ? (
+                  revenueReport.data.map((item, index) => (
+                    <tr key={index}>
+                      <td>{item.roomType}</td>
+                      <td>{formatPrice(0, item.roomType)}</td>
+                      <td>{formatCurrency(item.revenue)}</td>
+                      <td>{item.percentage}%</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {revenueReport?.data ? (
-                      revenueReport.data.map((item, index) => (
-                        <tr key={index}>
-                          <td>{item.roomType}</td>
-                          <td>{formatPrice(0, item.roomType)}</td>
-                          <td>{formatCurrency(item.revenue)}</td>
-                          <td>{item.percentage}%</td>
-                        </tr>
-                      ))
-                    ) : (
-                      <tr>
-                        <td
-                          colSpan="6"
-                          style={{ textAlign: "center", padding: "15px" }}
-                        >
-                          Không có dữ liệu cho các loại phòng
-                        </td>
-                      </tr>
-                    )}
-                  </tbody>
-                </table>
-              </>
-            ) : null}
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan="6"
+                      style={{ textAlign: "center", padding: "15px" }}
+                    >
+                      Không có dữ liệu cho các loại phòng
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
         </div>
       </main>

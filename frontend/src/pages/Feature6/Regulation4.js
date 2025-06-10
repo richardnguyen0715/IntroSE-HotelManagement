@@ -19,7 +19,7 @@ const Regulation4 = () => {
   // Lấy dữ liệu quy định khi component được mount
   const fetchPolicy = useCallback(async () => {
     try {
-      const token = userInfo.token;
+      const token = userInfo?.token;
       const res = await fetch(`${API_URL}/policy`, {
         headers: {
           "Content-Type": "application/json",
@@ -38,7 +38,7 @@ const Regulation4 = () => {
     } catch (err) {
       setError(err.message);
     }
-  }, [userInfo.token]);
+  }, [userInfo?.token]);
 
   useEffect(() => {
     fetchPolicy();
@@ -57,7 +57,7 @@ const Regulation4 = () => {
       return;
     }
 
-    const token = userInfo.token;
+    const token = userInfo?.token;
     try {
       await fetch(`${API_URL}/policy/field/surchargePolicy`, {
         method: "PUT",
@@ -81,8 +81,7 @@ const Regulation4 = () => {
     setEditMode(false);
   };
 
-
-  if (error) return <div className="error">Lỗi: {error}</div>;
+  if (error) console.log(error);
 
   return (
     <div className="app">
@@ -133,9 +132,9 @@ const Regulation4 = () => {
           </Link>
         </div>
 
-        <div className="regulation-container">
+        <div className="regulation-container" id="regulation4">
           <div className="regulation-header">
-            <h3>Quy định 4: Phụ thu theo số lượng khách và khách nước ngoài</h3>
+            <h3>Quy định về phụ thu theo số lượng khách và khách nước ngoài</h3>
           </div>
 
           <form onSubmit={handleSubmit} className="surcharge-form">
@@ -191,10 +190,10 @@ const Regulation4 = () => {
               {!editMode ? (
                 <button
                   type="button"
-                  className="action-button edit"
+                  className="action-button edit-regulation4"
                   onClick={() => setEditMode(true)}
                 >
-                  Chỉnh sửa
+                  CHỈNH SỬA
                 </button>
               ) : (
                 <>

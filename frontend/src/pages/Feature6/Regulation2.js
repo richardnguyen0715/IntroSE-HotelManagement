@@ -26,7 +26,7 @@ const Regulation2 = () => {
   // Fetch mapping
   const fetchCustomerTypeMap = useCallback(async () => {
     try {
-      const token = userInfo.token;
+      const token = userInfo?.token;
       const res = await fetch(`${API_URL}/mapper`, {
         headers: {
           "Content-Type": "application/json",
@@ -46,7 +46,7 @@ const Regulation2 = () => {
     if (Object.keys(customerTypeMap).length === 0) return;
 
     try {
-      const token = userInfo.token;
+      const token = userInfo?.token;
       const res = await fetch(`${API_URL}/policy`, {
         headers: {
           "Content-Type": "application/json",
@@ -87,7 +87,7 @@ const Regulation2 = () => {
   // Hàm xử lý đăng ký loại khách
   const handleDelete = async () => {
     if (!window.confirm("Bạn có chắc chắn muốn xoá loại khách này?")) return;
-    const token = userInfo.token;
+    const token = userInfo?.token;
 
     try {
       for (const id of selectedCustomerTypes) {
@@ -112,7 +112,7 @@ const Regulation2 = () => {
 
   // Hàm lưu số lượng khách tối đa
   const saveMaxCustomers = async () => {
-    const token = userInfo.token;
+    const token = userInfo?.token;
     try {
       const res = await fetch(`${API_URL}/policy/field/maxCapacity`, {
         method: "PUT",
@@ -170,7 +170,7 @@ const Regulation2 = () => {
   // Hàm xử lý gửi form trong modal
   const handleModalSubmit = async (e) => {
     e.preventDefault();
-    const token = userInfo.token;
+    const token = userInfo?.token;
 
     try {
       const vietnameseName = editForm.type;
@@ -244,7 +244,7 @@ const Regulation2 = () => {
     }
   };
 
-  if (error) return <div className="error">Lỗi: {error}</div>;
+  if (error) console.log(error);
 
   return (
     <div className="app">
@@ -295,103 +295,101 @@ const Regulation2 = () => {
           </Link>
         </div>
 
-        <div className="regulation-container">
+        <div className="regulation-container" id="regulation2">
+          <h3>Quy định về số lượng khách</h3>
           <div className="regulation-section">
-            <div className="max-customer-header">
-              <h4>Số lượng khách tối đa/phòng:</h4>
-              {!maxEditMode ? (
-                <>
-                  <span>{maxCustomersValue}</span>
-                  <button
-                    className="edit-button-small"
-                    onClick={() => setMaxEditMode(true)}
-                  >
-                    Chỉnh sửa
-                  </button>
-                </>
-              ) : (
-                <>
-                  <input
-                    type="number"
-                    min="1"
-                    max="10"
-                    value={maxCustomersValue}
-                    onChange={handleMaxCustomersChange}
-                  />
-                  <button className="confirm-button" onClick={saveMaxCustomers}>
-                    Lưu
-                  </button>
-                  <button
-                    className="cancel-button"
-                    onClick={() => {
-                      setMaxCustomersValue(initialMaxCapacity);
-                      setMaxEditMode(false);
-                    }}
-                  >
-                    Hủy
-                  </button>
-                </>
-              )}
-            </div>
+            <span>Số lượng khách tối đa/phòng:</span>
+            {!maxEditMode ? (
+              <>
+                <span>{maxCustomersValue}</span>
+                <button
+                  className="edit-button-small"
+                  onClick={() => setMaxEditMode(true)}
+                >
+                  Chỉnh sửa
+                </button>
+              </>
+            ) : (
+              <>
+                <input
+                  type="number"
+                  min="1"
+                  max="10"
+                  value={maxCustomersValue}
+                  onChange={handleMaxCustomersChange}
+                />
+                <button className="confirm-button" onClick={saveMaxCustomers}>
+                  Lưu
+                </button>
+                <button
+                  className="cancel-button"
+                  onClick={() => {
+                    setMaxCustomersValue(initialMaxCapacity);
+                    setMaxEditMode(false);
+                  }}
+                >
+                  Hủy
+                </button>
+              </>
+            )}
           </div>
 
-          <div className="regulation-section">
-            <h4>Danh sách loại khách</h4>
-            <div className="room-types-table">
-              <table>
-                <thead>
-                  <tr>
-                    <th></th>
-                    <th>STT</th>
-                    <th>Loại khách</th>
-                    <th>Hệ số</th>
+          <h3>Danh sách các loại khách</h3>
+          <div className="table-section">
+            <table className="data-table regulation2-table">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Loại khách</th>
+                  <th>Hệ số</th>
+                </tr>
+              </thead>
+              <tbody>
+                {editingCustomerTypes.map((type, index) => (
+                  <tr key={type.id}>
+                    <td className="checkbox-column">
+                      <input
+                        type="checkbox"
+                        checked={selectedCustomerTypes.includes(type.id)}
+                        onChange={() => handleRowSelection(type.id)}
+                      />
+                      {index + 1}
+                    </td>
+                    <td>{type.type}</td>
+                    <td>{type.coefficient}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {editingCustomerTypes.map((type, index) => (
-                    <tr key={type.id}>
-                      <td>
-                        <input
-                          type="checkbox"
-                          checked={selectedCustomerTypes.includes(type.id)}
-                          onChange={() => handleRowSelection(type.id)}
-                        />
-                      </td>
-                      <td>{index + 1}</td>
-                      <td>{type.type}</td>
-                      <td>{type.coefficient}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-            <div className="button-container">
-              <button
-                className="action-button add clickable"
-                onClick={openAddModal}
-              >
-                Thêm
-              </button>
-              <button
-                className={`action-button edit ${
-                  selectedCustomerTypes.length === 1 ? "clickable" : "disabled"
-                }`}
-                onClick={openEditModal}
-                disabled={selectedCustomerTypes.length !== 1}
-              >
-                Sửa
-              </button>
-              <button
-                className={`action-button delete ${
-                  selectedCustomerTypes.length > 0 ? "clickable" : "disabled"
-                }`}
-                onClick={handleDelete}
-                disabled={selectedCustomerTypes.length === 0}
-              >
-                Xoá
-              </button>
-            </div>
+          <div className="button-container">
+            <button
+              className="action-button add clickable"
+              onClick={openAddModal}
+            >
+              Thêm
+            </button>
+
+            <button
+              className={`action-button delete ${
+                selectedCustomerTypes.length > 0 ? "clickable" : "disabled"
+              }`}
+              onClick={handleDelete}
+              disabled={selectedCustomerTypes.length === 0}
+            >
+              Xoá
+            </button>
+
+            <button
+              className={`action-button booking ${
+                selectedCustomerTypes.length === 1 ? "clickable" : "disabled"
+              }`}
+              onClick={openEditModal}
+              disabled={selectedCustomerTypes.length !== 1}
+            >
+              CHỈNH SỬA
+            </button>
           </div>
         </div>
 

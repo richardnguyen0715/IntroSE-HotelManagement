@@ -19,7 +19,7 @@ const Regulation1 = () => {
 
   const fetchRoomTypes = useCallback(async () => {
     try {
-      const token = userInfo.token;
+      const token = userInfo?.token;
 
       const res = await fetch(`${API_URL}/roomtypes`, {
         headers: {
@@ -76,7 +76,7 @@ const Regulation1 = () => {
       window.confirm("Bạn có chắc chắn muốn xóa các loại phòng đã chọn?")
     ) {
       // Kiểm tra token trước khi thực hiện xóa
-      const token = userInfo.token;
+      const token = userInfo?.token;
 
       let errorMessages = []; // Danh sách các lỗi nếu có
 
@@ -135,7 +135,7 @@ const Regulation1 = () => {
       return;
     }
 
-    const token = userInfo.token;
+    const token = userInfo?.token;
 
     if (isEditing) {
       await fetch(`${API_URL}/roomtypes/${formData.type}`, {
@@ -161,7 +161,7 @@ const Regulation1 = () => {
     await fetchRoomTypes();
   };
 
-  if (error) return <div className="error">Lỗi: {error}</div>;
+  if (error) console.log(error);
 
   return (
     <div className="app">
@@ -214,11 +214,10 @@ const Regulation1 = () => {
 
         <div className="regulation-container">
           <h3>Danh sách loại phòng</h3>
-          <div className="room-types-table">
-            <table>
+          <div className="table-section">
+            <table className="data-table regulation1-table">
               <thead>
                 <tr>
-                  <th></th>
                   <th>STT</th>
                   <th>Loại phòng</th>
                   <th>Đơn giá (VND)</th>
@@ -227,14 +226,13 @@ const Regulation1 = () => {
               <tbody>
                 {roomTypes.map((roomType, index) => (
                   <tr key={roomType._id}>
-                    <td>
+                    <td className="checkbox-column">
                       <input
-                        type="checkbox"
-                        checked={selectedRoomTypes.includes(roomType._id)}
-                        onChange={() => handleRoomTypeSelection(roomType._id)}
-                      />
-                    </td>
-                    <td>{index + 1}</td>
+                      type="checkbox"
+                      checked={selectedRoomTypes.includes(roomType._id)}
+                      onChange={() => handleRoomTypeSelection(roomType._id)}
+                    />
+                    {index + 1}</td>
                     <td>{roomType.type}</td>
                     <td>{roomType.price.toLocaleString()}</td>
                   </tr>
@@ -250,15 +248,7 @@ const Regulation1 = () => {
             >
               THÊM
             </button>
-            <button
-              className={`action-button edit ${
-                selectedRoomTypes.length === 1 ? "clickable" : "disabled"
-              }`}
-              onClick={handleEditRoomType}
-              disabled={selectedRoomTypes.length !== 1}
-            >
-              SỬA
-            </button>
+
             <button
               className={`action-button delete ${
                 selectedRoomTypes.length > 0 ? "clickable" : "disabled"
@@ -267,6 +257,16 @@ const Regulation1 = () => {
               disabled={selectedRoomTypes.length === 0}
             >
               XÓA
+            </button>
+
+            <button
+              className={`action-button booking ${
+                selectedRoomTypes.length === 1 ? "clickable" : "disabled"
+              }`}
+              onClick={handleEditRoomType}
+              disabled={selectedRoomTypes.length !== 1}
+            >
+            CHỈNH SỬA
             </button>
           </div>
 

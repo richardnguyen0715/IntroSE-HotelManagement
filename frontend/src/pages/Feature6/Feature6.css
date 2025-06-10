@@ -6,13 +6,46 @@
 
 /* Regulation2 specific styles */
 .regulation-container {
-    background: white;
+    padding: 20px;
+    background-color: #fafaf5;
+    border: 2px solid #e6e6e6;
     border-radius: 8px;
-    padding: 2rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 800px;
-    margin: 0 auto;
+    font-family: "Inter", sans-serif;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
 }
+
+.regulation-container h3 {
+    margin-left: 70px;
+    margin-top: 25px;
+    margin-bottom: 40px;
+    font-weight: 500;
+    font-family: "Newsreader", sans-serif;
+    color: #333;
+    font-size: 40px;
+}
+
+.regulation-section {
+    
+}
+
+.regulation1-table {
+    width: 85.5%;
+}
+
+.regulation2-table {
+    width: 70%;
+}
+
+#regulation2,
+#regulation4 {
+    width: 80%;
+}
+
 
 .info-section {
     background-color: #f8f9fa;

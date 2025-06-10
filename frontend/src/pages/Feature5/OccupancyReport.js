@@ -248,7 +248,7 @@ function OccupancyReport() {
                     <th>Số lượng phòng</th>
                     <th>Số ngày được thuê</th>
                     <th>Tổng số ngày có thể sử dụng</th>
-                    <th>Tỷ lệ sử dụng (%)</th>
+                    <th>Tỷ lệ sử dụng</th>
                   </tr>
                 </thead>
                 <tbody>
