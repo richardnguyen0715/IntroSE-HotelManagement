@@ -347,6 +347,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .customer-form-table input[type="text"],
+.customer-form-table input[type="number"],
 .customer-form-table select {
   padding: 10px;
   border: 1px solid #c8c8c8;
@@ -363,6 +364,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 .customer-form-table input[type="text"]:focus,
+.customer-form-table input[type="number"]:focus,
 .customer-form-table select:focus {
   border-color: #426b1f;
   box-shadow: 0 0 5px rgba(66, 107, 31, 0.3);
@@ -420,7 +422,7 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   justify-content: center;
 }
 
-.save-button, .cancel-button-rental {
+.save-button-rental, .cancel-button-rental {
   padding: 12px;
   border: none;
   border-radius: 5px;
@@ -433,14 +435,16 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   box-shadow: 5px 5px rgba(0,0,0,0.2);
 }
 
-.save-button {
-  background: #46b74a;
-  color: #fff;
+.cancel-button-rental {
   margin-right: 35px;
-
 }
 
-.save-button:hover {
+.save-button-rental {
+  background: #46b74a;
+  color: #fff;
+}
+
+.save-button-rental:hover {
   background: #d3f8b4;
   color: #333;
 }

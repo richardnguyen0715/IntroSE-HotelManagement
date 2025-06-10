@@ -599,11 +599,12 @@ function RentalForm({ rental, onClose, onSuccess }) {
           </div>
 
           <div className="form-buttons">
-            <button type="submit" className="save-button">
-              {isEditMode ? "Cập nhật" : "TẠO PHIẾU THUÊ"}
-            </button>
             <button type="button" onClick={onClose} className="cancel-button-rental">
               HỦY
+            </button>
+
+            <button type="submit" className="save-button-rental">
+              {isEditMode ? "Cập nhật" : "TẠO PHIẾU THUÊ"}
             </button>
           </div>
         </form>

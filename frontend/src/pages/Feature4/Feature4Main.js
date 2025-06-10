@@ -303,6 +303,16 @@ const Feature4Main = () => {
     bill => selectedBills.some(selected => selected._id === bill._id) && bill.status !== 'paid'
   );
 
+  // Thêm hàm resetFilters
+  const resetFilters = () => {
+    setFilterCustomer('');
+    setFilterStatus('all');
+    setFilterMinPrice('');
+    setFilterMaxPrice('');
+    setFilterStartDate('');
+    setFilterEndDate('');
+  };
+
   return (
     <div className="app">
       <header className="app-header">
@@ -355,8 +365,8 @@ const Feature4Main = () => {
         <div className="feature-content">
           <h3>Danh sách các hóa đơn</h3>
           {/* Filter */}
-        <div className="filter-section">
-          <h4>BỘ LỌC</h4>
+          <div className="filter-section">
+            <h4>BỘ LỌC</h4>
             <div className="filter-container">
               <div className="filter-item">
                 <label htmlFor="filterCustomer">Khách hàng</label>
@@ -426,6 +436,9 @@ const Feature4Main = () => {
                 />
               </div>
             </div>
+            <button className="filter-button reset" id='reset-filter-feature4' onClick={resetFilters}>
+              Xóa bộ lọc
+            </button>
           </div>
 
           <div className="table-section">
@@ -447,20 +460,20 @@ const Feature4Main = () => {
               Thanh toán
             </button>
           </div>
-      </div>
-
-      {showAddPopup && (
-      <AddForm
-        onClose={() => setShowAddPopup(false)}
-        onSave={(newInvoice) => {
-          setBills(prev => [...prev, newInvoice]);
-          setShowAddPopup(false);
-        }}
-        initialRooms={selectedRoomsFromFeature2} // truyền mảng số phòng cho AddForm
-      />
-      )}
-    </main>
-  </div>
+        </div>
+          
+        {showAddPopup && (
+        <AddForm
+          onClose={() => setShowAddPopup(false)}
+          onSave={(newInvoice) => {
+            setBills(prev => [...prev, newInvoice]);
+            setShowAddPopup(false);
+          }}
+          initialRooms={selectedRoomsFromFeature2} // truyền mảng số phòng cho AddForm
+        />
+        )}
+      </main>
+    </div>
   );
 };
 

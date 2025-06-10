@@ -133,11 +133,11 @@ function RoomForm({ room, onClose, roomTypes }) {
           </div>
 
           <div className="button-group">
-            <button type="submit" className="btn-save">
-              {room ? "Cập Nhật" : "THÊM"}
-            </button>
-            <button type="button" onClick={onClose} className="btn-cancel">
+            <button type="button" onClick={onClose} className="cancel-button-rental">
               HỦY
+            </button>
+            <button type="submit" className="save-button-rental">
+              {room ? "Cập Nhật" : "THÊM"}
             </button>
           </div>
         </form>

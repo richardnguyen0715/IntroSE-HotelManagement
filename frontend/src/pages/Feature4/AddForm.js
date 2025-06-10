@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
+import { useAuth } from '../AuthContext';
 
 const API_URL = 'http://localhost:5000/api';
 
 const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
+  const { userInfo } = useAuth();
   const [formData, setFormData] = useState({
     customer: '',
     address: '',
@@ -31,8 +33,13 @@ const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
   };
 
   const removeRental = (index) => {
+    if (formData.rentals.length <= 1) {
+      setErrorMsg('Phải có ít nhất một phòng trong hóa đơn!');
+      return;
+    }
     const newRentals = formData.rentals.filter((_, i) => i !== index);
     setFormData({ ...formData, rentals: newRentals });
+    setErrorMsg(null); // Clear any existing error message
   };
 
   const handleSubmit = async (e) => {
@@ -51,11 +58,7 @@ const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
     };
 
     try {
-      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
-      if (!token) {
-        setErrorMsg("Bạn cần đăng nhập để tiếp tục");
-        return;
-      }
+      const token = userInfo.token;
 
       const response = await fetch(`${API_URL}/invoices`, {
         method: 'POST',
@@ -72,8 +75,7 @@ const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
       }
 
       const savedInvoice = await response.json();
-
-      // Lấy đúng phần data trong response
+      alert('Thêm hóa đơn thành công!');
       onSave(savedInvoice.data);
 
     } catch (error) {
@@ -85,9 +87,10 @@ const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={e => e.stopPropagation()}>
-        <h2>Thêm Hóa đơn mới</h2>
-        <form onSubmit={handleSubmit} className="bill-form">
+      <div className="modal-content" id="invoice-form" onClick={e => e.stopPropagation()}>
+        <h3>THÊM HÓA ĐƠN MỚI</h3>
+        {errorMsg && <div className="error-message">{errorMsg}</div>}
+        <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Khách hàng/Cơ quan:</label>
             <input
@@ -111,71 +114,91 @@ const AddForm = ({ onClose, onSave, initialRooms = [] }) => {
 
           {/* {errorMsg && <p style={{ color: 'red', marginBottom: '1em' }}>{errorMsg}</p>} */}
 
-          <div className="rooms-section">
-            <h3>Thông tin phòng</h3>
-            {errorMsg && <p className="error-message">{errorMsg}</p>}
-            {formData.rentals.map((rental, index) => (
-              <div key={index} className="room-inputs">
-                <div className="form-group">
-                  <label>Số phòng:</label>
-                  <input
-                    type="text"
-                    name="roomNumber"
-                    value={rental.roomNumber}
-                    onChange={e => handleInputChange(e, index)}
-                    required
-                    disabled={loading}
-                  />
-                </div>
-                <div className="form-group">
-                  <label>Số ngày thuê:</label>
-                  <input
-                    type="number"
-                    name="numberOfDays"
-                    min="1"
-                    value={rental.numberOfDays}
-                    onChange={e => handleInputChange(e, index)}
-                    required
-                    disabled={loading}
-                  />
-                </div>
-                {formData.rentals.length > 1 && (
-                  <button
-                    type="button"
-                    className="action-button delete small"
-                    onClick={() => removeRental(index)}
-                    disabled={loading}
-                  >
-                    Xóa phòng
-                  </button>
-                )}
-              </div>
-            ))}
+          <div className="customers-section">
+            <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginTop: "25px",
+                }}
+              >
+              <h4>Thông tin phòng</h4>
+            </div>
+            <table className="customer-form-table">
+              <thead>
+                <tr>
+                  <th>STT</th>
+                  <th>Số phòng</th>
+                  <th>Số ngày thuê</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {formData.rentals.map((rental, index) => (
+                  <tr key={index} className="customer-form-row">
+                    <td>{index + 1}</td>
+                    <td>
+                      <input
+                        type="text"
+                        name="roomNumber"
+                        value={rental.roomNumber}
+                        onChange={e => handleInputChange(e, index)}
+                        required
+                        disabled={loading}
+                      />
+                    </td>
+
+                    <td>
+                      <input
+                        type="number"
+                        name="numberOfDays"
+                        min="1"
+                        value={rental.numberOfDays}
+                        onChange={e => handleInputChange(e, index)}
+                        required
+                        disabled={loading}
+                      />
+                    </td>
+
+                    <td>
+                      <button
+                        type="button"
+                        onClick={() => removeRental(index)}
+                        className="remove-button"
+                      >
+                        X
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+    
             <button
               type="button"
-              className="action-button add small"
+              className="add-customer-button"
               onClick={addRental}
               disabled={loading}
-            >
-              + Thêm phòng
+            >Thêm phòng
             </button>
           </div>
 
-          <div className="actions-container">
+          <div className="form-buttons">
             <button
               type="button"
-              className="action-button delete"
+              className="cancel-button-rental"
               onClick={onClose}
               disabled={loading}
             >
-              Hủy
+              HỦY
             </button>
             <button
               type="submit"
-              className="action-button add"
+              className="save-button-rental"
               disabled={loading}
             >
-              {loading ? 'Đang gửi...' : 'Thêm hóa đơn'}
+              {loading ? 'Đang gửi...' : 'THÊM HÓA ĐƠN'}
             </button>
           </div>
         </form>
