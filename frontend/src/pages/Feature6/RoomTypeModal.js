@@ -17,8 +17,8 @@ const RoomTypeModal = ({
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content regulation-modal-content">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content regulation-modal-content" onClick={e => e.stopPropagation()}>
         <h3>{isEditing ? "SỬA LOẠI PHÒNG" : "THÊM LOẠI PHÒNG MỚI"}</h3>
 
         <form onSubmit={handleSubmit}>

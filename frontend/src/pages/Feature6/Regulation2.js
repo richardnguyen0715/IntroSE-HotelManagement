@@ -400,8 +400,8 @@ const Regulation2 = () => {
         </div>
 
         {modalVisible && (
-          <div className="modal-overlay">
-            <div className="modal-content regulation-modal-content">
+          <div className="modal-overlay" onClick={() => setModalVisible(false)}>
+            <div className="modal-content regulation-modal-content" onClick={e => e.stopPropagation()}>
               <h3>{isEditing ? "SỬA LOẠI KHÁCH" : "THÊM LOẠI KHÁCH"}</h3>
               <form onSubmit={handleModalSubmit}>
                 <div className="form-group">
@@ -435,10 +435,10 @@ const Regulation2 = () => {
                     className="cancel-button-rental"
                     onClick={() => setModalVisible(false)}
                   >
-                    Hủy
+                    HỦY
                   </button>
                   <button type="submit" className="save-button-rental">
-                    Cập nhật
+                    {isEditing ? "CẬP NHẬT" : "THÊM"}
                   </button>
                 </div>
               </form>

@@ -69,8 +69,8 @@ function RoomForm({ room, onClose, roomTypes }) {
   };
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
         <h3>{room ? "Sửa Phòng" : "THÊM PHÒNG MỚI"}</h3>
 
         <form onSubmit={handleSubmit}>

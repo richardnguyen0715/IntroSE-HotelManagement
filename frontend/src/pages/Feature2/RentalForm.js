@@ -369,8 +369,8 @@ function RentalForm({ rental, onClose, onSuccess }) {
   };
 
   return (
-    <div className="modal">
-      <div className="modal-content" id="rental-form">
+    <div className="modal" onClick={onClose}>
+      <div className="modal-content" id="rental-form" onClick={e => e.stopPropagation()}>
         <h3>
           {isEditMode ? "Chỉnh sửa phiếu thuê phòng" : "TẠO PHIẾU THUÊ PHÒNG"}
         </h3>
