@@ -135,7 +135,7 @@ const Regulation4 = () => {
         <div className="regulation-container" id="regulation4">
           <h3 className="regulation-title">Quy định về phụ thu và khách nước ngoài</h3>
             <div className="form-group regulation-input-container">
-              <label>Tỷ lệ phụ thu khách thứ 3 trở đi</label>
+              <label style={{fontSize: "20px"}}>Tỷ lệ phụ thu khách thứ 3 trở đi</label>
               {!editMode ? (
                 <div>
                   <input
@@ -187,7 +187,7 @@ const Regulation4 = () => {
             </div>
 
             <div className="form-group regulation-input-container">
-              <label style={{marginBottom: "20px"}}>Hệ số khách nước ngoài</label>
+              <label style={{marginBottom: "20px", fontSize: "20px"}}>Hệ số khách nước ngoài</label>
               <input
                 type="number"
                 name="foreignGuestCoefficient"

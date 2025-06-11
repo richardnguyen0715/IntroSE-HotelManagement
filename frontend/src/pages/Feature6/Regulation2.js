@@ -298,7 +298,7 @@ const Regulation2 = () => {
         <div className="regulation-container" id="regulation2">
           <h3 className="regulation-title">Quy định về số lượng khách</h3>
           <div className="form-group regulation-input-container">
-            <label>Số lượng khách tối đa/phòng</label>
+            <label style={{fontSize: "20px"}}>Số lượng khách tối đa/phòng</label>
             {!maxEditMode ? (
               <div>
                 <input
