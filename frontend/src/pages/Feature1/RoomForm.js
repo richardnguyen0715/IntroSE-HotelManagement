@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useRooms } from "./RoomContext";
-//import { useRegulation } from "../Feature6/RegulationContext";
 import "./Feature1.css";
 
 function RoomForm({ room, onClose, roomTypes }) {

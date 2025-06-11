@@ -229,6 +229,17 @@ input[type="date"]::-webkit-calendar-picker-indicator {
   transform: translateY(-2px);
 }
 
+.filter-button.edit {
+  background-color: #ff7300;
+  color: #fff;
+  margin-right: 5px;
+}
+
+.filter-button.edit:hover {
+  background-color: #ff8623;
+  transform: translateY(-2px);
+}
+
 .filter-button.reset {
   background-color: #f65353;
   color: #fff;

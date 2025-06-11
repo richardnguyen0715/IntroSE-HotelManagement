@@ -19,7 +19,7 @@
     box-shadow: 0 5px 5px rgba(0, 0, 0, 0.1);
 }
 
-.regulation-container h3 {
+.regulation-title {
     margin-left: 70px;
     margin-top: 25px;
     margin-bottom: 40px;
@@ -29,8 +29,18 @@
     font-size: 40px;
 }
 
-.regulation-section {
-    
+.regulation1-button-container {
+    width: 83.9%;
+    margin-bottom: 8px;
+}
+
+.regulation2-button-container {
+    width: 86.7%;
+    margin-bottom: 8px;
+}
+
+.regulation-modal-content {
+    height: 395px !important;
 }
 
 .regulation1-table {
@@ -38,46 +48,28 @@
 }
 
 .regulation2-table {
-    width: 70%;
+    width: 88%;
 }
 
-#regulation2,
+#regulation2 {
+    width: 60%;
+}
+
 #regulation4 {
-    width: 80%;
+    width: 70%;
+    height: 460px;
 }
 
-
-.info-section {
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-bottom: 2rem;
+#regulation1 {
+    margin-left: 400px;
 }
 
-.info-section h3 {
-    color: #4B6F44;
-    margin-top: 0;
-    margin-bottom: 1rem;
-}
-
-.info-section ul {
-    list-style-type: none;
-    padding: 0;
-    margin: 0;
-}
-
-.info-section li {
-    padding: 0.5rem 0;
-    color: #666;
-    position: relative;
-    padding-left: 1.5rem;
-}
-
-.info-section li:before {
-    content: "•";
-    color: #4B6F44;
-    position: absolute;
-    left: 0;
+.regulation-summary {
+    color: red;
+    font-size: 18px;
+    font-family: "Inter", sans-serif;
+    margin-left: 20px;
+    margin-top: 10px;
 }
 
 .regulation-form {
@@ -86,182 +78,19 @@
     gap: 1.5rem;
 }
 
-/* Styles for Room Types Table */
-.room-form {
-    background: white;
-    padding: 2rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    margin: 2rem auto;
-}
-.room-types-table {
-    margin: 2rem 0;
-    overflow-x: auto;
+.regulation-input {
+    width: 455px !important;
 }
 
-.room-types-table table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #fff;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.regulation2-edit-button {
+    height: 50px;
+    font-size: 19px;
+    width: 140px;
 }
 
-.room-types-table th,
-.room-types-table td {
-    padding: 1rem;
-    text-align: center;
-    border: 1px solid #ddd;
-}
-
-.room-types-table th {
-    background-color: #f8f9fa;
-    font-weight: 500;
-    color: #333;
-}
-
-.room-types-table tr:nth-child(even) {
-    background-color: #FFFFE0;
-}
-
-.room-types-table tr:hover {
-    background-color: #f5f5f5;
-}
-
-/* Form elements styles */
-/*.form-group {
-    margin-bottom: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.form-group label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: #333;
-    font-weight: 500;
-}
-
-.form-input {
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-    width: 100%;
-    transition: border-color 0.3s ease;
-}
-
-.form-input:focus {
-    outline: none;
-    border-color: #4B6F44;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 1rem;
-}
-
-.form-group input:focus {
-    outline: none;
-    border-color: #4CAF50;
-    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
-}*/
-
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
-}
-
-.cancel-button {
-    padding: 0.75rem 1.5rem;
-    background: #e0e0e0;
-    color: #333;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.confirm-button {
-    padding: 0.75rem 1.5rem;
-    background: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.cancel-button:hover {
-    background: #d5d5d5;
-}
-
-.confirm-button:hover {
-    background: #45a049;
-}
-.input-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-}
-
-.input-suffix {
-    position: absolute;
-    right: 10px;
-    font-weight: bold;
-}
-
-input:disabled {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
-}
-
-/* Button styles */
-.button-container {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 2rem;
-}
-
-.actions-container {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    margin-top: 2rem;
-    border-top: 1px solid #ddd;
-    padding-top: 2rem;
-}
-
-.cancel-button {
-    background-color: #e0e0e0;
-    color: #333;
-}
-
-.cancel-button:hover {
-    background-color: #d5d5d5;
-}
-
-.confirm-button {
-    background-color: #4CAF50;
-    color: white;
-}
-
-.confirm-button:hover:not(:disabled) {
-    background-color: #45a049;
+.regulation-input-container {
+    margin-left: 120px;
+    margin-bottom: 50px;
 }
 
 /* Descriptions */
@@ -270,50 +99,6 @@ input:disabled {
     color: #666;
     margin-top: 5px;
 }
-
-.edit-button-small {
-    padding: 4px 8px;
-    background-color: #ffc107;
-    color: black;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer !important; /* Đảm bảo luôn hiển thị bàn tay */
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    margin-left: 10px;
-}
-
-.edit-button-small:hover {
-    background-color: #e0a800;
-    cursor: pointer !important;
-}
-
-.save-button-small {
-    padding: 4px 8px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer !important;
-    font-size: 0.8rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    margin-left: 10px;
-}
-
-.save-button-small:hover {
-    background-color: #45a049;
-    cursor: pointer !important;
-}
-
-/* Đảm bảo không bị ghi đè bởi thuộc tính disabled */
-button:not([disabled]).edit-button-small,
-button:not([disabled]).save-button-small,
-button:not([disabled]).action-button.clickable {
-    cursor: pointer !important;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
     .regulations-container {
@@ -332,43 +117,5 @@ button:not([disabled]).action-button.clickable {
     .regulation-container {
         padding: 1rem;
     }
-
-    .info-section {
-        padding: 1rem;
-    }
-
-    .actions-container {
-        flex-direction: column;
-    }
-
-    .action-button {
-        width: 100%;
-    }
-}
-/* Thêm vào file Feature6.css nếu chưa có */
-.modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.max-customer-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 0.5rem;
-}
-
-.max-customer-actions {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
 }
 

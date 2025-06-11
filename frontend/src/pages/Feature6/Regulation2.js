@@ -296,33 +296,39 @@ const Regulation2 = () => {
         </div>
 
         <div className="regulation-container" id="regulation2">
-          <h3>Quy định về số lượng khách</h3>
-          <div className="regulation-section">
-            <span>Số lượng khách tối đa/phòng:</span>
+          <h3 className="regulation-title">Quy định về số lượng khách</h3>
+          <div className="form-group regulation-input-container">
+            <label>Số lượng khách tối đa/phòng</label>
             {!maxEditMode ? (
-              <>
-                <span>{maxCustomersValue}</span>
+              <div>
+                <input
+                  className="regulation-input"
+                  type="number" 
+                  value={maxCustomersValue} 
+                  disabled={!maxEditMode} />
+
                 <button
-                  className="edit-button-small"
+                  className="filter-button edit regulation2-edit-button"
                   onClick={() => setMaxEditMode(true)}
                 >
                   Chỉnh sửa
                 </button>
-              </>
+              </div>
             ) : (
-              <>
+              <div>
                 <input
+                  className="regulation-input"
                   type="number"
                   min="1"
                   max="10"
                   value={maxCustomersValue}
                   onChange={handleMaxCustomersChange}
                 />
-                <button className="confirm-button" onClick={saveMaxCustomers}>
+                <button className="filter-button apply regulation2-edit-button" onClick={saveMaxCustomers}>
                   Lưu
                 </button>
                 <button
-                  className="cancel-button"
+                  className="filter-button reset regulation2-edit-button"
                   onClick={() => {
                     setMaxCustomersValue(initialMaxCapacity);
                     setMaxEditMode(false);
@@ -330,11 +336,11 @@ const Regulation2 = () => {
                 >
                   Hủy
                 </button>
-              </>
+              </div>
             )}
           </div>
 
-          <h3>Danh sách các loại khách</h3>
+          <h3 className="regulation-title">Danh sách các loại khách</h3>
           <div className="table-section">
             <table className="data-table regulation2-table">
               <thead>
@@ -363,7 +369,7 @@ const Regulation2 = () => {
             </table>
           </div>
 
-          <div className="button-container">
+          <div className="button-container regulation2-button-container">
             <button
               className="action-button add clickable"
               onClick={openAddModal}
@@ -394,12 +400,12 @@ const Regulation2 = () => {
         </div>
 
         {modalVisible && (
-          <div className="modal">
-            <div className="modal-content">
-              <h3>{isEditing ? "Sửa loại khách" : "Thêm loại khách"}</h3>
+          <div className="modal-overlay">
+            <div className="modal-content regulation-modal-content">
+              <h3>{isEditing ? "SỬA LOẠI KHÁCH" : "THÊM LOẠI KHÁCH"}</h3>
               <form onSubmit={handleModalSubmit}>
                 <div className="form-group">
-                  <label>Loại khách:</label>
+                  <label>Loại khách <span className="required">*</span></label>
                   <input
                     type="text"
                     value={editForm.type}
@@ -411,7 +417,7 @@ const Regulation2 = () => {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Hệ số:</label>
+                  <label>Hệ số <span className="required">*</span></label>
                   <input
                     type="number"
                     min="0.1"
@@ -423,15 +429,15 @@ const Regulation2 = () => {
                     required
                   />
                 </div>
-                <div className="form-actions">
+                <div className="button-group">
                   <button
                     type="button"
-                    className="cancel-button"
+                    className="cancel-button-rental"
                     onClick={() => setModalVisible(false)}
                   >
                     Hủy
                   </button>
-                  <button type="submit" className="confirm-button">
+                  <button type="submit" className="save-button-rental">
                     Cập nhật
                   </button>
                 </div>

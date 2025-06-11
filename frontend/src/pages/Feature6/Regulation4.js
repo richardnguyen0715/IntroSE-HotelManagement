@@ -133,85 +133,75 @@ const Regulation4 = () => {
         </div>
 
         <div className="regulation-container" id="regulation4">
-          <div className="regulation-header">
-            <h3>Quy định về phụ thu theo số lượng khách và khách nước ngoài</h3>
-          </div>
-
-          <form onSubmit={handleSubmit} className="surcharge-form">
-            <p className="regulation-summary">
-              Đơn giá phòng cho 2 khách. Khách thứ 3 phụ thu theo tỷ lệ dưới
-              đây. Phòng có khách nước ngoài (chỉ cần có 1 người) được nhân với
-              hệ số 1.5
-            </p>
-
-            <div className="regulation-section">
-              <div className="form-group">
-                <label>Tỷ lệ phụ thu khách thứ 3 trở đi:</label>
-                <div className="input-wrapper">
-                  <input
-                    type="number"
-                    name="extraGuestSurcharge"
-                    value={formData.extraGuestSurcharge}
-                    onChange={handleInputChange}
-                    disabled={!editMode}
-                    min="0"
-                    max="100"
-                    step="0.1"
-                    required
-                  />
-                  <span className="input-suffix">%</span>
-                </div>
-                <p className="regulation-description">
-                  Khách thứ 3 trở đi sẽ bị tính thêm phụ phí theo tỷ lệ này so
-                  với giá phòng tiêu chuẩn.
-                </p>
-              </div>
-
-              <div className="form-group">
-                <label>Hệ số khách nước ngoài:</label>
-                <div className="input-wrapper">
-                  <input
-                    type="number"
-                    name="foreignGuestCoefficient"
-                    value={foreignGuestCoefficient.toFixed(1)}
-                    disabled
-                    className="disabled-input"
-                  />
-                  <span className="input-suffix">x</span>
-                </div>
-                <p className="regulation-description">
-                  Phòng có khách nước ngoài sẽ được tính giá theo hệ số này. Hệ
-                  số này được thiết lập trong quy định về loại khách.
-                </p>
-              </div>
-            </div>
-
-            <div className="button-container">
+          <h3 className="regulation-title">Quy định về phụ thu và khách nước ngoài</h3>
+            <div className="form-group regulation-input-container">
+              <label>Tỷ lệ phụ thu khách thứ 3 trở đi</label>
               {!editMode ? (
-                <button
-                  type="button"
-                  className="action-button edit-regulation4"
-                  onClick={() => setEditMode(true)}
-                >
-                  CHỈNH SỬA
-                </button>
-              ) : (
-                <>
+                <div>
+                  <input
+                  className="regulation-input"
+                  type="number"
+                  name="extraGuestSurcharge"
+                  value={formData.extraGuestSurcharge}
+                  disabled={!editMode}
+                  />
+                  <span style={{fontSize: "30px", marginLeft: "8px"}}>%</span>
                   <button
                     type="button"
-                    className="cancel-button"
+                    className="filter-button edit regulation2-edit-button"
+                    onClick={() => setEditMode(true)}
+                  >
+                    Chỉnh sửa
+                  </button>
+                </div>
+                ) : (
+                <div>
+                  <input
+                  className="regulation-input"
+                  type="number"
+                  name="extraGuestSurcharge"
+                  value={formData.extraGuestSurcharge}
+                  onChange={handleInputChange}
+                  min="0"
+                  max="100"
+                  step="0.1"
+                  required
+                  />
+                  <span style={{fontSize: "30px", marginLeft: "8px"}}>%</span>
+                  <button
+                    type="button"
+                    className="filter-button reset regulation2-edit-button"
                     onClick={handleCancel}
                   >
                     Hủy bỏ
                   </button>
-                  <button type="submit" className="save-button">
+                  <button type="submit" className="filter-button apply regulation2-edit-button" onClick={handleSubmit}>
                     Xác nhận
                   </button>
-                </>
-              )}
+                </div>
+              )} 
+              <p className="regulation-summary">
+                Đơn giá phòng cho 2 khách. Khách thứ 3 trở đi sẽ bị tính thêm phụ phí theo tỷ lệ này so
+                với giá phòng tiêu chuẩn.
+              </p>
             </div>
-          </form>
-        </div>
+
+            <div className="form-group regulation-input-container">
+              <label style={{marginBottom: "20px"}}>Hệ số khách nước ngoài</label>
+              <input
+                type="number"
+                name="foreignGuestCoefficient"
+                value={foreignGuestCoefficient.toFixed(1)}
+                disabled
+                className="regulation-input"
+              />
+
+              <p className="regulation-summary">
+                Phòng có khách nước ngoài sẽ được tính giá theo hệ số này. Hệ
+                số này được thiết lập trong quy định về loại khách.
+              </p>
+            </div>
+          </div>
       </main>
     </div>
   );

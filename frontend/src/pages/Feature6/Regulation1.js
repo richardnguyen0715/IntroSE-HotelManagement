@@ -212,8 +212,8 @@ const Regulation1 = () => {
           </Link>
         </div>
 
-        <div className="regulation-container">
-          <h3>Danh sách loại phòng</h3>
+        <div className="regulation-container" id="regulation1">
+          <h3 className="regulation-title">Danh sách loại phòng</h3>
           <div className="table-section">
             <table className="data-table regulation1-table">
               <thead>
@@ -241,7 +241,7 @@ const Regulation1 = () => {
             </table>
           </div>
 
-          <div className="button-container">
+          <div className="button-container regulation1-button-container">
             <button
               className="action-button add clickable"
               onClick={handleAddRoomType}

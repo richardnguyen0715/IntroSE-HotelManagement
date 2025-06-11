@@ -137,48 +137,50 @@ function RevenueReport() {
             </div>
           </div>
 
-          <div className="report-container">
-            <div className="report-info">
-              <p>
-                <strong>Tháng:</strong> {revenueReport.month}/
-                {revenueReport.year}
-              </p>
-              <p>
-                <strong>Mã báo cáo:</strong> {revenueReport.reportCode}
-              </p>
-            </div>
-            <table className="report-table">
-              <thead>
-                <tr>
-                  <th>Loại phòng</th>
-                  <th>Giá cơ bản</th>
-                  <th>Doanh thu</th>
-                  <th>Tỷ lệ doanh thu</th>
-                </tr>
-              </thead>
-              <tbody>
-                {revenueReport?.data ? (
-                  revenueReport.data.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.roomType}</td>
-                      <td>{formatPrice(0, item.roomType)}</td>
-                      <td>{formatCurrency(item.revenue)}</td>
-                      <td>{item.percentage}%</td>
-                    </tr>
-                  ))
-                ) : (
+          {revenueReport && (
+            <div className="report-container">
+              <div className="report-info">
+                <p>
+                  <strong>Tháng:</strong> {revenueReport.month}/
+                  {revenueReport.year}
+                </p>
+                <p>
+                  <strong>Mã báo cáo:</strong> {revenueReport.reportCode}
+                </p>
+              </div>
+              <table className="report-table">
+                <thead>
                   <tr>
-                    <td
-                      colSpan="6"
-                      style={{ textAlign: "center", padding: "15px" }}
-                    >
-                      Không có dữ liệu cho các loại phòng
-                    </td>
+                    <th>Loại phòng</th>
+                    <th>Giá cơ bản</th>
+                    <th>Doanh thu</th>
+                    <th>Tỷ lệ doanh thu</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {revenueReport?.data ? (
+                    revenueReport.data.map((item, index) => (
+                      <tr key={index}>
+                        <td>{item.roomType}</td>
+                        <td>{formatPrice(0, item.roomType)}</td>
+                        <td>{formatCurrency(item.revenue)}</td>
+                        <td>{item.percentage}%</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="6"
+                        style={{ textAlign: "center", padding: "15px" }}
+                      >
+                        Không có dữ liệu cho các loại phòng
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </main>
     </div>
