@@ -9,7 +9,7 @@ const {
   resetPassword,
   verifyOTP
 } = require('../controllers/userController');
-const { authorize } = require('../middleware/auth');
+const { authorizePasswordReset } = require('../middleware/auth');
 const router = express.Router();
   
 
@@ -26,7 +26,7 @@ router
 
 router.post('/forgot-password', forgotPassword);
 router.post('/verify-otp', verifyOTP);
-router.post('/reset-password', authorize({ isPasswordReset: true }), resetPassword);
+router.post('/reset-password', authorizePasswordReset, resetPassword);
 
 // // Trong routes
 // const { authenticate, authorizeAdmin, authorizeUser } = require('../middleware/auth');

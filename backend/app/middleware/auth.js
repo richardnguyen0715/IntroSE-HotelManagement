@@ -54,6 +54,7 @@ const generateToken = (user, expiresIn = "1d", additionalClaims = {}) => {
       id: user._id,
       email: user.email,
       role: user.role,
+      ...additionalClaims
     },
     process.env.JWT_SECRET,
     { expiresIn: "1d" } // Token hết hạn sau 1 ngày
@@ -110,6 +111,56 @@ const authorize = (roles = []) => {
   };
 };
 
+const authorizePasswordReset = async (req, res, next) => {
+  try {
+    let token;
+
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: "Không có token, từ chối truy cập" });
+    }
+
+    // Kiểm tra token trong danh sách đen
+    const blacklisted = await BlacklistedToken.findOne({ token });
+    if (blacklisted) {
+      return res.status(401).json({ message: "Token đã bị vô hiệu hóa" });
+    }
+
+    // Xác thực token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Kiểm tra xem token có phải là reset password token không
+    if (!decoded.isPasswordReset) {
+      return res.status(401).json({ 
+        message: "Token không phải là token reset password" 
+      });
+    }
+
+    // Tìm user dựa trên ID trong token
+    const user = await User.findById(decoded.id);
+    if (!user) {
+      return res.status(401).json({ message: "Không tìm thấy người dùng" });
+    }
+
+    // Lưu thông tin user vào request
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error("Password reset auth error:", error);
+    return res
+      .status(401)
+      .json({ message: "Token không hợp lệ hoặc đã hết hạn" });
+  }
+};
+
 module.exports = {
   protect,
   generateToken,
@@ -117,4 +168,5 @@ module.exports = {
   authorizeUser,
   invalidateToken,
   authorize, // Added new role-based middleware
+  authorizePasswordReset,
 };
