@@ -184,6 +184,7 @@ function Feature2Main() {
 
   const applyFilters = () => {
     setIsFiltering(true);
+    setSelectedRentals([]); // Xóa các checkbox đã chọn
 
     // Chuẩn bị API filters
     const apiFilters = {};
@@ -209,6 +210,7 @@ function Feature2Main() {
       checkInDate: "",
     });
     setIsFiltering(false);
+    setSelectedRentals([]); // Xóa các checkbox đã chọn
     fetchRentals(); // Gọi API không có filter
   };
 
@@ -316,8 +318,8 @@ function Feature2Main() {
 
     if (window.confirm("Bạn có chắc chắn muốn xóa các phiếu thuê đã chọn?")) {
       const success = await deleteRentals(selectedRentals);
+      setSelectedRentals([]); // Xóa các checkbox đã chọn
       if (success) {
-        setSelectedRentals([]);
         setSuccessMessage("Xóa phiếu thuê thành công!");
         // Thêm độ trễ để tránh gọi API liên tiếp
         setTimeout(() => {

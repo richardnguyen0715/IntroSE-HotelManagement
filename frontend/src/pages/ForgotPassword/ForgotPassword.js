@@ -73,7 +73,7 @@ function ForgotPassword() {
 
             if (response.status === 200) {
               console.log("Xác thực OTP thành công");
-              localStorage.setItem('resetToken', response.data.resetToken);
+              sessionStorage.setItem('resetToken', response.data.resetToken);
               setStep(3);
               setOtpAttempts(0); // Reset số lần thử khi thành công
             }
@@ -186,7 +186,7 @@ function ForgotPassword() {
         }
       } else if (step === 3) {
         try {
-          const resetToken = localStorage.getItem('resetToken');
+          const resetToken = sessionStorage.getItem('resetToken');
           const response = await axios.post('http://localhost:5000/api/users/reset-password', {
             email,
             newPassword: newpassword
@@ -199,7 +199,7 @@ function ForgotPassword() {
           if (response.status === 200) {
             setMessageType('success');
             setMessage('Đổi mật khẩu thành công!<br />Chuyển hướng đến trang Đăng nhập trong 5 giây...');
-            localStorage.removeItem('resetToken');
+            sessionStorage.removeItem('resetToken');
             setTimeout(() => {
               navigate('/login');
             }, 5000);

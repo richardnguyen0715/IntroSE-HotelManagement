@@ -50,7 +50,7 @@ const Feature6Main = () => {
 
       <main className="main-content">
         <div className="header-container">
-          <h2>Thiết lập quy định</h2>
+          <h2>Thay đổi quy định</h2>
           <Link to="/" className="back-button">
             <img src="/icons/Navigate.png" alt="Back" />
           </Link>
