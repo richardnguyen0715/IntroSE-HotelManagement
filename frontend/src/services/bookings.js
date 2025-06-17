@@ -201,7 +201,7 @@ export const createBooking = async (rentalData) => {
     // Format dữ liệu theo định dạng API mới
     const bookingData = {
       roomNumber: rentalData.roomNumber, // Đảm bảo là string
-      email: rentalData.email || "",
+      //email: rentalData.email || "",
     };
 
     // QUAN TRỌNG: Đảm bảo startDate luôn có giá trị
@@ -328,9 +328,9 @@ export const updateBooking = async (id, rentalData) => {
     };
 
     // Thêm email nếu có
-    if (rentalData.email) {
-      bookingData.email = rentalData.email;
-    }
+    // if (rentalData.email) {
+    //   bookingData.email = rentalData.email;
+    // }
 
     // Kiểm tra lại sau khi tạo dữ liệu để đảm bảo đầy đủ
     if (!bookingData.roomNumber) {
@@ -427,7 +427,7 @@ export const mapBookingToRental = (booking) => {
     return {
       id: "unknown",
       room: "",
-      email: "",
+      //email: "",
       customers: [],
     };
   }
@@ -441,11 +441,11 @@ export const mapBookingToRental = (booking) => {
   return {
     id: booking._id || booking.id || "unknown",
     room: booking.roomNumber || "", // API trả về roomNumber
-    email: booking.email || "",
+    //email: booking.email || "",
     checkInDate: booking.startDate ? formatDateForUI(booking.startDate) : "", // API sử dụng startDate
     status: bookingStatus, // Hiển thị trạng thái phiếu thuê (inPayment, etc.)
     roomStatus: roomStatus, // Trạng thái phòng luôn là occupied
-    createdAt: booking.createdAt || new Date().toISOString(),
+    createdAt: booking.startDate ? formatDateForUI(booking.startDate) : "",
     customers: (booking.customerList || []) // API sử dụng customerList
       .filter((customer) => customer)
       .map((customer) => ({
@@ -502,7 +502,7 @@ export const mapRentalToBooking = (rental) => {
   return {
     roomNumber: roomNumber,
     startDate: startDate,
-    email: rental.email || "",
+    //email: rental.email || "",
     customerList: customerList,
   };
 };
