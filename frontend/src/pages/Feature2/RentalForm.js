@@ -501,7 +501,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
               )}
             </div>
             
-            <table className="customer-form-table">
+            <table className="customer-form-table" id="rental-form-table">
               <thead>
                 <tr>
                   <th>STT</th>

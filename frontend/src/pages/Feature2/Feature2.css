@@ -114,7 +114,7 @@
   font-weight: 600;
 }
 
-.customer-form-table td:nth-child(3) {
+#rental-form-table td:nth-child(3) {
   width: 160px;
 }
 
