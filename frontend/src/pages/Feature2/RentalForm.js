@@ -83,7 +83,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
       return {
         room: rental.initialRoom.roomNumber || "",
         roomType: rental.initialRoom.type || "",
-        email: "",
+        //email: "",
         checkInDate: formatDate(new Date()),
         checkOutDate: formatDate(new Date(Date.now() + 86400000)), // Default to next day
         totalPrice: 0,
@@ -107,7 +107,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
         id: rental.id,
         room: rental.room || "",
         roomType: rental.roomType || "",
-        email: rental.email || "",
+        //email: rental.email || "",
         checkInDate: rental.checkInDate
           ? formatDateForUI(rental.checkInDate)
           : "",
@@ -137,7 +137,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
     return {
       room: "",
       roomType: "",
-      email: "",
+      //email: "",
       checkInDate: formatDate(new Date()),
       checkOutDate: formatDate(new Date(Date.now() + 86400000)), // Default to next day
       totalPrice: 0,
@@ -370,7 +370,11 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
   return (
     <div className="modal" onClick={onClose}>
-      <div className="modal-content" id="rental-form" onClick={e => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        id="rental-form"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3>
           {isEditMode ? "Chỉnh sửa phiếu thuê phòng" : "TẠO PHIẾU THUÊ PHÒNG"}
         </h3>
@@ -379,47 +383,49 @@ function RentalForm({ rental, onClose, onSuccess }) {
         {error && <div className="error-message">{error}</div>}
 
         <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label>Phòng</label>
-              {/* Nếu đã có 1 phòng được chọn từ Feature1 */}
-              {rental?.initialRoom && (
-                <input
-                  type="text"
-                  value={rental.initialRoom.roomNumber}
-                  readOnly
-                  className="readonly-input"
-                />
-              )}
+          <div className="form-group">
+            <label>Phòng</label>
+            {/* Nếu đã có 1 phòng được chọn từ Feature1 */}
+            {rental?.initialRoom && (
+              <input
+                type="text"
+                value={rental.initialRoom.roomNumber}
+                readOnly
+                className="readonly-input"
+              />
+            )}
 
-              {/* Nếu có nhiều phòng được chọn từ Feature1 */}
-              {hasMultipleRoomsOption && (
-                <select className="room-type-select"
-                  value={formData.room}
-                  onChange={(e) =>
-                    setFormData({
-                      ...formData,
-                      room: e.target.value,
-                      roomType: e.target.value.charAt(0),
-                    })
-                  }
-                  required
-                >
-                  <option value="">Chọn phòng</option>
-                  {rental.initialRooms.map((room) => (
-                    <option key={room.roomNumber} value={room.roomNumber}>
-                      {room.roomNumber} - Loại {room.type}
-                    </option>
-                  ))}
-                </select>
-              )}
+            {/* Nếu có nhiều phòng được chọn từ Feature1 */}
+            {hasMultipleRoomsOption && (
+              <select
+                className="room-type-select"
+                value={formData.room}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    room: e.target.value,
+                    roomType: e.target.value.charAt(0),
+                  })
+                }
+                required
+              >
+                <option value="">Chọn phòng</option>
+                {rental.initialRooms.map((room) => (
+                  <option key={room.roomNumber} value={room.roomNumber}>
+                    {room.roomNumber} - Loại {room.type}
+                  </option>
+                ))}
+              </select>
+            )}
 
-              {/* Nếu tạo mới không có phòng được chọn sẵn */}
-              {showAvailableRoomsDropdown && (
-                <>
-                  {availableRooms.length === 0 ? (
-                    <div className="no-rooms-message">Không có phòng trống!</div>
-                  ) : (
-                  <select className="room-type-select"
+            {/* Nếu tạo mới không có phòng được chọn sẵn */}
+            {showAvailableRoomsDropdown && (
+              <>
+                {availableRooms.length === 0 ? (
+                  <div className="no-rooms-message">Không có phòng trống!</div>
+                ) : (
+                  <select
+                    className="room-type-select"
                     value={formData.room}
                     onChange={(e) =>
                       setFormData({
@@ -441,11 +447,11 @@ function RentalForm({ rental, onClose, onSuccess }) {
                     ))}
                   </select>
                 )}
-                </>
-              )}
+              </>
+            )}
 
-              {/* Nếu đang edit một phiếu thuê đã tồn tại */}
-              {/* {isEditMode && (
+            {/* Nếu đang edit một phiếu thuê đã tồn tại */}
+            {/* {isEditMode && (
                 <select
                   value={formData.room}
                   onChange={(e) =>
@@ -500,7 +506,7 @@ function RentalForm({ rental, onClose, onSuccess }) {
                 </button>
               )}
             </div>
-            
+
             <table className="customer-form-table" id="rental-form-table">
               <thead>
                 <tr>
@@ -599,7 +605,11 @@ function RentalForm({ rental, onClose, onSuccess }) {
           </div>
 
           <div className="form-buttons">
-            <button type="button" onClick={onClose} className="cancel-button-rental">
+            <button
+              type="button"
+              onClick={onClose}
+              className="cancel-button-rental"
+            >
               HỦY
             </button>
 
