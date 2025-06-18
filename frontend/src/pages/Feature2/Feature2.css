@@ -168,7 +168,7 @@
 
 .filter-group input,
 .filter-group select {
-  width: 300px;
+  width: 260px;
   padding-top: 12px;
   padding-bottom: 12px;
   padding-left: 10px;
@@ -199,12 +199,18 @@ input[type="date"]::-webkit-calendar-picker-indicator {
 }
 
 #label-1 {
-  margin-left: 15px;
+  margin-left: 20px;
 }
 
-#label-2 {
+#label-2, #label-3 {
   margin-left: 20px;
   margin-right: 10px;
+}
+
+.filter-buttons {
+  display: flex;
+  justify-content: center;
+  width: 100%;
 }
 
 .filter-button {

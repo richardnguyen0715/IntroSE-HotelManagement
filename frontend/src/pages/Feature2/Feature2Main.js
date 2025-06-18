@@ -404,7 +404,7 @@ function Feature2Main() {
             />
           </div>
           <div className="filter-group">
-            <label>Trạng thái</label>
+            <label id="label-3">Trạng thái</label>
             <select
               name="status"
               value={filters.status}
