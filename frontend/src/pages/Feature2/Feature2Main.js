@@ -433,8 +433,7 @@ function Feature2Main() {
               {filters.room && ` cho phòng ${filters.room}`}
               {/* {filters.email && ` với email chứa "${filters.email}"`} */}
               {filters.checkInDate &&
-                ` nhận phòng vào ngày ${filters.checkInDate}`}{" "}
-              (năm/tháng/ngày)
+                ` nhận phòng vào ngày ${filters.checkInDate} (năm/tháng/ngày)`}{" "}
             </p>
           </div>
         )}
