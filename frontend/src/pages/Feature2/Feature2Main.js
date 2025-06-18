@@ -39,6 +39,7 @@ function Feature2Main() {
   const [filters, setFilters] = useState({
     room: "",
     checkInDate: "",
+    status: "",
   });
   const [filteredRentals, setFilteredRentals] = useState([]);
   const [allRooms, setAllRooms] = useState([]);
@@ -57,7 +58,8 @@ function Feature2Main() {
     // Thiết lập một interval để cập nhật theo lịch trình
     const intervalId = setInterval(() => {
       const now = Date.now();
-      if (now - lastFetchTime > 300000) { // 5 phút = 300000ms
+      if (now - lastFetchTime > 300000) {
+        // 5 phút = 300000ms
         console.log("Scheduled refresh - updating rentals...");
         fetchRentals();
         setLastFetchTime(now);
@@ -147,7 +149,7 @@ function Feature2Main() {
 
   // Hàm xử lý lọc phiếu thuê (cải thiện)
   const filterRentals = () => {
-    const { room, checkInDate } = filters;
+    const { room, checkInDate, status } = filters;
 
     let result = [...rentals];
     console.log("Filtering rentals:", rentals.length);
@@ -156,21 +158,34 @@ function Feature2Main() {
     if (room) {
       result = result.filter((rental) => rental.room === room);
     }
-    // Lọc theo ngày nhận phòng
+    // Lọc theo trạng thái
+    if (status) {
+      result = result.filter((rental) => rental.status === status);
+    }
     if (checkInDate) {
+      // Lọc theo ngày nhận phòng
       const filterDate = new Date(checkInDate);
-      // Đặt giờ, phút, giây về 0 để chỉ so sánh ngày
       filterDate.setHours(0, 0, 0, 0);
 
       result = result.filter((rental) => {
         if (!rental.checkInDate) return false;
 
-        // Convert DD/MM/YYYY to Date
         let rentalDate;
+
+        // Nếu là dạng DD/MM/YYYY (chứa dấu "/")
         if (rental.checkInDate.includes("/")) {
-          const [day, month, year] = rental.checkInDate.split("/");
-          rentalDate = new Date(year, month - 1, day);
+          const parts = rental.checkInDate.split("/").map(Number);
+          if (parts[0] > 12) {
+            // Chắc chắn là DD/MM/YYYY
+            const [day, month, year] = parts;
+            rentalDate = new Date(year, month - 1, day);
+          } else {
+            // Có thể là MM/DD/YYYY
+            const [month, day, year] = parts;
+            rentalDate = new Date(year, month - 1, day);
+          }
         } else {
+          // ISO string hoặc timestamp
           rentalDate = new Date(rental.checkInDate);
         }
 
@@ -198,7 +213,9 @@ function Feature2Main() {
       // Chuyển đổi từ định dạng input date (YYYY-MM-DD) sang định dạng API
       apiFilters.startDate = filters.checkInDate;
     }
-
+    if (filters.status) {
+      apiFilters.status = filters.status;
+    }
     // Gọi API với bộ lọc
     fetchRentals(apiFilters);
   };
@@ -208,6 +225,7 @@ function Feature2Main() {
     setFilters({
       room: "",
       checkInDate: "",
+      status: "",
     });
     setIsFiltering(false);
     setSelectedRentals([]); // Xóa các checkbox đã chọn
@@ -251,8 +269,8 @@ function Feature2Main() {
     }
   }, [successMessage]);
 
-   // Hiển thị thông báo thành công trong 3 giây
-   useEffect(() => {
+  // Hiển thị thông báo thành công trong 3 giây
+  useEffect(() => {
     if (errorMessage) {
       const timer = setTimeout(() => {
         setErrorMessage("");
@@ -351,7 +369,9 @@ function Feature2Main() {
       {successMessage && (
         <div className="success-message">{successMessage}</div>
       )}
-      {errorMessage && <div className="error-message-feature2">{errorMessage}</div>}
+      {errorMessage && (
+        <div className="error-message-feature2">{errorMessage}</div>
+      )}
 
       {/* Phần bộ lọc */}
       <div className="filter-section">
@@ -383,7 +403,19 @@ function Feature2Main() {
               onChange={handleFilterChange}
             />
           </div>
-
+          <div className="filter-group">
+            <label>Trạng thái</label>
+            <select
+              name="status"
+              value={filters.status}
+              onChange={handleFilterChange}
+            >
+              <option value="">Tất cả</option>
+              <option value="active">Đang hoạt động</option>
+              <option value="inactive">Đã xác nhận</option>
+              <option value="inPayment">Chờ thanh toán</option>
+            </select>
+          </div>
           <div className="filter-buttons">
             <button className="filter-button apply" onClick={applyFilters}>
               Lọc
@@ -532,7 +564,8 @@ function Feature2Main() {
         </button>
 
         <button
-          className="action-button add clickable" id="invoice-button"
+          className="action-button add clickable"
+          id="invoice-button"
           onClick={handleCreateInvoice}
         >
           Lập Hóa đơn

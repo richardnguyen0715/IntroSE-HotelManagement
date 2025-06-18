@@ -167,11 +167,11 @@ function RentalForm({ rental, onClose, onSuccess }) {
 
         if (rental && !rental.isNew && rental.room) {
           // Khi sửa phiếu thuê hiện có: hiển thị phòng hiện tại + phòng trống
-          filteredRooms = rooms.filter(
-            (room) =>
-              room.status === "available" || room.roomNumber === rental.room
-          );
-        } else {
+          //   filteredRooms = rooms.filter(
+          //     (room) =>
+          //       room.status === "available" || room.roomNumber === rental.room
+          //   );
+          // } else {
           // Khi tạo phiếu thuê mới: chỉ hiển thị phòng trống
           filteredRooms = rooms.filter((room) => room.status === "available");
         }

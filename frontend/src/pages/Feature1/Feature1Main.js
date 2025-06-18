@@ -66,6 +66,7 @@ function Feature1Main() {
       alert(
         `Không thể xóa các phòng đang được sử dụng: ${occupiedRoomNumbers}`
       );
+      syncRoomStatusWithBookings();
       return;
     }
     // Nếu tất cả phòng đều available, tiến hành xóa
@@ -190,7 +191,13 @@ function Feature1Main() {
         </button>
       </div>
 
-      {showForm && <RoomForm room={editingRoom} onClose={handleCloseForm} roomTypes={roomTypes} />}
+      {showForm && (
+        <RoomForm
+          room={editingRoom}
+          onClose={handleCloseForm}
+          roomTypes={roomTypes}
+        />
+      )}
     </div>
   );
 }
