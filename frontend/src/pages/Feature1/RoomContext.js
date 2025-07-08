@@ -98,8 +98,7 @@ export function RoomProvider({ children }) {
         bookings.data.forEach((booking) => {
           // Mark room as booked if booking is active or the start date is in the future
           if (
-            booking.status === "active" ||
-            "inPayment"
+            ["active", "inPayment"].includes(booking.status)
           ) {
             if (booking.roomNumber) {
               bookedRoomMap[booking.roomNumber] = "occupied";
