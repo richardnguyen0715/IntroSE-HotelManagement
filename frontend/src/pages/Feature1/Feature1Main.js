@@ -26,10 +26,9 @@ function Feature1Main() {
     };
 
     fetchRoomTypes();
-    // Chỉ đồng bộ trạng thái phòng một lần khi component mount
-    syncRoomStatusWithBookings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const handleCheckboxChange = (roomId) => {
     setSelectedRooms((prev) => {
       if (prev.includes(roomId)) {
