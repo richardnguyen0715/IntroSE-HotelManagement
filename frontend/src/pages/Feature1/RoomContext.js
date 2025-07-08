@@ -95,15 +95,11 @@ export function RoomProvider({ children }) {
       // Create a map of room numbers to booking status
       const bookedRoomMap = {};
       if (bookings && bookings.data) {
-        const today = new Date();
-
         bookings.data.forEach((booking) => {
           // Mark room as booked if booking is active or the start date is in the future
-          const startDate = new Date(booking.startDate);
           if (
             booking.status === "active" ||
-            "inPayment" ||
-            startDate >= today
+            "inPayment"
           ) {
             if (booking.roomNumber) {
               bookedRoomMap[booking.roomNumber] = "occupied";
